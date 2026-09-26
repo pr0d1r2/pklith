@@ -63,6 +63,14 @@ steps: Mapping<String, Config.Step> = new {
     glob = List("**/*")
     check = "command -v typos >/dev/null 2>&1 || { echo 'typos: typos is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; typos --force-exclude {{files}} || { echo 'typos: misspelling; fix it or teach .typos.toml' >&2; exit 1; }"
   }
+  ["actionlint"] {
+    glob = List(".github/workflows/*.yml", ".github/workflows/*.yaml")
+    check = "command -v actionlint >/dev/null 2>&1 || { echo 'actionlint: actionlint is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; actionlint {{files}} || { echo 'actionlint: workflow does not parse or type-check' >&2; exit 1; }"
+  }
+  ["zizmor"] {
+    glob = List(".github/workflows/*.yml", ".github/workflows/*.yaml")
+    check = "command -v zizmor >/dev/null 2>&1 || { echo 'zizmor: zizmor is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; zizmor --offline --no-progress {{files}} || { echo 'zizmor: workflow security finding' >&2; exit 1; }"
+  }
   ["clippy"] {
     glob = List("**/*.rs", "Cargo.toml", "clippy.toml")
     check = "command -v cargo >/dev/null 2>&1 || { echo 'clippy: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo clippy --all-targets -q -- -D warnings || { echo 'clippy: clippy finding or a §C code limit exceeded' >&2; exit 1; }"
@@ -78,21 +86,9 @@ steps: Mapping<String, Config.Step> = new {
     glob = List(".githooks/*", ".envrc", "**/*.sh")
     check = "command -v shellcheck >/dev/null 2>&1 || { echo 'shellcheck: shellcheck is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; shellcheck --shell=bash {{files}} || { echo 'shellcheck: shell script finding' >&2; exit 1; }"
   }
-  ["actionlint"] {
-    glob = List(".github/workflows/*.yml", ".github/workflows/*.yaml")
-    check = "command -v actionlint >/dev/null 2>&1 || { echo 'actionlint: actionlint is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; actionlint {{files}} || { echo 'actionlint: workflow does not parse or type-check' >&2; exit 1; }"
-  }
-  ["zizmor"] {
-    glob = List(".github/workflows/*.yml", ".github/workflows/*.yaml")
-    check = "command -v zizmor >/dev/null 2>&1 || { echo 'zizmor: zizmor is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; zizmor --offline --no-progress {{files}} || { echo 'zizmor: workflow security finding' >&2; exit 1; }"
-  }
   ["links"] {
     glob = List("**/*.md")
     check = "command -v git >/dev/null 2>&1 || { echo 'links: git is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; git ls-files -z '*.md' | xargs -0 lychee --offline --no-progress --include-fragments || { echo 'links: a relative link or anchor is broken' >&2; exit 1; }"
-  }
-  ["file-ceilings"] {
-    glob = List("**/*.rs")
-    check = "command -v scripts/file-ceilings.sh >/dev/null 2>&1 || { echo 'file-ceilings: scripts/file-ceilings.sh is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; scripts/file-ceilings.sh || { echo 'file-ceilings: a Rust file is over its token ceiling' >&2; exit 1; }"
   }
   ["mth-fmt"] {
     glob = List("**/SPEC.md")
@@ -115,6 +111,10 @@ steps: Mapping<String, Config.Step> = new {
   ["sherd-budget"] {
     glob = List("**/SPEC.md", ".context-limits")
     check = "command -v sherd >/dev/null 2>&1 || { echo 'sherd-budget: sherd is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; sherd budget || { echo 'sherd-budget: a spec chain is over its ceiling' >&2; exit 1; }"
+  }
+  ["file-ceilings"] {
+    glob = List("**/*.rs")
+    check = "command -v scripts/file-ceilings.sh >/dev/null 2>&1 || { echo 'file-ceilings: scripts/file-ceilings.sh is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; scripts/file-ceilings.sh || { echo 'file-ceilings: a Rust file is over its token ceiling' >&2; exit 1; }"
   }
   ["pkli-check"] {
     check = "command -v cargo >/dev/null 2>&1 || { echo 'pkli-check: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo run -q --bin pkli -- check || { echo 'pkli-check: a tracked file type has no row in .pklith, or a row matches nothing' >&2; exit 1; }"

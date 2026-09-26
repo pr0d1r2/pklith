@@ -36,18 +36,18 @@ Notes for anyone, human or agent, changing this repository.
 | `taplo` | commit | `**/*.toml` | yes |
 | `rustfmt` | commit | `**/*.rs` | yes |
 | `typos` | commit | `**/*` | - |
+| `actionlint` | commit | `.github/workflows/*.yml` `.github/workflows/*.yaml` | - |
+| `zizmor` | commit | `.github/workflows/*.yml` `.github/workflows/*.yaml` | - |
 | `clippy` | commit | `**/*.rs` `Cargo.toml` `clippy.toml` | - |
 | `rustdoc` | commit | `**/*.rs` `Cargo.toml` | - |
 | `shellcheck` | commit | `.githooks/*` `.envrc` `**/*.sh` | - |
-| `actionlint` | commit | `.github/workflows/*.yml` `.github/workflows/*.yaml` | - |
-| `zizmor` | commit | `.github/workflows/*.yml` `.github/workflows/*.yaml` | - |
 | `links` | commit | `**/*.md` | - |
-| `file-ceilings` | commit | `**/*.rs` | - |
 | `mth-fmt` | commit | `**/SPEC.md` | yes |
 | `mth-check` | commit | `**/SPEC.md` | - |
 | `sherd-check` | commit | `**/SPEC.md` `**/*.rs` | - |
 | `sherd-nav` | commit | `**/SPEC.md` | yes |
 | `sherd-budget` | commit | `**/SPEC.md` `.context-limits` | - |
+| `file-ceilings` | commit | `**/*.rs` | - |
 | `pkli-check` | commit | whole tree | - |
 | `gen-check` | commit | `.pklith` `hk.pklith.pkl` | yes |
 | `test` | commit | `**/*.rs` `Cargo.toml` `Cargo.lock` `src/catalog/builtin.pklith` | - |
