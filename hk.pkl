@@ -197,6 +197,14 @@ local fast = new Mapping<String, Step> {
       sherd budget >/dev/null || { sherd budget | grep OVER; echo 'hk: a spec chain is over its ceiling. Every chain pays the root, so slim or move text before raising a number; a raise is a reviewed commit with its reason (V9).' >&2; exit 1; }
       """
   }
+  // Rust: the crate's own formatter settings (edition from Cargo.toml).
+  // `cargo fmt` formats the whole crate, so the step is crate-wide; the
+  // glob only decides when a commit touched Rust.
+  ["rustfmt"] {
+    glob = List("**/*.rs")
+    check = "cargo fmt --check"
+    fix = "cargo fmt"
+  }
   // -- end of fast --
 }
 
