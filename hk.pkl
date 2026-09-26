@@ -175,6 +175,17 @@ local fast = new Mapping<String, Step> {
       sherd check
       """
   }
+  // §F is authoritative and §N is generated from it (V6), so a hand-edited
+  // or stale §N is drift. Check mode reports; the fix regenerates.
+  ["sherd-nav"] {
+    glob = List("**/SPEC.md")
+    depends = List("sherd-check")
+    check = """
+      command -v sherd >/dev/null 2>&1 || { echo 'hk: sherd is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
+      sherd sync --check || { echo 'hk: a §N table no longer matches the §F above it. Run `sherd sync` and stage the result; §N is generated, never hand-edited (V6).' >&2; exit 1; }
+      """
+    fix = "sherd sync"
+  }
   // -- end of fast --
 }
 
