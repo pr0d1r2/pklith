@@ -37,7 +37,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 ## §V INVARIANTS
 
 V1: token set == legacy awk token set ∀ fixture doc (golden, legacy bats ported)
-V2: compat exit codes & missing-list lines == legacy (`.:R1` `.ext`/`name`, `.:R2` `.ext`)
+V2: compat exit codes & missing-list lines == legacy (`.:R1` `.ext`/`name`, `.:R2` `.ext`, `.:R9` unit-coverage missing-test lines & allowlist)
 V3: `import`: col 2 `-` → exempt, reason = col 3 (Notes); unknown check hint → exempt `legacy: <col2>` ⊥ silent drop
 V4: doc parse in-process. ⊥ runtime awk/sed/gawk
 V5: read error | 0 tokens from doc w/ table rows → exit 2 "parsed nothing", ⊥ gap list
