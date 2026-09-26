@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# The gate, delegated to hk: the steps live in hk.pkl, this file only decides
+# that they must run. Tracked (not generated into .git/hooks) so a reviewer
+# can read it in a diff; core.hooksPath points here once hk.pkl exists.
+#
+# It REFUSES when hk is absent rather than skipping: a gate that cannot run
+# has not passed (pklith V1).
+set -e
+
+if ! command -v hk >/dev/null 2>&1; then
+  echo "pre-push REFUSED: hk is not on PATH, so nothing was checked." >&2
+  echo "  fix: 'direnv allow' (or 'nix develop'), then push from that shell." >&2
+  echo "  Never --no-verify: the gate refusing is the system working." >&2
+  exit 1
+fi
+
+exec hk run pre-push --from-hook "$@"

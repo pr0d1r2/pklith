@@ -1,0 +1,47 @@
+/// pklith's gate, defined once. Every step is a plain command a human could
+/// paste into a shell; hk decides when steps run (which files, which hook, in
+/// what order) and never hides what runs.
+///
+/// Steps arrive one per commit (pklith V13), each proven against a planted
+/// violation first (V2). This first version has none: it exists so the hooks
+/// can be installed in the same commit that brings hk (V12, V22).
+amends "pkl/Config.pkl"
+
+/// The first failure is the most useful thing to show, and steps are ordered
+/// cheapest first so it arrives fast.
+fail_fast = true
+
+/// Success is silence.
+env {
+  ["HK_HIDE_WHEN_DONE"] = "true"
+}
+
+/// Run on every commit: cheap, file-scoped steps.
+local fast = new Mapping<String, Step> {}
+
+/// Run on push and in CI: everything in `fast`, plus whole-tree steps.
+local all = (fast) {}
+
+hooks {
+  // `stash = "git"` keeps unstaged edits out of what the steps see, so a
+  // commit is judged on what it will contain.
+  ["pre-commit"] {
+    fix = true
+    stash = "git"
+    steps = fast
+  }
+  ["commit-msg"] {
+    steps {}
+  }
+  ["pre-push"] {
+    steps = all
+  }
+  // `hk check`: the entry point for CI and for a full run by hand.
+  ["check"] {
+    steps = all
+  }
+  ["fix"] {
+    fix = true
+    steps = all
+  }
+}

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# The commit message gate, delegated to hk: the rule lives in hk.pkl, this
+# file only decides that it must run. Tracked (not generated into .git/hooks)
+# so a reviewer can read it in a diff; core.hooksPath points here once hk.pkl
+# exists.
+#
+# It REFUSES when hk is absent rather than skipping: a gate that cannot run
+# has not passed (pklith V1).
+set -e
+
+if ! command -v hk >/dev/null 2>&1; then
+  echo "commit-msg REFUSED: hk is not on PATH, so nothing was checked." >&2
+  echo "  fix: 'direnv allow' (or 'nix develop'), then commit from that shell." >&2
+  echo "  Never --no-verify: the gate refusing is the system working." >&2
+  exit 1
+fi
+
+exec hk run commit-msg --from-hook "$@"
