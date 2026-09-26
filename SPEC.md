@@ -42,6 +42,25 @@ self|.|-
 - ⊥ name a private fleet repo in any committed file | commit message; check visibility w/ `gh repo view` first.
 - caveman encoding ∀ spec text. human docs = prose.
 
+## §I INTERFACES
+
+- cmd: `pkli check [--root DIR]` → gate verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps. 0 ok / 1 finding / 2 usage | unreadable
+- cmd: `pkli report [--format text|json|md]` → matrix file type × check w/ file counts + rule results. exit 0 unless usage
+- cmd: `pkli gen [--check]` → write `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md step table block. `--check` writes ⊥, exit 1 if stale
+- cmd: `pkli lay [--only ID,…] [--dry-run]` → 1 commit per missing check, fixed order, hooks ON, red → rollback (src/lay)
+- cmd: `pkli map [--staged|FILE…]` → specs covering changed paths (guard mode); changed impl w/ 0 mapped specs → exit 1
+- cmd: `pkli import <linter-doc.md|.unit-coverage.toml|check-fragment-map.nix>` → `.pklith` rows on stdout
+- cmd: `pkli detect` → ordered active fragment list from tracked files (src/detect)
+- cmd: `pkli seed [--init]` → repo-owned seed & shared configs; `--init` skip-if-exists (src/seed)
+- cmd: `pkli confirm` → acceptance: completeness, fidelity, coherence, executability, idempotence (src/confirm)
+- cmd: `pkli migrate` → lefthook-materialized repo → hk, gated on check-set equivalence (src/migrate)
+- cmd: `pkli protect [--dry-run]` → branch protection required contexts from CI job names (src/protect)
+- cmd: `lefthook-linter-coverage`, `lefthook-linter-coverage-full`, `lefthook-unit-coverage` → compat entries, legacy env & exit codes (V4)
+- file: `.pklith` → registry: types, checks, rules, plural, exempt (src/registry)
+- file: `hk.pkl`, `pkl/Config.pkl`, `.githooks/*`, `.context-limits`, `.typos.toml`, `flake.nix`, `AGENTS.md` → this repo's guardrails
+- env: `LEFTHOOK_LINTER_COVERAGE_DOC`, `LEFTHOOK_LINTER_COVERAGE_ROOT`, `LEFTHOOK_UNIT_COVERAGE_CONFIG`, `LEFTHOOK_UNIT_COVERAGE_ROOT` → compat entries only
+- nix: `packages.<system>.default` = `pklith` (bin `pkli`); `packages.<system>.compat` = legacy entry names
+
 ## §V INVARIANTS
 
 V1: gate that cannot run has ⊥ passed. missing tool → exit ≠ 0, ⊥ silent skip
