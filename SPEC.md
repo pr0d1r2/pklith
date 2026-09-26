@@ -172,7 +172,7 @@ T40|.|`deny-advisories`|V2
 T41|.|`semver` (cargo semver-checks)|V2
 T42|.|`package` / must-package|V2
 T43|.|README badges generated + `readme-badges` step|V6
-T44|~|dogfood swap: T33 legacy step → `pkli check` + `gen --check`; drop legacy input after parallel run. DONE: legacy step, input & doc dropped after T70 (R18); `pkli-check` gates. `gen-check` step keeps committed hk.pklith.pkl fresh. OPEN: hk.pkl still hand-written; import hk.pklith.pkl instead (T45 re-lay)|V4,V6,V34
+T44|x|dogfood swap: T33 legacy step → `pkli check` + `gen --check`; drop legacy input after parallel run. DONE: legacy step, input & doc dropped after T70 (R18); `pkli-check` gates. `gen-check` step keeps committed hk.pklith.pkl fresh. hk.pkl imports the generated steps; only repo-specific amendments stay hand-written|V4,V6,V34
 T45|.|re-lay reproduction: `pkli lay` into temp repo → ∀ laid file byte-identical to this tree|V3,V13
 T46|.|compat package + README migration guide|V4,V10
 T47|.|review `nix-lefthook-unit-coverage` PRs + SPEC → backprop|R9

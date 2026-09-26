@@ -29,32 +29,32 @@ Notes for anyone, human or agent, changing this repository.
 | `no-merge-conflict` | commit | `**/*` | - |
 | `no-case-conflict` | commit | `**/*` | - |
 | `no-broken-symlinks` | commit | whole tree | - |
+| `no-large-files` | commit | `**/*` | - |
 | `no-private-key` | commit | `**/*` | - |
 | `ripsecrets` | commit | `**/*` | - |
-| `no-large-files` | commit | `**/*` | - |
-| `flake-lock-graph` | commit | `flake.lock` | - |
-| `typos` | commit | `**/*` | - |
 | `nixfmt` | commit | `**/*.nix` | yes |
 | `taplo` | commit | `**/*.toml` | yes |
+| `rustfmt` | commit | `**/*.rs` | yes |
+| `typos` | commit | `**/*` | - |
+| `clippy` | commit | `**/*.rs` `Cargo.toml` `clippy.toml` | - |
+| `rustdoc` | commit | `**/*.rs` `Cargo.toml` | - |
+| `shellcheck` | commit | `.githooks/*` `.envrc` `**/*.sh` | - |
+| `actionlint` | commit | `.github/workflows/*.yml` `.github/workflows/*.yaml` | - |
+| `zizmor` | commit | `.github/workflows/*.yml` `.github/workflows/*.yaml` | - |
+| `links` | commit | `**/*.md` | - |
+| `file-ceilings` | commit | `**/*.rs` | - |
 | `mth-fmt` | commit | `**/SPEC.md` | yes |
 | `mth-check` | commit | `**/SPEC.md` | - |
 | `sherd-check` | commit | `**/SPEC.md` `**/*.rs` | - |
 | `sherd-nav` | commit | `**/SPEC.md` | yes |
 | `sherd-budget` | commit | `**/SPEC.md` `.context-limits` | - |
-| `rustfmt` | commit | `**/*.rs` | yes |
-| `clippy` | commit | `**/*.rs` `Cargo.toml` `clippy.toml` | - |
-| `test` | commit | `**/*.rs` `Cargo.toml` `Cargo.lock` | - |
-| `rustdoc` | commit | `**/*.rs` `Cargo.toml` | - |
-| `shellcheck` | commit | `.githooks/*` `.envrc` `**/*.sh` | - |
-| `agents-table` | commit | `hk.pkl` `AGENTS.md` `scripts/agents-table.sh` | yes |
-| `links` | commit | `**/*.md` | - |
-| `actionlint` | commit | `.github/workflows/*.yml` `.github/workflows/*.yaml` | - |
-| `zizmor` | commit | `.github/workflows/*.yml` `.github/workflows/*.yaml` | - |
-| `deny` | commit | `Cargo.toml` `Cargo.lock` `deny.toml` | - |
-| `doctest` | commit | `**/*.rs` `Cargo.toml` | - |
-| `file-ceilings` | commit | `**/*.rs` | - |
 | `pkli-check` | commit | whole tree | - |
 | `gen-check` | commit | `.pklith` `hk.pklith.pkl` | yes |
+| `test` | commit | `**/*.rs` `Cargo.toml` `Cargo.lock` | - |
+| `doctest` | commit | `**/*.rs` `Cargo.toml` | - |
+| `flake-lock-graph` | commit | `flake.lock` | - |
+| `deny` | commit | `Cargo.toml` `Cargo.lock` `deny.toml` | - |
+| `agents-table` | commit | `hk.pkl` `AGENTS.md` `scripts/agents-table.sh` | yes |
 | `hk-parity` | commit | `hk.pkl` `hk.pklith.pkl` `pkl/**` `scripts/hk-parity.sh` | - |
 | `coverage` | push | `**/*.rs` `Cargo.toml` `.coverage` | - |
 <!-- END steps -->

@@ -6,6 +6,13 @@
 /// violation first (V2), with the proof in that commit's body (V32).
 amends "pkl/Config.pkl"
 
+// The steps pklith materializes from `.pklith` (root T44): `pkli gen` writes
+// them to hk.pklith.pkl, and gen-check keeps that file equal to what
+// `.pklith` says. Only what belongs to this repository, not to a file type,
+// is added here. Plain amends only: hk's own evaluator mishandles filtering
+// (B12), and hk-parity fails if it ever sees different steps than pkl (V35).
+import "hk.pklith.pkl" as generated
+
 /// The first failure is the most useful thing to show, and steps are ordered
 /// cheapest first so it arrives fast.
 fail_fast = true
@@ -15,314 +22,50 @@ env {
   ["HK_HIDE_WHEN_DONE"] = "true"
 }
 
-/// Run on every commit: cheap, file-scoped steps.
-///
-/// The `hk util` family first: native to the runner, so they need no package
-/// in the shell. Read-only checks see every file; FIXERS exclude what is
-/// vendored verbatim (`pkl/` from hk, `FORMAT*.md` from microlith), which
-/// an edit would silently fork (V7).
-local fast = new Mapping<String, Step> {
-  ["trailing-whitespace"] {
-    glob = List("**/*")
-    exclude = List("pkl/**", "FORMAT.md", "FORMAT-EXTENSIONS.md")
-    check_diff = "hk util trailing-whitespace --diff {{files}}"
-    fix = "hk util trailing-whitespace --fix {{files}}"
-  }
-  ["final-newline"] {
-    glob = List("**/*")
-    exclude = List("pkl/**", "FORMAT.md", "FORMAT-EXTENSIONS.md")
-    check_diff = "hk util end-of-file-fixer --diff {{files}}"
-    fix = "hk util end-of-file-fixer --fix {{files}}"
-  }
-  ["line-endings"] {
-    glob = List("**/*")
-    exclude = List("pkl/**", "FORMAT.md", "FORMAT-EXTENSIONS.md")
-    check_diff = "hk util mixed-line-ending --diff {{files}}"
-    fix = "hk util mixed-line-ending --fix {{files}}"
-  }
-  ["no-bom"] {
-    glob = List("**/*")
-    check = "hk util check-byte-order-marker {{files}}"
-  }
-  // `--assume-in-merge`: without it the check looks only while git says a
-  // merge is in progress, and passes a file carrying real markers (R7).
-  ["no-merge-conflict"] {
-    glob = List("**/*")
-    check = "hk util check-merge-conflict --assume-in-merge {{files}}"
-  }
-  // Two paths differing only in case collide on case-insensitive
-  // filesystems, and the machine that notices is never the one that
-  // committed them.
-  ["no-case-conflict"] {
-    glob = List("**/*")
-    check = "hk util check-case-conflict {{files}}"
-  }
-  // Whole-tree, no glob: hk's file selection drops a broken symlink (the
-  // target it would stat does not exist), so a `{{files}}` step never sees
-  // the one file it exists to catch. Every tracked and staged path instead.
-  ["no-broken-symlinks"] {
-    check = "git ls-files -z | xargs -0 hk util check-symlinks"
-  }
-  // Irreversible if it fires late: a key in git history stays in history.
-  ["no-private-key"] {
-    glob = List("**/*")
-    check = "hk util detect-private-key {{files}}"
-  }
-  // Tokens and credentials by entropy and known prefix: the shape
-  // `no-private-key` does not match. `pkl/` is a vendored schema, not ours
-  // to annotate. A missing tool is reported as missing, never as a finding.
-  ["ripsecrets"] {
-    glob = List("**/*")
-    exclude = List("pkl/**")
-    check = """
-      command -v ripsecrets >/dev/null 2>&1 || { echo 'hk: ripsecrets is not on PATH. Re-enter the dev shell (direnv reload). This is a MISSING TOOL, not a finding.' >&2; exit 1; }
-      ripsecrets {{files}} || { echo 'hk: a possible secret is staged. A real one must never be committed. A false positive goes in .secretsignore.' >&2; exit 1; }
-      """
-  }
-  // Per-type size limits (R8), in scripts/no-large-files.sh: `hk util
-  // check-added-large-files` has one global limit only.
-  ["no-large-files"] {
-    glob = List("**/*")
-    check = "scripts/no-large-files.sh {{files}}"
-  }
-  // §C: ONE nixpkgs rev, and a node ceiling (R8), in
-  // scripts/flake-lock-graph.sh.
-  ["flake-lock-graph"] {
-    glob = List("flake.lock")
-    check = "scripts/flake-lock-graph.sh {{files}}"
-  }
-  // `--force-exclude`: typos skips `.typos.toml` excludes for paths named on
-  // the command line unless told otherwise, and hk names every path.
-  ["typos"] {
-    glob = List("**/*")
-    check = """
-      command -v typos >/dev/null 2>&1 || { echo 'hk: typos is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
-      typos --force-exclude {{files}}
-      """
-  }
-  // The flake decides what every other step runs with, so drift in it is
-  // drift everywhere; one formatting keeps its diffs about content.
-  ["nixfmt"] {
-    glob = List("**/*.nix")
-    check = """
-      command -v nixfmt >/dev/null 2>&1 || { echo 'hk: nixfmt is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
-      nixfmt --check {{files}}
-      """
-    fix = "nixfmt {{files}}"
-  }
-  // Cargo.toml and tool configs: formatted and parsed, so a malformed key
-  // fails here rather than as a confusing cargo or typos error later.
-  ["taplo"] {
-    glob = List("**/*.toml")
-    check = """
-      command -v taplo >/dev/null 2>&1 || { echo 'hk: taplo is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
-      taplo fmt --check {{files}}
-      """
-    fix = "taplo fmt {{files}}"
-  }
-  // One statement per line, no line over the cap, on every spec node. The
-  // format owner's own rules, from the pinned microlith (V14 there).
-  ["mth-fmt"] {
-    glob = List("**/SPEC.md")
-    check = """
-      command -v mth >/dev/null 2>&1 || { echo 'hk: mth is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
-      for f in {{files}}; do mth fmt --check "$f" || exit 1; done
-      """
-    fix = #"for f in {{files}}; do mth fmt "$f" || exit 1; done"#
-  }
-  // Structure: sections in order, ids unique & monotonic, citations
-  // resolving, table rows with the right number of cells. Separate from
-  // `mth-fmt` so a layout failure and a structural one are told apart by
-  // WHICH step went red.
-  ["mth-check"] {
-    glob = List("**/SPEC.md")
-    depends = List("mth-fmt")
-    check = """
-      command -v mth >/dev/null 2>&1 || { echo 'hk: mth is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
-      for f in {{files}}; do mth check "$f" || exit 1; done
-      """
-  }
-  // Federation: citations across nodes resolve (`.:V11`, `src/scan:V2`),
-  // §F rows match directories, file ceilings. Whole-tree by nature; the
-  // glob only decides when it is worth running.
-  ["sherd-check"] {
-    glob = List("**/SPEC.md", "**/*.rs")
-    depends = List("mth-check")
-    check = """
-      command -v sherd >/dev/null 2>&1 || { echo 'hk: sherd is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
-      sherd check
-      """
-  }
-  // §F is authoritative and §N is generated from it (V6), so a hand-edited
-  // or stale §N is drift. Check mode reports; the fix regenerates.
-  ["sherd-nav"] {
-    glob = List("**/SPEC.md")
-    depends = List("sherd-check")
-    check = """
-      command -v sherd >/dev/null 2>&1 || { echo 'hk: sherd is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
-      sherd sync --check || { echo 'hk: a §N table no longer matches the §F above it. Run `sherd sync` and stage the result; §N is generated, never hand-edited (V6).' >&2; exit 1; }
-      """
-    fix = "sherd sync"
-  }
-  // V9: chain ceilings from `.context-limits`. Globbed on the spec files and
-  // the limits file only: a chain is built from SPEC.md files, so a
-  // code-only commit cannot move a budget.
-  ["sherd-budget"] {
-    glob = List("**/SPEC.md", ".context-limits")
-    depends = List("sherd-nav")
-    check = """
-      command -v sherd >/dev/null 2>&1 || { echo 'hk: sherd is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
-      sherd budget >/dev/null || { sherd budget | grep OVER; echo 'hk: a spec chain is over its ceiling. Every chain pays the root, so slim or move text before raising a number; a raise is a reviewed commit with its reason (V9).' >&2; exit 1; }
-      """
-  }
-  // Rust: the crate's own formatter settings (edition from Cargo.toml).
-  // `cargo fmt` formats the whole crate, so the step is crate-wide; the
-  // glob only decides when a commit touched Rust.
-  ["rustfmt"] {
-    glob = List("**/*.rs")
-    check = "cargo fmt --check"
-    fix = "cargo fmt"
-  }
-  // `-D warnings` over every target. The limits live in clippy.toml and
-  // Cargo.toml [lints.clippy]; this step is what makes them more than text.
-  ["clippy"] {
-    glob = List("**/*.rs", "Cargo.toml", "clippy.toml")
-    depends = List("rustfmt")
-    check = "cargo clippy --all-targets -q -- -D warnings"
-  }
-  // nextest refuses an EMPTY suite (exit 4) rather than passing it: a test
-  // step that ran nothing has not passed (V1).
-  ["test"] {
-    glob = List("**/*.rs", "Cargo.toml", "Cargo.lock")
-    depends = List("clippy")
-    check = """
-      command -v cargo-nextest >/dev/null 2>&1 || { echo 'hk: cargo-nextest is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
-      cargo nextest run --no-fail-fast --status-level fail --final-status-level fail
-      """
-  }
-  // Docs build with warnings denied: a broken intra-doc link is a doc that
-  // points nowhere. Private items included, since the binary's docs are
-  // all private.
-  ["rustdoc"] {
-    glob = List("**/*.rs", "Cargo.toml")
-    depends = List("clippy")
-    check = "RUSTDOCFLAGS='-D warnings' cargo doc --no-deps --document-private-items -q"
-  }
-  // Shell without a `.sh` name: the tracked hooks and `.envrc`, which runs
-  // on every shell entry, where a silent mistake costs most. Globbed by
-  // path, since there is no extension to match.
-  ["shellcheck"] {
-    glob = List(".githooks/*", ".envrc", "**/*.sh")
-    check = """
-      command -v shellcheck >/dev/null 2>&1 || { echo 'hk: shellcheck is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
-      shellcheck --shell=bash {{files}}
-      """
-  }
-  // V14: the step table in AGENTS.md is generated from this file, so it
-  // cannot drift from the gate it describes.
+/// Vendored verbatim: hk's schema and microlith's format documents. An edit
+/// would silently fork them, so no fixer touches them (V7).
+local vendored = List("pkl/**", "FORMAT.md", "FORMAT-EXTENSIONS.md")
+
+/// Run on every commit: the generated commit steps, plus this repository's own.
+local fast = (generated.steps) {
+  ["trailing-whitespace"] { exclude = vendored }
+  ["final-newline"] { exclude = vendored }
+  ["line-endings"] { exclude = vendored }
+  ["ripsecrets"] { exclude = List("pkl/**") }
+  // Order. Cargo locks target/, so cargo steps run one after another instead
+  // of queueing behind the lock looking hung; a spec file is judged alone
+  // before the federation is.
+  ["mth-check"] { depends = List("mth-fmt") }
+  ["sherd-check"] { depends = List("mth-check") }
+  ["sherd-nav"] { depends = List("sherd-check") }
+  ["sherd-budget"] { depends = List("sherd-nav") }
+  ["file-ceilings"] { depends = List("sherd-check") }
+  ["clippy"] { depends = List("rustfmt") }
+  ["test"] { depends = List("clippy") }
+  ["doctest"] { depends = List("test") }
+  ["rustdoc"] { depends = List("clippy") }
+  ["pkli-check"] { depends = List("clippy") }
+  ["gen-check"] { depends = List("clippy") }
+  ["zizmor"] { depends = List("actionlint") }
+  // Not file-type checks, so not in .pklith. The AGENTS.md step table is
+  // generated from this file and must stay equal to it (V14).
   ["agents-table"] {
     glob = List("hk.pkl", "AGENTS.md", "scripts/agents-table.sh")
     check = "scripts/agents-table.sh --check"
     fix = "scripts/agents-table.sh"
   }
-  // Relative links only (`--offline`): a gate that needs the network goes
-  // soft on a plane. A link breaks when its TARGET moves, and the target's
-  // referrer is usually not staged, so every document is checked whenever
-  // any markdown changes.
-  ["links"] {
-    glob = List("**/*.md")
-    check = """
-      command -v lychee >/dev/null 2>&1 || { echo 'hk: lychee is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
-      git ls-files -z '*.md' | xargs -0 lychee --offline --no-progress --include-fragments
-      """
-  }
-  // A workflow is a file nothing else here parses, and its failure mode is
-  // a run that never starts.
-  ["actionlint"] {
-    glob = List(".github/workflows/*.yml", ".github/workflows/*.yaml")
-    check = """
-      command -v actionlint >/dev/null 2>&1 || { echo 'hk: actionlint is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
-      actionlint {{files}}
-      """
-  }
-  // zizmor AUDITS what actionlint parses: token scope, credential
-  // persistence, unpinned actions, injection. `--offline`: no network in
-  // the gate.
-  ["zizmor"] {
-    glob = List(".github/workflows/*.yml", ".github/workflows/*.yaml")
-    depends = List("actionlint")
-    check = """
-      command -v zizmor >/dev/null 2>&1 || { echo 'hk: zizmor is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
-      zizmor --offline --no-progress {{files}}
-      """
-  }
-  // Licenses and bans from deny.toml. `--disable-fetch`: no network; the
-  // advisory database, which does need it, is its own step (T40).
-  ["deny"] {
-    glob = List("Cargo.toml", "Cargo.lock", "deny.toml")
-    check = """
-      command -v cargo-deny >/dev/null 2>&1 || { echo 'hk: cargo-deny is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
-      cargo deny check --disable-fetch licenses bans
-      """
-  }
-  // Doc examples are code: one that no longer compiles or asserts true
-  // teaches the wrong API. nextest does not run doctests, so this does.
-  ["doctest"] {
-    glob = List("**/*.rs", "Cargo.toml")
-    depends = List("test")
-    check = "cargo test --doc -q"
-  }
-  // Per-file token ceilings (root T26): sherd's advisory V50 made binding
-  // by scripts/file-ceilings.sh, instead of itok, whose limits file
-  // conflicts with the chain ceilings (B11).
-  ["file-ceilings"] {
-    glob = List("**/*.rs")
-    depends = List("sherd-check")
-    check = "scripts/file-ceilings.sh"
-  }
-  // Every tracked file type has a row in .pklith with its checks or an
-  // exemption reason (V5), judged by the pkli being built, from the working
-  // tree, never an installed copy that could lag it (root T44). It replaced
-  // the legacy linter-coverage step after the fleet sweep found identical
-  // gaps (R18). Whole-tree: a new type counts whichever file was touched.
-  ["pkli-check"] {
-    depends = List("clippy")
-    check = "cargo run -q --bin pkli -- check"
-  }
-  // gen V3, root T44: hk.pklith.pkl is generated from .pklith by the pkli
-  // being built; a hand edit, or a .pklith change without regenerating,
-  // fails here. The fix regenerates.
-  ["gen-check"] {
-    glob = List(".pklith", "hk.pklith.pkl")
-    depends = List("clippy")
-    check = "cargo run -q --bin pkli -- gen --check"
-    fix = "cargo run -q --bin pkli -- gen"
-  }
   // V35 (B12): hk's own Pkl evaluator and `pkl eval` must see the same steps,
-  // each with a command. Hand-written here, not generated, so it does not
-  // depend on the construct it guards.
+  // each with a command. Hand-written, so it does not depend on the
+  // generated module it guards.
   ["hk-parity"] {
     glob = List("hk.pkl", "hk.pklith.pkl", "pkl/**", "scripts/hk-parity.sh")
     check = "scripts/hk-parity.sh"
   }
-  // -- end of fast --
 }
 
-/// Run on push and in CI: everything in `fast`, plus whole-tree and slow steps.
+/// Run on push and in CI: everything in `fast`, plus the generated push steps.
 local all = (fast) {
-  // Line coverage may not fall below the floor in `.coverage`: a ratchet
-  // that may rise and never silently falls. sherd owns the formula and the
-  // only way to move the floor (`sherd coverage --record`), so it is not
-  // restated here in awk, where sherd's own copy once drifted. Push-time,
-  // not commit-time: it rebuilds the crate instrumented.
-  ["coverage"] {
-    glob = List("**/*.rs", "Cargo.toml", ".coverage")
-    depends = List("test")
-    check = """
-      command -v sherd >/dev/null 2>&1 || { echo 'hk: sherd is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
-      sherd coverage --check
-      """
-  }
+  ["coverage"] = (generated.push["coverage"]) { depends = List("test") }
 }
 
 hooks {
