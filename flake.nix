@@ -74,6 +74,7 @@
             pkgs.typos
             pkgs.nixfmt
             pkgs.taplo
+            pkgs.cargo-nextest
             # SPEC.md format and structure (mth), from the pinned microlith.
             microlith.packages.${pkgs.stdenv.hostPlatform.system}.default
             # Federation checks (check, sync, budget), from the pinned sherd.

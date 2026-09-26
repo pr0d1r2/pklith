@@ -212,6 +212,16 @@ local fast = new Mapping<String, Step> {
     depends = List("rustfmt")
     check = "cargo clippy --all-targets -q -- -D warnings"
   }
+  // nextest refuses an EMPTY suite (exit 4) rather than passing it: a test
+  // step that ran nothing has not passed (V1).
+  ["test"] {
+    glob = List("**/*.rs", "Cargo.toml", "Cargo.lock")
+    depends = List("clippy")
+    check = """
+      command -v cargo-nextest >/dev/null 2>&1 || { echo 'hk: cargo-nextest is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
+      cargo nextest run --no-fail-fast --status-level fail --final-status-level fail
+      """
+  }
   // -- end of fast --
 }
 
