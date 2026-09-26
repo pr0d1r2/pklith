@@ -24,3 +24,9 @@ sib|src/gen|emit `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block; `--check` d
 sib|src/lay|1 commit per missing check, hooks ON, rollback on red
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
 sib|src/protect|branch protection required contexts from CI job names via `gh api`
+
+## §V INVARIANTS
+
+V1: writes ⊥
+V2: any sub-check unable to run → fail, ⊥ skip (`.:V1`)
+V3: each failure names sub-check, file & fix
