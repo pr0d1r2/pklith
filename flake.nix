@@ -29,6 +29,9 @@
     microlith.url = "github:pr0d1r2/microlith/v0.7.3";
     microlith.inputs.nixpkgs-lock.follows = "nixpkgs-lock";
     microlith.inputs.nix-hk.follows = "nix-hk";
+    sherd.url = "github:pr0d1r2/sherd/v0.5.1";
+    sherd.inputs.nixpkgs-lock.follows = "nixpkgs-lock";
+    sherd.inputs.nix-hk.follows = "nix-hk";
   };
 
   outputs =
@@ -36,6 +39,7 @@
       nixpkgs,
       nix-hk,
       microlith,
+      sherd,
       ...
     }:
     let
@@ -72,6 +76,8 @@
             pkgs.taplo
             # SPEC.md format and structure (mth), from the pinned microlith.
             microlith.packages.${pkgs.stdenv.hostPlatform.system}.default
+            # Federation checks (check, sync, budget), from the pinned sherd.
+            sherd.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];
           RUST_BACKTRACE = "1";
 

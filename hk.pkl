@@ -164,6 +164,17 @@ local fast = new Mapping<String, Step> {
       for f in {{files}}; do mth check "$f" || exit 1; done
       """
   }
+  // Federation: citations across nodes resolve (`.:V11`, `src/scan:V2`),
+  // §F rows match directories, file ceilings. Whole-tree by nature; the
+  // glob only decides when it is worth running.
+  ["sherd-check"] {
+    glob = List("**/SPEC.md", "**/*.rs")
+    depends = List("mth-check")
+    check = """
+      command -v sherd >/dev/null 2>&1 || { echo 'hk: sherd is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
+      sherd check
+      """
+  }
   // -- end of fast --
 }
 
