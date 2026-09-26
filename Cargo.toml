@@ -1,0 +1,17 @@
+[package]
+name = "pklith"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.95"
+license = "MIT"
+description = "Materialize hk git hook guardrails from what a repository's files require"
+publish = false
+
+[[bin]]
+name = "pkli"
+path = "src/main.rs"
+
+[dependencies]
+
+[lints.rust]
+unsafe_code = "forbid"
