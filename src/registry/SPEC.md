@@ -30,7 +30,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 ## §C CONSTRAINTS
 
-- syntax = sectioned pipe tables, FORMAT cell rules (`\|` escape, `-` empty), `#` comments. ⊥ TOML (adds dep).
+- syntax = sectioned pipe tables, FORMAT cell rules (`\|` escape, `-` empty), `#` comments. ⊥ TOML (adds dep). first line `format N` (`.:V31`); `## <section>` then its fixed header row: `types` `type|checks|min|exempt` · `checks` `id|category|nix|glob|check|fix|env|msg` · `rules` `id|kind|select|target|except` · `plural` `singular|plural`.
 - `## types` → `type|checks|min|exempt`. `checks` = comma list of catalog ids (MANY per type). `min` default 1. `exempt` = reason | `-`.
 - type key syntax: `sh` (ext) · `tar.gz` (compound) · `Makefile` (bare) · `.envrc` (dotfile, ≡ `envrc`) · `path:<glob>` (path class, e.g. `path:docs/**/*.md`). path classes port set-and-setting `coveragePerFileClass` path & glob keys.
 - type `*` = UNIVERSAL checks (typos, whitespace, …), spread to ∀ type. ⊥ a literal type.
@@ -48,11 +48,11 @@ V6: absent optional section = empty, ⊥ error (`.:V11`)
 ## §T TASKS
 
 id|status|task|cites
-T1|.|parser + errors w/ line numbers|V1,V2,V3,V6
-T2|.|`*` spread + `min` accounting|V5,B1
+T1|~|parser + errors w/ line numbers|V1,V2,V3,V6
+T2|~|`*` spread + `min` accounting|V5,B1
 T3|.|formatter + roundtrip proptest|V4
-T4|.|format version line + refusal of newer versions|`.:V31`
-T5|.|test: exempt row w/ reason only registers as covered|`.:V23`
+T4|x|format version line + refusal of newer versions|`.:V31`
+T5|x|test: exempt row w/ reason only registers as covered|`.:V23`
 
 ## §B BUGS
 
