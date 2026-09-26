@@ -89,7 +89,7 @@ V1: gate that cannot run has ⊥ passed. missing tool → exit ≠ 0, ⊥ silent
 V2: ∀ hk step adopted → proven to reject a PLANTED violation first. finds-nothing ≠ can-find-nothing
 V3: output sorted bytewise, ⊥ timestamps, ⊥ abs paths ∴ reproducible
 V4: ∀ repo green under a legacy tool → green under `pkli check` on `import`ed `.pklith` (superset, ⊥ regression)
-V5: ∀ tracked file ! resolve to exactly 1 type & type ! have ≥1 check beyond `all` checks | exempt+reason. ⊥ silent default
+V5: ∀ tracked file ! resolve to exactly 1 type & type ! have ≥1 check beyond UNIVERSAL `*` checks | exempt+reason. ⊥ silent default
 V6: generated files (`hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block, `§N`) ⊥ hand-edited; stale → gate fails
 V7: `pkl/` & vendored files ⊥ touched by fixers
 V8: ∀ commit on `main` passes full `hk check`
