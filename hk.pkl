@@ -240,6 +240,16 @@ local fast = new Mapping<String, Step> {
       shellcheck --shell=bash {{files}}
       """
   }
+  // Every tracked file type is in docs/linter-coverage.md with its checks
+  // or an exemption reason (V5). Whole-tree: a new type is judged by what is
+  // tracked, whichever file the commit touched. The legacy base checker, a
+  // bootstrap until pkli replaces it (T44).
+  ["linter-coverage"] {
+    check = """
+      command -v lefthook-linter-coverage >/dev/null 2>&1 || { echo 'hk: lefthook-linter-coverage is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
+      lefthook-linter-coverage
+      """
+  }
   // -- end of fast --
 }
 
