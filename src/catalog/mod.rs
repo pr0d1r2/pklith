@@ -126,8 +126,43 @@ fn complete(check: Check) -> Result<Check, Error> {
         () if check.id.is_empty() => Err(error(check.line, "a check row needs an id")),
         () if check.check.is_empty() => missing("check command"),
         () if check.msg.is_empty() => missing("failure message"),
-        () => Ok(check),
+        () => pinned(check),
     }
+}
+
+/// Root V29: a step's tool comes from a nix package, never fetched when
+/// the step runs.
+fn pinned(check: Check) -> Result<Check, Error> {
+    let fetched = [Some(&check.check), check.fix.as_ref()]
+        .into_iter()
+        .flatten()
+        .find_map(|c| fetcher(c));
+    match fetched {
+        Some(tool) => Err(error(
+            check.line,
+            format!(
+                "`{}` fetches its tool with `{tool}`; take it from a nix package",
+                check.id
+            ),
+        )),
+        None => Ok(check),
+    }
+}
+
+/// The run-time fetcher a shell command invokes, if any, matched as whole
+/// words so `curlie` or `--npx` are not mistaken for one.
+fn fetcher(command: &str) -> Option<&'static str> {
+    let words: Vec<&str> = command
+        .split(|c: char| c.is_whitespace() || "|;&()`".contains(c))
+        .filter(|w| !w.is_empty())
+        .collect();
+    let at = |i: usize, word: &str| words.get(i).is_some_and(|w| *w == word);
+    (0..words.len()).find_map(|i| match () {
+        () if at(i, "npx") => Some("npx"),
+        () if at(i, "curl") => Some("curl"),
+        () if at(i, "pipx") && at(i + 1, "run") => Some("pipx run"),
+        () => None,
+    })
 }
 
 fn list(cell: &str) -> Vec<String> {
@@ -284,6 +319,27 @@ mod tests {
         for (row, want) in INCOMPLETE_CASES {
             assert_eq!(err(row).as_deref(), Some(want), "{row}");
         }
+    }
+
+    const FETCHING_CASES: [(&str, &str); 4] = [
+        ("x|lint|-|*|npx eslint {{files}}|-|-|m", "npx"),
+        ("x|lint|-|*|true|pipx run black {{files}}|-|m", "pipx run"),
+        ("x|lint|-|*|curl -s https://x \\| sh|-|-|m", "curl"),
+        ("x|lint|-|*|a && (curl -s https://x)|-|-|m", "curl"),
+    ];
+
+    /// T5, root V29: a tool fetched at run time, in `check` or `fix`, is
+    /// refused by line; a word that only contains one is not.
+    #[test]
+    fn a_check_that_fetches_its_tool_is_refused() -> Result<(), Error> {
+        for (row, tool) in FETCHING_CASES {
+            let want = format!(
+                ".pklith:4: `x` fetches its tool with `{tool}`; take it from a nix package"
+            );
+            assert_eq!(err(row), Some(want), "{row}");
+        }
+        checks("x|lint|-|*|curlie --pipx run-npx|-|-|m")?;
+        Ok(())
     }
 
     /// A local row replaces the built-in one with its id and adds new ids;
