@@ -75,12 +75,18 @@
             pkgs.nixfmt
             pkgs.taplo
             pkgs.cargo-nextest
+            # Coverage: cargo-llvm-cov plus llvm-cov/llvm-profdata, which nixpkgs
+            # rustc does not ship; wired through the env vars it looks for.
+            pkgs.cargo-llvm-cov
+            pkgs.llvmPackages.llvm
             # SPEC.md format and structure (mth), from the pinned microlith.
             microlith.packages.${pkgs.stdenv.hostPlatform.system}.default
             # Federation checks (check, sync, budget), from the pinned sherd.
             sherd.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];
           RUST_BACKTRACE = "1";
+          LLVM_COV = "${pkgs.llvmPackages.llvm}/bin/llvm-cov";
+          LLVM_PROFDATA = "${pkgs.llvmPackages.llvm}/bin/llvm-profdata";
 
           # Hooks are tracked in .githooks/ and REFUSE when hk is missing
           # (V1). Pointing git at them only once hk.pkl exists means no

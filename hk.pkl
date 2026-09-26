@@ -233,8 +233,23 @@ local fast = new Mapping<String, Step> {
   // -- end of fast --
 }
 
-/// Run on push and in CI: everything in `fast`, plus whole-tree steps.
-local all = (fast) {}
+/// Run on push and in CI: everything in `fast`, plus whole-tree and slow steps.
+local all = (fast) {
+  // Line coverage may not fall below the floor in `.coverage`, measured
+  // when it was set: a ratchet that may rise and never silently falls.
+  // Push-time, not commit-time: it rebuilds the crate instrumented.
+  ["coverage"] {
+    glob = List("**/*.rs", "Cargo.toml", ".coverage")
+    depends = List("test")
+    check = #"""
+      command -v cargo-llvm-cov >/dev/null 2>&1 || { echo 'hk: cargo-llvm-cov is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
+      floor="$(tr -d ' \n' < .coverage)"
+      pct="$(cargo llvm-cov nextest --json --summary-only 2>/dev/null | jq '.data[0].totals.lines.percent')"
+      [ -n "$pct" ] && [ "$pct" != null ] || { echo 'coverage: could not be measured, so the floor was not checked.' >&2; exit 1; }
+      awk -v p="$pct" -v f="$floor" 'BEGIN { exit !(p + 0 >= f + 0) }' || { echo "coverage: lines $pct% is under the floor $floor% in .coverage. Test the new code; lowering the floor is a reviewed commit with its reason." >&2; exit 1; }
+      """#
+  }
+}
 
 hooks {
   // `stash = "git"` keeps unstaged edits out of what the steps see, so a
