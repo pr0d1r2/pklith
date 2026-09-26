@@ -13,6 +13,7 @@ registry|`.pklith` parse/fmt: types → check sets, rules, plural, exempt|check 
 catalog|check definitions: category, nix attr, runner glob, hk step, fix, failure msg|which type needs which check|-
 rule|companion rules: exists, mentions, changed, orphan; path templates|linter checks, running tests|-
 hook|read effective hk config via `pkl eval`: step → globs|writing hk config|-
+legacy|3 legacy formats: read, `import`, compat entries|native `.pklith` syntax|-
 
 ## §N NAV
 

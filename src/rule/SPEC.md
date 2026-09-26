@@ -15,6 +15,7 @@ sib|src/detect|active fragments from scanned files, fixed order
 sib|src/registry|`.pklith` parse/fmt: types → check sets, rules, plural, exempt
 sib|src/catalog|check definitions: category, nix attr, runner glob, hk step, fix, failure msg
 sib|src/hook|read effective hk config via `pkl eval`: step → globs
+sib|src/legacy|3 legacy formats: read, `import`, compat entries
 
 ## §C CONSTRAINTS
 
