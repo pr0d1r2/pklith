@@ -32,7 +32,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 - row: `id|category|nix|glob|check|fix|env|msg`. `env` = vars the step needs & their values, emitted w/ the step (`.:V19`); `-` if none. category ∈ `hygiene secret format lint spec test coverage supply`, IN THAT ORDER — the order lay lays them (cheapest & broadest first).
 - built-in rows seeded from sibling gates (`.:R6`); `.pklith ## checks` overrides by id.
-- `glob` = the RUNNER glob; gen emits it verbatim into the hk step.
+- `glob` = the RUNNER glob; gen emits it verbatim into the hk step. `glob` & `env` cells are comma lists; `env` items `KEY=value`. `nix` empty (`-`) = hk runs it natively (`hk util`).
 - fragment row: `fragment|triggers|checks|seed`. triggers = file types, paths, globs (read by src/detect); checks = catalog ids; seed = seed file ids (src/seed). built-in order = fragment order.
 
 ## §V INVARIANTS
@@ -45,10 +45,10 @@ V4: ids unique; built-in order stable (= lay order within category)
 ## §T TASKS
 
 id|status|task|cites
-T1|.|catalog row type + parser shared w/ registry cell rules|V3,V4
+T1|x|catalog row type + parser shared w/ registry cell rules|V3,V4
 T2|.|built-in catalog: hk util hygiene family, ripsecrets, typos, nixfmt, shellcheck, shfmt, taplo, rustfmt, clippy, rubocop, actionlint, zizmor, mth, sherd, itok|V1,`.:R6`
 T3|.|test: ∀ built-in nix attr evals|V2
-T4|.|`env` column: gen emits it; test: step w/ unset required env ⊥ emitted|`.:V19`
+T4|~|`env` column: gen emits it; test: step w/ unset required env ⊥ emitted|`.:V19`
 T5|.|test: ∀ built-in `check` resolves to a binary of its `nix` attr; `npx`/`pipx run`/`curl` in a row → rejected|`.:V29`
 
 ## §B BUGS
