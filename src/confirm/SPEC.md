@@ -34,3 +34,12 @@ sib|src/protect|branch protection required contexts from CI job names via `gh ap
 V1: writes ⊥
 V2: any sub-check unable to run → fail, ⊥ skip (`.:V1`)
 V3: each failure names sub-check, file & fix
+
+## §T TASKS
+
+id|status|task|cites
+T1|.|5 sub-checks + planted-failure tests|V1,V2,V3,`.:T56`
+
+## §B BUGS
+
+id|date|cause|fix
