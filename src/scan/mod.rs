@@ -84,6 +84,8 @@ pub enum Error {
     NotUtf8(String),
     /// A `git ls-files --stage` record without a tab.
     Malformed(String),
+    /// A directory could not be read.
+    Io(String, std::io::Error),
 }
 
 impl std::fmt::Display for Error {
@@ -92,6 +94,7 @@ impl std::fmt::Display for Error {
             Self::Git(e) => write!(f, "{e}"),
             Self::NotUtf8(p) => write!(f, "path is not UTF-8: {p}"),
             Self::Malformed(r) => write!(f, "unexpected git ls-files record: {r}"),
+            Self::Io(p, e) => write!(f, "{p}: {e}"),
         }
     }
 }
@@ -124,6 +127,52 @@ pub fn tracked(root: &Path) -> Result<Vec<String>, Error> {
     Ok(paths)
 }
 
+/// Files under `root` found by walking the filesystem (`--root`), sorted,
+/// skipping `.git/` and symlinks to directories (V3). For trees that are
+/// not git repositories.
+///
+/// # Errors
+///
+/// [`Error::Io`] when a directory cannot be read, [`Error::NotUtf8`] for a
+/// path that is not UTF-8 (V4).
+pub fn walked(root: &Path) -> Result<Vec<String>, Error> {
+    let mut out = Vec::new();
+    walk(root, root, &mut out)?;
+    out.sort();
+    Ok(out)
+}
+
+fn walk(root: &Path, dir: &Path, out: &mut Vec<String>) -> Result<(), Error> {
+    let failed = |e| io(dir, e);
+    for entry in std::fs::read_dir(dir).map_err(failed)? {
+        let path = entry.map_err(failed)?.path();
+        if path.file_name() == Some(".git".as_ref()) {
+            continue;
+        }
+        if !path.is_dir() {
+            out.push(relative(root, &path)?);
+        } else if !path.is_symlink() {
+            walk(root, &path, out)?;
+        }
+    }
+    Ok(())
+}
+
+fn relative(root: &Path, path: &Path) -> Result<String, Error> {
+    let rel = path.strip_prefix(root).unwrap_or(path);
+    utf8(rel.as_os_str().as_encoded_bytes()).map(str::to_owned)
+}
+
+/// The one UTF-8 gate for both sources (V4): the error shows the path lossily.
+fn utf8(bytes: &[u8]) -> Result<&str, Error> {
+    std::str::from_utf8(bytes)
+        .map_err(|_| Error::NotUtf8(String::from_utf8_lossy(bytes).into_owned()))
+}
+
+fn io(path: &Path, source: std::io::Error) -> Error {
+    Error::Io(path.display().to_string(), source)
+}
+
 fn is_file(root: &Path, mode: &str, path: &str) -> bool {
     match mode {
         GITLINK => false,
@@ -148,8 +197,7 @@ fn parse_record(record: &[u8]) -> Result<(String, String), Error> {
         .position(|b| *b == b'\t')
         .ok_or_else(|| Error::Malformed(lossy()))?;
     let (meta, path) = record.split_at(tab);
-    let path = std::str::from_utf8(path.get(1..).unwrap_or_default())
-        .map_err(|_| Error::NotUtf8(lossy()))?;
+    let path = utf8(path.get(1..).unwrap_or_default())?;
     let mode = String::from_utf8_lossy(meta)
         .split(' ')
         .next()
@@ -160,7 +208,7 @@ fn parse_record(record: &[u8]) -> Result<(String, String), Error> {
 
 #[cfg(test)]
 mod tests {
-    use super::{Kind, candidates, parse_stage, tracked};
+    use super::{Kind, candidates, parse_stage, tracked, walked};
     use std::path::{Path, PathBuf};
 
     fn temp(name: &str) -> Result<PathBuf, std::io::Error> {
@@ -199,6 +247,24 @@ mod tests {
         Ok(dir)
     }
 
+    /// The walk skips `.git/` and agrees with the index on the same tree
+    /// (the gitlink is only in the index, so both leave it out).
+    #[test]
+    fn walking_agrees_with_the_index() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = fixture()?;
+        assert_eq!(walked(&dir)?, tracked(&dir)?);
+        std::fs::remove_dir_all(&dir)?;
+        Ok(())
+    }
+
+    #[test]
+    fn walking_a_missing_directory_names_it() {
+        let err = walked(Path::new("/pklith-no-such-dir"))
+            .err()
+            .map(|e| e.to_string());
+        assert!(err.is_some_and(|e| e.starts_with("/pklith-no-such-dir: ")));
+    }
+
     #[test]
     fn outside_a_repository_git_fails_by_name() -> Result<(), std::io::Error> {
         let dir = temp("no-repo")?;
@@ -213,10 +279,7 @@ mod tests {
         let err = parse_stage(b"100644 abc 0\tok.txt\x00100644 abc 0\tbad\xff.txt\0")
             .err()
             .map(|e| e.to_string());
-        assert_eq!(
-            err.as_deref(),
-            Some("path is not UTF-8: 100644 abc 0\tbad\u{fffd}.txt")
-        );
+        assert_eq!(err.as_deref(), Some("path is not UTF-8: bad\u{fffd}.txt"));
     }
 
     #[test]
