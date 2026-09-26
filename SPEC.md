@@ -154,7 +154,7 @@ T24|x|`sherd sync --check` (nav)|V6
 T25|x|`sherd budget` + `.context-limits`|V9
 T26|.|`itok check` BLOCKED: itok reads `.context-limits` (fixed name) as per-FILE ceilings, sherd as per-CHAIN; one file ⊥ serves both. V9 held by `sherd budget` (T25) until itok takes a limits path (T71)|V9,B11
 T27|x|`rustfmt`|V2,V15
-T28|.|`clippy -D warnings`|V2
+T28|x|`clippy -D warnings`|V2
 T29|.|`test` (nextest, non-empty suite: exit-code contract)|V2
 T30|.|`doctest`|V2
 T31|.|`rustdoc -D warnings`|V2

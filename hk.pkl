@@ -205,6 +205,13 @@ local fast = new Mapping<String, Step> {
     check = "cargo fmt --check"
     fix = "cargo fmt"
   }
+  // `-D warnings` over every target. The limits live in clippy.toml and
+  // Cargo.toml [lints.clippy]; this step is what makes them more than text.
+  ["clippy"] {
+    glob = List("**/*.rs", "Cargo.toml", "clippy.toml")
+    depends = List("rustfmt")
+    check = "cargo clippy --all-targets -q -- -D warnings"
+  }
   // -- end of fast --
 }
 
