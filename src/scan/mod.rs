@@ -225,7 +225,7 @@ mod tests {
     /// symlink to a directory do not, a symlink to a file does.
     #[test]
     fn tracked_lists_files_only_sorted() -> Result<(), Box<dyn std::error::Error>> {
-        let dir = fixture()?;
+        let dir = fixture("tracked")?;
         assert_eq!(tracked(&dir)?, ["a.txt", "sub/b.rs", "to-file"]);
         std::fs::remove_dir_all(&dir)?;
         Ok(())
@@ -234,8 +234,8 @@ mod tests {
     /// A submodule entry needs no real submodule: an index entry with mode 160000.
     const GITLINK: &str = "160000,0123456789abcdef0123456789abcdef01234567,vendor/mod";
 
-    fn fixture() -> Result<PathBuf, Box<dyn std::error::Error>> {
-        let dir = temp("tracked")?;
+    fn fixture(name: &str) -> Result<PathBuf, Box<dyn std::error::Error>> {
+        let dir = temp(name)?;
         git(&dir, &["init", "-q"])?;
         std::fs::create_dir_all(dir.join("sub"))?;
         std::fs::write(dir.join("sub/b.rs"), "")?;
@@ -251,7 +251,7 @@ mod tests {
     /// (the gitlink is only in the index, so both leave it out).
     #[test]
     fn walking_agrees_with_the_index() -> Result<(), Box<dyn std::error::Error>> {
-        let dir = fixture()?;
+        let dir = fixture("agrees")?;
         assert_eq!(walked(&dir)?, tracked(&dir)?);
         std::fs::remove_dir_all(&dir)?;
         Ok(())
