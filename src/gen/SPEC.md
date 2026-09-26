@@ -21,3 +21,11 @@ sib|src/cover|verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps
 sib|src/map|guard mode: changed paths → covering specs
 sib|src/report|render matrix & verdict: text, json, md
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
+
+## §V INVARIANTS
+
+V1: ∀ check used by registry → 1 hk step & 1 nix attr & 1 AGENTS row; unused catalog row ⊥ emitted
+V2: idempotent: 2nd run writes ⊥
+V3: `--check` exit 1 iff on-disk ≠ generated (`.:V6`)
+V4: emitted pkl evals under vendored `pkl/Config.pkl`
+V5: emitted nix parses & passes `nixfmt --check`
