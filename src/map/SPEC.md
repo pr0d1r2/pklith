@@ -19,6 +19,12 @@ sib|src/hook|read effective hk config via `pkl eval`: step → globs
 sib|src/legacy|3 legacy formats: read, `import`, compat entries
 sib|src/cover|verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps
 
+## §C CONSTRAINTS
+
+- input: `--staged` | explicit paths. output: spec paths, 1 per line, sorted.
+- mapping = `exists` rules forward (impl → spec) + changed spec maps to itself.
+- runs ⊥ test runner; hk step pipes: `pkli map --staged | xargs -r rspec`.
+
 ## §V INVARIANTS
 
 V1: changed impl matching a rule selector w/ 0 existing mapped specs → exit 1 naming it
