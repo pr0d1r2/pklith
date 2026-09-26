@@ -15,3 +15,9 @@ sib|src/detect|active fragments from scanned files, fixed order
 sib|src/registry|`.pklith` parse/fmt: types → check sets, rules, plural, exempt
 sib|src/catalog|check definitions: category, nix attr, runner glob, hk step, fix, failure msg
 sib|src/rule|companion rules: exists, mentions, changed, orphan; path templates
+
+## §V INVARIANTS
+
+V1: `pkl` missing | eval fails → exit 2 naming cause (`.:V1`), ⊥ "0 steps"
+V2: 0 steps from a non-empty `hk.pkl` → error, ⊥ empty map (same shape as `.:B1`)
+V3: globs matched by src shared engine, same as catalog
