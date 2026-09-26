@@ -250,6 +250,13 @@ local fast = new Mapping<String, Step> {
       lefthook-linter-coverage
       """
   }
+  // V14: the step table in AGENTS.md is generated from this file, so it
+  // cannot drift from the gate it describes.
+  ["agents-table"] {
+    glob = List("hk.pkl", "AGENTS.md", "scripts/agents-table.sh")
+    check = "scripts/agents-table.sh --check"
+    fix = "scripts/agents-table.sh"
+  }
   // -- end of fast --
 }
 

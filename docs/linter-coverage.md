@@ -22,6 +22,7 @@ the legacy checker and this file (T44).
 | `.md` | mth-fmt, mth-check, sherd-check, sherd-nav, sherd-budget | the checks are for `SPEC.md`; other docs get the hygiene steps |
 | `.pkl` | - | `hk.pkl` is evaluated against the vendored schema by every hk run, so a malformed one fails every hook; `pkl/Config.pkl` is vendored |
 | `.envrc` | shellcheck | direnv entry |
+| `.sh` | shellcheck | `scripts/` |
 | `pre-commit`, `commit-msg`, `pre-push` | shellcheck | tracked hooks in `.githooks/` |
 | `.gitignore` | - | git configuration; hygiene steps only |
 | `.context-limits` | sherd-budget | read and validated by it |
