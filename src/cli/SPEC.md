@@ -26,3 +26,10 @@ sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
 sib|src/confirm|acceptance of a materialized repo: completeness, fidelity, coherence, executability, idempotence
 sib|src/migrate|lefthook-materialized repo → hk, gated on check-set equivalence
 sib|src/protect|branch protection required contexts from CI job names via `gh api`
+
+## §V INVARIANTS
+
+V1: exit codes: 0 ok / 1 finding / 2 usage | I/O error. ∀ verb
+V2: unknown flag → usage on stderr, exit 2
+V3: stdout = data only; diagnostics → stderr
+V4: ∀ path arg opened as path, ⊥ read as flag
