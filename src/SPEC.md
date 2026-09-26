@@ -34,7 +34,7 @@ self|src|product code nodes — scan, detect, registry, catalog, rule, hook, leg
 ## §C CONSTRAINTS
 
 - data flows 1 way (V1). lower node ⊥ imports higher.
-- pure fns over values; fs/git/process I/O only in scan, registry load, hook, gen write, lay, cli.
+- pure fns over values; fs/git/process I/O only in scan, registry load, hook, gen write, seed write, lay, confirm, migrate, cli. network only in protect.
 - ONE glob engine shared by catalog, rule, hook, cover ∴ claim & runner match same way.
 
 ## §V INVARIANTS
