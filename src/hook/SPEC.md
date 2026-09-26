@@ -26,3 +26,13 @@ sib|src/rule|companion rules: exists, mentions, changed, orphan; path templates
 V1: `pkl` missing | eval fails → exit 2 naming cause (`.:V1`), ⊥ "0 steps"
 V2: 0 steps from a non-empty `hk.pkl` → error, ⊥ empty map (same shape as `.:B1`)
 V3: globs matched by src shared engine, same as catalog
+
+## §T TASKS
+
+id|status|task|cites
+T1|.|`pkl eval` driver + json → step map|V1,V2
+T2|.|fixture `hk.pkl` files: fast/all split, `depends`, excludes|V3
+
+## §B BUGS
+
+id|date|cause|fix
