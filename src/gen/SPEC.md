@@ -35,3 +35,16 @@ V2: idempotent: 2nd run writes ⊥
 V3: `--check` exit 1 iff on-disk ≠ generated (`.:V6`)
 V4: emitted pkl evals under vendored `pkl/Config.pkl`
 V5: emitted nix parses & passes `nixfmt --check`
+
+## §T TASKS
+
+id|status|task|cites
+T1|.|pkl emitter + golden tests|V1,V4
+T2|.|nix emitter + golden tests|V1,V5
+T3|.|AGENTS.md block emitter|V1,`.:V14`
+T4|.|write-if-changed + `--check`|V2,V3,B1
+
+## §B BUGS
+
+id|date|cause|fix
+B1|2026-08-11|set-and-setting B57: tracked `lefthook.yml` drifted from generated ∴ confirm diff red|V3
