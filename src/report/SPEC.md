@@ -37,12 +37,13 @@ sib|src/cli|arg dispatch, usage, exit codes
 V1: stable row & column order ∀ formats (`.:V3`)
 V2: json keys always present; empty = `[]`, ⊥ absent key
 V3: `check` success = silence; `report` always prints
+V4: json carries top-level `version`; breaking field change → version bump, old consumers refuse ⊥ misread
 
 ## §T TASKS
 
 id|status|task|cites
 T1|.|text renderer|V1,V3
-T2|.|json renderer + schema test|V1,V2
+T2|.|json renderer + schema test|V1,V2,V4
 T3|.|md matrix (drop-in for legacy `docs/linter-coverage.md`)|V1
 
 ## §B BUGS
