@@ -82,3 +82,16 @@ fn gen_without_a_registry_or_repository_exits_2() -> Result {
     std::fs::remove_dir_all(outside)?;
     Ok(std::fs::remove_dir_all(dir)?)
 }
+
+/// Catalog T2: a `.pklith` with no `## checks` section names built-in
+/// checks, and gen renders them from the catalog compiled into `pkli`.
+#[test]
+fn gen_renders_a_builtin_check_the_registry_never_defines() -> Result {
+    let registry = "format 1\n## types\ntype|checks|min|exempt\nsh|shellcheck|-|-\n";
+    let dir = repo("gen-builtin", Some(registry))?;
+    assert_eq!(pkli(&dir, &["gen"])?.0, Some(0));
+    let text = std::fs::read_to_string(dir.join("hk.pklith.pkl"))?;
+    assert!(text.contains("[\"shellcheck\"]"), "{text}");
+    assert!(text.contains("shellcheck {{files}}"), "{text}");
+    Ok(std::fs::remove_dir_all(dir)?)
+}

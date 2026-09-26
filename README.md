@@ -24,7 +24,10 @@ it:
   your git hooks, and rolls everything back if one is refused.
 - `pkli import DOC`: turns a legacy linter-coverage document into `.pklith`.
 
-There is no built-in catalog of checks yet, so `.pklith` defines its own.
+`pkli` ships a built-in catalog of checks (hk util hygiene, ripsecrets,
+typos, nixfmt, shfmt, shellcheck, taplo, rustfmt, clippy, rubocop,
+actionlint, zizmor, mth, sherd, itok); a `.pklith` row with the same id
+replaces one, a new id adds one.
 The design lives in [`SPEC.md`](SPEC.md) and the `SPEC.md` files under `src/`.
 
 ## License

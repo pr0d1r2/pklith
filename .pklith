@@ -24,7 +24,7 @@ nixfmt|format|nixfmt|**/*.nix|nixfmt --check {{files}}|nixfmt {{files}}|-|nix fi
 taplo|format|taplo|**/*.toml|taplo fmt --check {{files}}|taplo fmt {{files}}|-|TOML not formatted or not parseable
 rustfmt|format|rustfmt|**/*.rs|cargo fmt --check|cargo fmt|-|Rust not formatted
 clippy|lint|clippy|**/*.rs, Cargo.toml, clippy.toml|cargo clippy --all-targets -q -- -D warnings|-|-|clippy finding or a §C code limit exceeded
-test|test|cargo-nextest|**/*.rs, Cargo.toml, Cargo.lock|cargo nextest run --no-fail-fast --status-level fail --final-status-level fail|-|-|a test failed, or the suite is empty
+test|test|cargo-nextest|**/*.rs, Cargo.toml, Cargo.lock, src/catalog/builtin.pklith|cargo nextest run --no-fail-fast --status-level fail --final-status-level fail|-|-|a test failed, or the suite is empty
 doctest|test|cargo|**/*.rs, Cargo.toml|cargo test --doc -q|-|-|a doc example failed
 rustdoc|lint|cargo|**/*.rs, Cargo.toml|cargo doc --no-deps --document-private-items -q|-|RUSTDOCFLAGS=-D warnings|docs do not build cleanly
 coverage|coverage|sherd|**/*.rs, Cargo.toml, .coverage|sherd coverage --check|-|-|line coverage fell below .coverage
@@ -68,3 +68,4 @@ LICENSE|-|-|license text, nothing to lint
 path:pkl/**|-|-|vendored hk schema and its provenance note; the fixers and ripsecrets skip pkl/ (V7), hk-parity evaluates the schema
 path:FORMAT*.md|-|-|vendored verbatim from microlith; the fixers skip it (V7)
 pklith|pkli-check,gen-check|-|-
+path:src/catalog/builtin.pklith|test|-|-

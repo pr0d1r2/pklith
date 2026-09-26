@@ -50,7 +50,7 @@ Notes for anyone, human or agent, changing this repository.
 | `sherd-budget` | commit | `**/SPEC.md` `.context-limits` | - |
 | `pkli-check` | commit | whole tree | - |
 | `gen-check` | commit | `.pklith` `hk.pklith.pkl` | yes |
-| `test` | commit | `**/*.rs` `Cargo.toml` `Cargo.lock` | - |
+| `test` | commit | `**/*.rs` `Cargo.toml` `Cargo.lock` `src/catalog/builtin.pklith` | - |
 | `doctest` | commit | `**/*.rs` `Cargo.toml` | - |
 | `flake-lock-graph` | commit | `flake.lock` | - |
 | `deny` | commit | `Cargo.toml` `Cargo.lock` `deny.toml` | - |

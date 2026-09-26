@@ -70,8 +70,8 @@ const BAD: [(&str, &str); 3] = [
         "pkli check: .pklith:4: `x`: unknown category `style`\n",
     ),
     (
-        "format 1\n## types\ntype|checks|min|exempt\nrs|clippy|-|-\n",
-        "pkli check: .pklith:4: `rs` names unknown check `clippy`\n",
+        "format 1\n## types\ntype|checks|min|exempt\nrs|clippy-nightly|-|-\n",
+        "pkli check: .pklith:4: `rs` names unknown check `clippy-nightly`\n",
     ),
 ];
 

@@ -1,0 +1,38 @@
+format 1
+
+# pklith's built-in catalog (src/catalog T2), compiled into `pkli`. Rows are
+# seeded from the sibling gates (root R6). A repository's own `.pklith`
+# `## checks` row with the same id replaces one of these; a new id extends
+# them. Order within a category is the order `pkli lay` lays them (V4).
+#
+# `nix` is a nixpkgs attribute, or the name of a flake input for tools
+# nixpkgs does not ship (microlith, sherd, itok). `-` means hk runs the check
+# itself (`hk util`).
+
+## checks
+id|category|nix|glob|check|fix|env|msg
+trailing-whitespace|hygiene|-|**/*|hk util trailing-whitespace --diff {{files}}|hk util trailing-whitespace --fix {{files}}|-|trailing blanks; the pre-commit hook strips them
+final-newline|hygiene|-|**/*|hk util end-of-file-fixer --diff {{files}}|hk util end-of-file-fixer --fix {{files}}|-|file must end with a newline
+line-endings|hygiene|-|**/*|hk util mixed-line-ending --diff {{files}}|hk util mixed-line-ending --fix {{files}}|-|file mixes CRLF and LF
+no-bom|hygiene|-|**/*|hk util check-byte-order-marker {{files}}|-|-|file starts with a byte order marker
+no-merge-conflict|hygiene|-|**/*|hk util check-merge-conflict --assume-in-merge {{files}}|-|-|leftover merge conflict markers
+no-case-conflict|hygiene|-|**/*|hk util check-case-conflict {{files}}|-|-|two paths differ only by case
+no-broken-symlinks|hygiene|-|-|git ls-files -z \| xargs -0 hk util check-symlinks|-|-|a symlink points nowhere
+no-private-key|secret|-|**/*|hk util detect-private-key {{files}}|-|-|a private key block is staged
+ripsecrets|secret|ripsecrets|**/*|ripsecrets {{files}}|-|-|a token or credential is staged; a false positive goes in .secretsignore
+nixfmt|format|nixfmt|**/*.nix|nixfmt --check {{files}}|nixfmt {{files}}|-|nix file not formatted
+shfmt|format|shfmt|**/*.sh, **/*.bash|shfmt --diff {{files}}|shfmt --write {{files}}|-|shell script not formatted
+taplo|format|taplo|**/*.toml|taplo fmt --check {{files}}|taplo fmt {{files}}|-|TOML not formatted or not parseable
+rustfmt|format|rustfmt|**/*.rs|cargo fmt --check|cargo fmt|-|Rust not formatted
+typos|lint|typos|**/*|typos --force-exclude {{files}}|-|-|misspelling; fix it or teach .typos.toml
+shellcheck|lint|shellcheck|**/*.sh, **/*.bash, .envrc|shellcheck {{files}}|-|-|shell script finding
+clippy|lint|clippy|**/*.rs, Cargo.toml, clippy.toml|cargo clippy --all-targets -q -- -D warnings|-|-|clippy finding
+rubocop|lint|rubocop|**/*.rb, **/*.rake, **/*.gemspec, Gemfile, Rakefile|rubocop --force-exclusion {{files}}|rubocop --autocorrect --force-exclusion {{files}}|-|Ruby style or lint offense
+actionlint|lint|actionlint|.github/workflows/*.yml, .github/workflows/*.yaml|actionlint {{files}}|-|-|workflow does not parse or type-check
+zizmor|lint|zizmor|.github/workflows/*.yml, .github/workflows/*.yaml|zizmor --offline --no-progress {{files}}|-|-|workflow security finding
+mth-fmt|spec|microlith|**/SPEC.md|for f in {{files}}; do mth fmt --check "$f" \|\| exit 1; done|for f in {{files}}; do mth fmt "$f" \|\| exit 1; done|-|SPEC.md is hard-wrapped or over the line cap
+mth-check|spec|microlith|**/SPEC.md|for f in {{files}}; do mth check "$f" \|\| exit 1; done|-|-|SPEC.md breaks a structural rule
+sherd-check|spec|sherd|**/SPEC.md, **/*.rs|sherd check|-|-|a citation across spec nodes does not resolve
+sherd-nav|spec|sherd|**/SPEC.md|sherd sync --check|sherd sync|-|a §N table is stale
+sherd-budget|spec|sherd|**/SPEC.md, .context-limits|sherd budget|-|-|a spec chain is over its ceiling
+itok|spec|itok|**/*, .context-limits|itok check|-|-|a file registered in .context-limits is over its token ceiling

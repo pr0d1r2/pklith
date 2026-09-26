@@ -125,7 +125,7 @@ steps: Mapping<String, Config.Step> = new {
     fix = "cargo run -q --bin pkli -- gen"
   }
   ["test"] {
-    glob = List("**/*.rs", "Cargo.toml", "Cargo.lock")
+    glob = List("**/*.rs", "Cargo.toml", "Cargo.lock", "src/catalog/builtin.pklith")
     check = "command -v cargo >/dev/null 2>&1 || { echo 'test: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo nextest run --no-fail-fast --status-level fail --final-status-level fail || { echo 'test: a test failed, or the suite is empty' >&2; exit 1; }"
   }
   ["doctest"] {

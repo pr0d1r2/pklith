@@ -149,13 +149,16 @@ fn toplevel(cwd: &Path) -> Result<PathBuf, String> {
     Ok(PathBuf::from(String::from_utf8_lossy(&out).trim_end()))
 }
 
-/// The registry and its typed checks, with every type row naming a known
-/// check (registry V2). Root V11: no `.pklith` is an error, never a pass.
+/// The registry and its checks: the built-in catalog with the local rows
+/// laid over it, every type row naming a known check (registry V2). Root
+/// V11: no `.pklith` is an error, never a pass.
 fn load(path: &Path) -> Result<(crate::registry::Registry, Vec<crate::catalog::Check>), String> {
     let text = std::fs::read_to_string(path)
         .map_err(|e| format!("cannot read {}: {e}", path.display()))?;
     let registry = crate::registry::parse(&text).map_err(|e| e.to_string())?;
-    let catalog = crate::catalog::parse(&registry.checks).map_err(|e| e.to_string())?;
+    let local = crate::catalog::parse(&registry.checks).map_err(|e| e.to_string())?;
+    let builtin = crate::catalog::builtin().map_err(|e| format!("built-in catalog: {e}"))?;
+    let catalog = crate::catalog::merge(builtin, local).map_err(|e| e.to_string())?;
     crate::catalog::known(&registry, &catalog).map_err(|e| e.to_string())?;
     Ok((registry, catalog))
 }

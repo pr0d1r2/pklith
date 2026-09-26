@@ -138,6 +138,21 @@ fn list(cell: &str) -> Vec<String> {
         .collect()
 }
 
+/// The built-in catalog (T2), compiled into `pkli`.
+const BUILTIN: &str = include_str!("builtin.pklith");
+
+/// The built-in checks, in lay order within each category (V4).
+///
+/// # Errors
+///
+/// An [`Error`] naming the line of `src/catalog/builtin.pklith` that does
+/// not parse; the tests below keep that from shipping.
+pub fn builtin() -> Result<Vec<Check>, Error> {
+    let checks = parse(&crate::registry::parse(BUILTIN)?.checks)?;
+    unique(&checks)?;
+    Ok(checks)
+}
+
 /// The built-in catalog with local rows laid over it: a local row replaces
 /// the built-in one with the same id, a new id extends the catalog.
 ///
@@ -194,7 +209,7 @@ pub fn known(registry: &Registry, catalog: &[Check]) -> Result<(), Error> {
 
 #[cfg(test)]
 mod tests {
-    use super::{Category, Check, known, merge, parse};
+    use super::{Category, Check, builtin, known, merge, parse};
     use crate::registry::{Error, Row};
 
     const HEADER: &str = "format 1\n## checks\nid|category|nix|glob|check|fix|env|msg\n";
@@ -289,6 +304,26 @@ mod tests {
             twice.as_deref(),
             Some(".pklith:5: check `a` is already defined on line 4")
         );
+        Ok(())
+    }
+
+    /// T2, V1, V3, V4: the built-in catalog parses, every row is complete
+    /// and every id is unique.
+    #[test]
+    fn the_builtin_catalog_parses() -> Result<(), Error> {
+        let ids: Vec<String> = builtin()?.into_iter().map(|c| c.id).collect();
+        for id in ["no-private-key", "shfmt", "rubocop", "sherd-nav", "itok"] {
+            assert!(ids.iter().any(|i| i == id), "{id}");
+        }
+        Ok(())
+    }
+
+    /// V4: lay order is the built-in order within each category, so the
+    /// file lists its categories in lay order too.
+    #[test]
+    fn the_builtin_catalog_is_in_lay_order() -> Result<(), Error> {
+        let categories: Vec<Category> = builtin()?.into_iter().map(|c| c.category).collect();
+        assert!(categories.is_sorted(), "{categories:?}");
         Ok(())
     }
 
