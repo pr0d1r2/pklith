@@ -1,0 +1,38 @@
+# Orchestration only: the gate is hk.pkl, run through the same dev shell a
+# laptop uses, so CI and a local `hk check` cannot disagree about a tool
+# version. One job per tier-1 system (§C).
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: gate
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # x86_64-linux, aarch64-linux, aarch64-darwin
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@630ae543ea3a38a9a4166f03376c02c50f408342 # v31.11.0
+        with:
+          extra_nix_config: |
+            extra-substituters = https://pr0d1r2.cachix.org
+            extra-trusted-public-keys = pr0d1r2.cachix.org-1:NfWjbhgAj41byXhCKiaE+av3Vnphm1fTezHXEGsiQIM=
+      - run: nix develop --command hk check --all --check
