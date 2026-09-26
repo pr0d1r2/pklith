@@ -8,6 +8,7 @@ Product code hub. Pipeline: scan → detect; registry + catalog → rule, hook, 
 
 dir|owns|⊥owns|tokens
 scan|enumerate files, basename → exactly 1 file type|registry syntax, verdicts|-
+detect|active fragments from scanned files, fixed order|which checks a fragment brings|-
 registry|`.pklith` parse/fmt: types → check sets, rules, plural, exempt|check definitions, file walk|-
 catalog|check definitions: category, nix attr, runner glob, hk step, fix, failure msg|which type needs which check|-
 
