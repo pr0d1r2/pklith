@@ -156,7 +156,7 @@ T26|.|`itok check` BLOCKED: itok reads `.context-limits` (fixed name) as per-FIL
 T27|x|`rustfmt`|V2,V15
 T28|x|`clippy -D warnings`|V2
 T29|x|`test` (nextest, non-empty suite: exit-code contract)|V2
-T30|.|`doctest`|V2
+T30|x|`doctest`|V2
 T31|x|`rustdoc -D warnings`|V2
 T32|x|`coverage` floor + `.coverage`|V2
 T33|x|bootstrap `linter-coverage`: legacy BASE `nix-lefthook-linter-coverage` input + step + `docs/linter-coverage.md`, until T44. ⊥ `-full`: its #5 (every configured run reads nothing) is still open|V5,`src/legacy:B2`

@@ -18,7 +18,7 @@ Notes for anyone, human or agent, changing this repository.
 ## The gate
 
 <!-- BEGIN steps: generated from hk.pkl by scripts/agents-table.sh; do not edit -->
-30 steps run on every commit and 31 on push and `hk check`; the commit-msg hook checks the message.
+31 steps run on every commit and 32 on push and `hk check`; the commit-msg hook checks the message.
 
 | step | runs on | files | fixes |
 |---|---|---|---|
@@ -52,5 +52,6 @@ Notes for anyone, human or agent, changing this repository.
 | `actionlint` | commit | `.github/workflows/*.yml` `.github/workflows/*.yaml` | - |
 | `zizmor` | commit | `.github/workflows/*.yml` `.github/workflows/*.yaml` | - |
 | `deny` | commit | `Cargo.toml` `Cargo.lock` `deny.toml` | - |
+| `doctest` | commit | `**/*.rs` `Cargo.toml` | - |
 | `coverage` | push | `**/*.rs` `Cargo.toml` `.coverage` | - |
 <!-- END steps -->

@@ -297,6 +297,13 @@ local fast = new Mapping<String, Step> {
       cargo deny check --disable-fetch licenses bans
       """
   }
+  // Doc examples are code: one that no longer compiles or asserts true
+  // teaches the wrong API. nextest does not run doctests, so this does.
+  ["doctest"] {
+    glob = List("**/*.rs", "Cargo.toml")
+    depends = List("test")
+    check = "cargo test --doc -q"
+  }
   // -- end of fast --
 }
 
