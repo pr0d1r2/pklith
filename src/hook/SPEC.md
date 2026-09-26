@@ -31,7 +31,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 ## §C CONSTRAINTS
 
 - source = `pkl eval --format json hk.pkl` (pkl from devShell). ⊥ own pkl parser.
-- output: step id → globs, excludes, hook membership.
+- output: the `check` hook's steps (it holds every step): id, globs, excludes, has-a-check-command. read as text from `pkl eval -x`, ⊥ JSON parser dep.
 
 ## §V INVARIANTS
 
@@ -42,7 +42,7 @@ V3: globs matched by src shared engine, same as catalog
 ## §T TASKS
 
 id|status|task|cites
-T1|.|`pkl eval` driver + json → step map|V1,V2
+T1|x|`pkl eval` driver + json → step map|V1,V2
 T2|.|fixture `hk.pkl` files: fast/all split, `depends`, excludes|V3
 
 ## §B BUGS
