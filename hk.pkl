@@ -268,6 +268,15 @@ local fast = new Mapping<String, Step> {
       git ls-files -z '*.md' | xargs -0 lychee --offline --no-progress --include-fragments
       """
   }
+  // A workflow is a file nothing else here parses, and its failure mode is
+  // a run that never starts.
+  ["actionlint"] {
+    glob = List(".github/workflows/*.yml", ".github/workflows/*.yaml")
+    check = """
+      command -v actionlint >/dev/null 2>&1 || { echo 'hk: actionlint is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
+      actionlint {{files}}
+      """
+  }
   // -- end of fast --
 }
 

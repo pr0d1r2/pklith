@@ -163,7 +163,7 @@ T33|x|bootstrap `linter-coverage`: legacy BASE `nix-lefthook-linter-coverage` in
 T34|x|AGENTS.md step table derived from `hk.pkl` + `integration-doc` step|V14
 T35|x|`links` (lychee offline) ∀ docs|V2
 T36|x|`.github/workflows/ci.yml` = orchestration only, `hk check` on 3 tier-1 systems|V8
-T37|.|`actionlint`|V2,V15
+T37|x|`actionlint`|V2,V15
 T38|.|`zizmor`|V2,V15
 T39|.|`deny` (licenses, bans) + `deny.toml`|V2
 T40|.|`deny-advisories`|V2
