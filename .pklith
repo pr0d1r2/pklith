@@ -1,0 +1,66 @@
+format 1
+
+# pklith's own registry: every tracked file type and the hk steps (hk.pkl)
+# that check it. `pkli check` judges this repository against it.
+#
+# The checks are defined locally below until pklith ships a built-in
+# catalog. `check` and `fix` name what the hk step runs; the hk.pkl step is
+# still the one that executes (gen does not exist yet).
+
+## checks
+id|category|nix|glob|check|fix|env|msg
+trailing-whitespace|hygiene|-|**/*|hk util trailing-whitespace --diff {{files}}|hk util trailing-whitespace --fix {{files}}|-|trailing blanks; the pre-commit hook strips them
+final-newline|hygiene|-|**/*|hk util end-of-file-fixer --diff {{files}}|hk util end-of-file-fixer --fix {{files}}|-|file must end with a newline
+line-endings|hygiene|-|**/*|hk util mixed-line-ending --diff {{files}}|hk util mixed-line-ending --fix {{files}}|-|file mixes CRLF and LF
+no-bom|hygiene|-|**/*|hk util check-byte-order-marker {{files}}|-|-|file starts with a byte order marker
+no-merge-conflict|hygiene|-|**/*|hk util check-merge-conflict --assume-in-merge {{files}}|-|-|leftover merge conflict markers
+no-case-conflict|hygiene|-|**/*|hk util check-case-conflict {{files}}|-|-|two paths differ only by case
+no-broken-symlinks|hygiene|-|**/*|git ls-files -z \| xargs -0 hk util check-symlinks|-|-|a symlink points nowhere
+no-large-files|hygiene|-|**/*|per-type size limits (hk.pkl)|-|-|file over its type's size limit
+no-private-key|secret|-|**/*|hk util detect-private-key {{files}}|-|-|a private key block is staged
+ripsecrets|secret|ripsecrets|**/*|ripsecrets {{files}}|-|-|a token or credential is staged
+typos|lint|typos|**/*|typos --force-exclude {{files}}|-|-|misspelling; fix it or teach .typos.toml
+nixfmt|format|nixfmt|**/*.nix|nixfmt --check {{files}}|nixfmt {{files}}|-|nix file not formatted
+taplo|format|taplo|**/*.toml|taplo fmt --check {{files}}|taplo fmt {{files}}|-|TOML not formatted or not parseable
+rustfmt|format|rustfmt|**/*.rs|cargo fmt --check|cargo fmt|-|Rust not formatted
+clippy|lint|clippy|**/*.rs|cargo clippy --all-targets -- -D warnings|-|-|clippy finding or a §C code limit exceeded
+test|test|cargo-nextest|**/*.rs|cargo nextest run|-|-|a test failed, or the suite is empty
+doctest|test|cargo|**/*.rs|cargo test --doc|-|-|a doc example failed
+rustdoc|lint|cargo|**/*.rs|cargo doc --no-deps --document-private-items|-|RUSTDOCFLAGS=-D warnings|docs do not build cleanly
+coverage|coverage|sherd|**/*.rs, .coverage|sherd coverage --check|-|-|line coverage fell below .coverage
+file-ceilings|spec|sherd|**/*.rs|sherd check (V50 count must be 0)|-|-|a Rust file is over its token ceiling
+shellcheck|lint|shellcheck|.githooks/*, .envrc, **/*.sh|shellcheck --shell=bash {{files}}|-|-|shell script finding
+actionlint|lint|actionlint|.github/workflows/*.yml|actionlint {{files}}|-|-|workflow does not parse or type-check
+zizmor|lint|zizmor|.github/workflows/*.yml|zizmor --offline {{files}}|-|-|workflow security finding
+links|lint|lychee|**/*.md|lychee --offline --include-fragments|-|-|a relative link or anchor is broken
+mth-fmt|spec|microlith|**/SPEC.md|mth fmt --check|mth fmt|-|SPEC.md is hard-wrapped or over the line cap
+mth-check|spec|microlith|**/SPEC.md|mth check|-|-|SPEC.md breaks a structural rule
+sherd-check|spec|sherd|**/SPEC.md|sherd check|-|-|a citation across spec nodes does not resolve
+sherd-nav|spec|sherd|**/SPEC.md|sherd sync --check|sherd sync|-|a §N table is stale
+sherd-budget|spec|sherd|**/SPEC.md, .context-limits|sherd budget|-|-|a spec chain is over its ceiling
+flake-lock-graph|supply|jq|flake.lock|one nixpkgs, at most 12 nodes (hk.pkl)|-|-|flake.lock grew a second nixpkgs or too many nodes
+deny|supply|cargo-deny|Cargo.toml, Cargo.lock, deny.toml|cargo deny check licenses bans|-|-|a license or ban rule failed
+agents-table|spec|-|hk.pkl, AGENTS.md|scripts/agents-table.sh --check|scripts/agents-table.sh|-|AGENTS.md step table is stale
+
+## types
+type|checks|min|exempt
+*|trailing-whitespace,final-newline,line-endings,no-bom,no-merge-conflict,no-case-conflict,no-broken-symlinks,no-large-files,no-private-key,ripsecrets,typos|-|-
+rs|rustfmt,clippy,test,doctest,rustdoc,coverage,file-ceilings|-|-
+nix|nixfmt|-|-
+lock|flake-lock-graph|-|-
+Cargo.lock|deny|-|-
+toml|taplo|-|-
+SPEC.md|mth-fmt,mth-check,sherd-check,sherd-nav,sherd-budget,links|-|-
+md|links|-|-
+sh|shellcheck|-|-
+envrc|shellcheck|-|-
+pre-commit|shellcheck|-|-
+commit-msg|shellcheck|-|-
+pre-push|shellcheck|-|-
+yml|actionlint,zizmor|-|-
+context-limits|sherd-budget|-|-
+coverage|coverage|-|-
+pkl|-|-|hk.pkl is evaluated against the vendored schema by every hk run; pkl/Config.pkl is vendored
+gitignore|-|-|git configuration; hygiene steps only
+LICENSE|-|-|license text, nothing to lint
+pklith|-|-|this registry; `pkli check` parses it and fails on any error

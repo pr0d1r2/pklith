@@ -29,3 +29,4 @@ the legacy checker and this file (T44).
 | `.context-limits` | sherd-budget | read and validated by it |
 | `.coverage` | coverage | read as the coverage floor |
 | `LICENSE` | - | license text, nothing to lint |
+| `.pklith` | - | pklith's own registry; `pkli check` parses it and fails on any error |
