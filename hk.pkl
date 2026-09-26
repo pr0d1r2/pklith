@@ -33,6 +33,12 @@ local fast = new Mapping<String, Step> {
     check_diff = "hk util end-of-file-fixer --diff {{files}}"
     fix = "hk util end-of-file-fixer --fix {{files}}"
   }
+  ["line-endings"] {
+    glob = List("**/*")
+    exclude = List("pkl/**")
+    check_diff = "hk util mixed-line-ending --diff {{files}}"
+    fix = "hk util mixed-line-ending --fix {{files}}"
+  }
   // -- end of fast --
 }
 

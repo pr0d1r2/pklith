@@ -133,7 +133,7 @@ T3|x|hk commit: `nix-hk` input + cachix `nixConfig`, hk & pkl in devShell, vendo
 T4|x|`commit-msg` step: subject `type(scope): claim`, ≤72 chars, body non-empty. a regex in `hk.pkl` (pkli ⊥ exists yet), moved into catalog once it does|V12,V13
 T5|x|`trailing-whitespace` (fixer excludes `pkl/`)|V2,V7
 T6|x|`final-newline`|V2,V7
-T7|.|`line-endings`|V2,V7
+T7|x|`line-endings`|V2,V7
 T8|.|`no-bom`|V2
 T9|.|`no-merge-conflict --assume-in-merge`|V2,R7
 T10|.|`no-case-conflict`|V2
