@@ -41,6 +41,7 @@ V5: empty repo → ok, ⊥ error
 V6: totality: ∀ file ∈ exactly 1 type; 0 → gap, ⊥ silently dropped (`.:R14`)
 V7: failed rule → fail, naming rule id, source file & missing target
 V8: staged mode judges only changed & deleted paths (+ rows they touch); full mode judges the tree (`.:V26`)
+V9: newly active fragment ⊥ reflected in `.pklith` → finding w/ the rows to add; `.pklith` ⊥ auto-written after `seed --init`
 
 ## §T TASKS
 
@@ -49,6 +50,7 @@ T1|.|Coverage type + gap/stale|V1,V2,V4,V5,V6
 T2|.|claim-vs-runner join via src/hook|V3
 T3|.|fold rule results|V7
 T4|.|staged mode: changed + deleted paths only; test: deleting the last `.sh` flags its row stale|V8,`.:V26`
+T5|.|test: first `.rb` file in a repo → finding names rubocop rows to add|V9
 
 ## §B BUGS
 
