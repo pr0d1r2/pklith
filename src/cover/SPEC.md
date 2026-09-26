@@ -17,6 +17,7 @@ sib|src/catalog|check definitions: category, nix attr, runner glob, hk step, fix
 sib|src/rule|companion rules: exists, mentions, changed, orphan; path templates
 sib|src/hook|read effective hk config via `pkl eval`: step → globs
 sib|src/legacy|3 legacy formats: read, `import`, compat entries
+sib|src/map|guard mode: changed paths → covering specs
 
 ## §C CONSTRAINTS
 
