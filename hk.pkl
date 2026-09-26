@@ -257,6 +257,17 @@ local fast = new Mapping<String, Step> {
     check = "scripts/agents-table.sh --check"
     fix = "scripts/agents-table.sh"
   }
+  // Relative links only (`--offline`): a gate that needs the network goes
+  // soft on a plane. A link breaks when its TARGET moves, and the target's
+  // referrer is usually not staged, so every document is checked whenever
+  // any markdown changes.
+  ["links"] {
+    glob = List("**/*.md")
+    check = """
+      command -v lychee >/dev/null 2>&1 || { echo 'hk: lychee is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
+      git ls-files -z '*.md' | xargs -0 lychee --offline --no-progress --include-fragments
+      """
+  }
   // -- end of fast --
 }
 

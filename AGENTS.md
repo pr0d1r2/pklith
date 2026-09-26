@@ -18,7 +18,7 @@ Notes for anyone, human or agent, changing this repository.
 ## The gate
 
 <!-- BEGIN steps: generated from hk.pkl by scripts/agents-table.sh; do not edit -->
-26 steps run on every commit and 27 on push and `hk check`; the commit-msg hook checks the message.
+27 steps run on every commit and 28 on push and `hk check`; the commit-msg hook checks the message.
 
 | step | runs on | files | fixes |
 |---|---|---|---|
@@ -48,5 +48,6 @@ Notes for anyone, human or agent, changing this repository.
 | `shellcheck` | commit | `.githooks/*` `.envrc` `**/*.sh` | - |
 | `linter-coverage` | commit | whole tree | - |
 | `agents-table` | commit | `hk.pkl` `AGENTS.md` `scripts/agents-table.sh` | yes |
+| `links` | commit | `**/*.md` | - |
 | `coverage` | push | `**/*.rs` `Cargo.toml` `.coverage` | - |
 <!-- END steps -->
