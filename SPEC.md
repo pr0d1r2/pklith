@@ -148,7 +148,7 @@ T18|x|`taplo`|V2,V15
 T19|.|`no-commit-to-branch` main|V8
 T20|x|vendor `FORMAT.md` + `FORMAT-EXTENSIONS.md` from pinned microlith|V7
 T21|x|`mth fmt --check` ∀ `**/SPEC.md`|V1,V2
-T22|.|`mth check` ∀ `**/SPEC.md`|V1,V2
+T22|x|`mth check` ∀ `**/SPEC.md`|V1,V2
 T23|.|`sherd check`|V2
 T24|.|`sherd sync --check` (nav)|V6
 T25|.|`sherd budget` + `.context-limits`|V9

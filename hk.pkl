@@ -152,6 +152,18 @@ local fast = new Mapping<String, Step> {
       """
     fix = #"for f in {{files}}; do mth fmt "$f" || exit 1; done"#
   }
+  // Structure: sections in order, ids unique & monotonic, citations
+  // resolving, table rows with the right number of cells. Separate from
+  // `mth-fmt` so a layout failure and a structural one are told apart by
+  // WHICH step went red.
+  ["mth-check"] {
+    glob = List("**/SPEC.md")
+    depends = List("mth-fmt")
+    check = """
+      command -v mth >/dev/null 2>&1 || { echo 'hk: mth is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
+      for f in {{files}}; do mth check "$f" || exit 1; done
+      """
+  }
   // -- end of fast --
 }
 
