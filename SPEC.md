@@ -115,6 +115,7 @@ V25: seed files repo-owned (written once, skip-if-exists). hk files (`hk.pkl`, `
 V26: pre-commit hot path (`check --staged`, `map --staged`) costs O(changed files): each changed file resolves to a type & its rules. full totality scan runs at pre-push & CI
 V27: speed is the port's reason ∴ measured: `pkli check` & `gen` wall time vs set-and-setting shell on same fixture repos, recorded in §R; budgets set from that measurement, ⊥ guessed, & a regression fails a bench step
 V28: vendored `pkl/Config.pkl` == schema of the pinned hk version; hk bump & schema re-vendor land in ONE commit
+V29: ∀ step tool from a nix-pinned package; ⊥ fetched at run time (⊥ remotes, ⊥ `npx`/`pipx run`, ⊥ `curl | sh`)
 
 ## §T TASKS
 
