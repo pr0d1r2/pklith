@@ -46,7 +46,7 @@ V1: node deps ! DAG: proc → {scan, registry, catalog} → {detect, rule, hook,
 
 id|status|task|cites
 T1|.|`src/lib.rs` + `src/main.rs` wiring ∀ node `mod.rs`|V1,`.:T1`
-T2|.|shared glob engine: `globset` 0.4 w/ hk's options (`.:R19`)|`.:C`
+T2|x|shared glob engine: `globset` 0.4 w/ hk's options (`.:R19`)|`.:C`
 
 ## §B BUGS
 

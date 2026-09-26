@@ -3,6 +3,9 @@
 
 use std::path::Path;
 
+mod glob;
+pub use glob::Globs;
+
 /// How a candidate key was derived from a basename (scan §C).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Kind {
@@ -86,6 +89,8 @@ pub enum Error {
     Malformed(String),
     /// A directory could not be read.
     Io(String, std::io::Error),
+    /// A glob that does not compile.
+    Glob(String),
 }
 
 impl std::fmt::Display for Error {
@@ -95,6 +100,7 @@ impl std::fmt::Display for Error {
             Self::NotUtf8(p) => write!(f, "path is not UTF-8: {p}"),
             Self::Malformed(r) => write!(f, "unexpected git ls-files record: {r}"),
             Self::Io(p, e) => write!(f, "{p}: {e}"),
+            Self::Glob(e) => write!(f, "{e}"),
         }
     }
 }
