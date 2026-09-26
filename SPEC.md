@@ -140,7 +140,7 @@ T10|x|`no-case-conflict`|V2
 T11|x|`no-broken-symlinks`|V2
 T12|x|`no-private-key`|V2
 T13|x|`ripsecrets` + `.secretsignore`|V1,V2
-T14|.|`no-large-files` w/ per-ext limits (`lock` 65536, `nix` 10240)|V2,R8
+T14|x|`no-large-files` w/ per-ext limits (`lock` 65536, `nix` 10240)|V2,R8
 T15|.|`flake.lock` node-count ceiling|V2,R8
 T16|.|`typos` + `.typos.toml`|V2
 T17|.|`nixfmt`|V2,V15
