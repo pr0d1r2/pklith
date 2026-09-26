@@ -257,6 +257,34 @@ mod tests {
         Ok(())
     }
 
+    /// T3: an empty repository is a valid repository with no files, not an
+    /// error, from either source.
+    #[test]
+    fn an_empty_repository_has_no_files() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = temp("empty")?;
+        git(&dir, &["init", "-q"])?;
+        assert_eq!((tracked(&dir)?, walked(&dir)?), (vec![], vec![]));
+        std::fs::remove_dir_all(&dir)?;
+        Ok(())
+    }
+
+    /// T3: NUL-separated records keep a newline inside a name intact, where
+    /// line-based `git ls-files` would split it into two bogus paths.
+    #[test]
+    fn a_newline_in_a_name_is_one_path() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = temp("newline")?;
+        git(&dir, &["init", "-q"])?;
+        std::fs::write(dir.join("two\nlines.txt"), "")?;
+        git(&dir, &["add", "-A"])?;
+        assert_eq!(tracked(&dir)?, ["two\nlines.txt"]);
+        assert_eq!(
+            candidates("two\nlines.txt").last().map(|c| c.key.clone()),
+            Some("txt".to_owned())
+        );
+        std::fs::remove_dir_all(&dir)?;
+        Ok(())
+    }
+
     #[test]
     fn walking_a_missing_directory_names_it() {
         let err = walked(Path::new("/pklith-no-such-dir"))
