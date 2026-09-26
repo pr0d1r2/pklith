@@ -13,6 +13,7 @@ self|src/detect|active fragments from scanned files, fixed order
 sib|src/scan|enumerate files, basename → exactly 1 file type
 sib|src/registry|`.pklith` parse/fmt: types → check sets, rules, plural, exempt
 sib|src/catalog|check definitions: category, nix attr, runner glob, hk step, fix, failure msg
+sib|src/rule|companion rules: exists, mentions, changed, orphan; path templates
 
 ## §C CONSTRAINTS
 
