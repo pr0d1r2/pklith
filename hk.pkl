@@ -95,6 +95,23 @@ local fast = new Mapping<String, Step> {
       exit "$fail"
       """#
   }
+  // §C: ONE nixpkgs rev. A second nixpkgs node means an input stopped
+  // following nixpkgs-lock: a second toolchain in the closure and every
+  // cached hk missing. The node ceiling catches graph growth before it
+  // compounds (the legacy lock once carried 59 nodes, R8). Raising it is a
+  // reviewed commit with a reason.
+  ["flake-lock-graph"] {
+    glob = List("flake.lock")
+    check = #"""
+      command -v jq >/dev/null 2>&1 || { echo 'hk: jq is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
+      for f in {{files}}; do
+        nodes="$(jq '.nodes | length' "$f")"
+        [ "$nodes" -le 12 ] || { echo "flake-lock-graph: $f has $nodes nodes; the ceiling is 12." >&2; exit 1; }
+        np="$(jq '[.nodes[] | select(.original.owner == "NixOS" and .original.repo == "nixpkgs")] | length' "$f")"
+        [ "$np" -le 1 ] || { echo "flake-lock-graph: $f locks $np nixpkgs; exactly one is allowed. Make the new input follow nixpkgs-lock." >&2; exit 1; }
+      done
+      """#
+  }
   // -- end of fast --
 }
 

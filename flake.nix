@@ -56,6 +56,7 @@
             # Gate tools that need a real binary, one per step, each added in
             # the commit that adds its step.
             pkgs.ripsecrets
+            pkgs.jq
           ];
           RUST_BACKTRACE = "1";
 
