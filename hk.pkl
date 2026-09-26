@@ -67,6 +67,17 @@ local fast = new Mapping<String, Step> {
     glob = List("**/*")
     check = "hk util detect-private-key {{files}}"
   }
+  // Tokens and credentials by entropy and known prefix: the shape
+  // `no-private-key` does not match. `pkl/` is a vendored schema, not ours
+  // to annotate. A missing tool is reported as missing, never as a finding.
+  ["ripsecrets"] {
+    glob = List("**/*")
+    exclude = List("pkl/**")
+    check = """
+      command -v ripsecrets >/dev/null 2>&1 || { echo 'hk: ripsecrets is not on PATH. Re-enter the dev shell (direnv reload). This is a MISSING TOOL, not a finding.' >&2; exit 1; }
+      ripsecrets {{files}} || { echo 'hk: a possible secret is staged. A real one must never be committed. A false positive goes in .secretsignore.' >&2; exit 1; }
+      """
+  }
   // -- end of fast --
 }
 

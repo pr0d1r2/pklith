@@ -53,6 +53,9 @@
             # hk.pkl with pkl.
             pkgs.hk
             pkgs.pkl
+            # Gate tools that need a real binary, one per step, each added in
+            # the commit that adds its step.
+            pkgs.ripsecrets
           ];
           RUST_BACKTRACE = "1";
 
