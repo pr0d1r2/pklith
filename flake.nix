@@ -59,6 +59,7 @@
             pkgs.jq
             pkgs.typos
             pkgs.nixfmt
+            pkgs.taplo
           ];
           RUST_BACKTRACE = "1";
 

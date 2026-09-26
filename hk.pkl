@@ -131,6 +131,16 @@ local fast = new Mapping<String, Step> {
       """
     fix = "nixfmt {{files}}"
   }
+  // Cargo.toml and tool configs: formatted and parsed, so a malformed key
+  // fails here rather than as a confusing cargo or typos error later.
+  ["taplo"] {
+    glob = List("**/*.toml")
+    check = """
+      command -v taplo >/dev/null 2>&1 || { echo 'hk: taplo is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
+      taplo fmt --check {{files}}
+      """
+    fix = "taplo fmt {{files}}"
+  }
   // -- end of fast --
 }
 
