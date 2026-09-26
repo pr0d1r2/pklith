@@ -173,3 +173,17 @@ T57|.|migrate port: lefthook repo → hk|V24
 T58|.|protect port: required contexts from CI job names|-
 T59|.|raise set-and-setting issues for D1, D2, D3|R15
 T60|.|set-and-setting consumes pklith via flake input; its setting shell retired|V4
+
+## §B BUGS
+
+id|date|cause|fix
+B1|2026-09-07|legacy `-full` #5: check inert unless doc env set ∴ green on most consumers while gating nothing|V1,V11
+B2|2026-09-06|set-and-setting `B96`: missing EXEMPTIONS ledger → exit 1 ∴ ∀ push blocked. absent exemptions = none, ⊥ error|V11
+B3|2026-09-06|set-and-setting `B94`: 2nd fragment detector disagreed w/ 1st (also `B40`)|V16
+B4|2026-09-25|set-and-setting `B61`/`B74`: wrapper list omitted `actions`/`toml` fragments; D3 same shape|V17
+B5|2026-09-25|set-and-setting `B100`: actionlint step selection empty ∴ green w/o running|V18
+B6|2026-09-05|set-and-setting `B88`: `nix-flake-eval` wrapper required env never set ∴ ∀ push failed fleet-wide|V19
+B7|2026-09-25|set-and-setting `B97`: `GIT_DIR` leaked from hook env corrupted a repo|V20
+B8|2026-09-07|set-and-setting `B98`: hardcoded system literal ∴ darwin pre-push could ⊥ pass|V21
+B9|2026-09-25|set-and-setting `B25`: `lefthook install` wrote default stub before materialization ∴ fidelity failed|V22
+B10|2026-09-25|set-and-setting D1: ledger awk registers only `ticket:` entries ∴ reason-only exemption ignored|V23
