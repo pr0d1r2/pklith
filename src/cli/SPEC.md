@@ -37,11 +37,14 @@ V1: exit codes: 0 ok / 1 finding / 2 usage | I/O error. ∀ verb
 V2: unknown flag → usage on stderr, exit 2
 V3: stdout = data only; diagnostics → stderr
 V4: ∀ path arg opened as path, ⊥ read as flag
+V5: run from any subdirectory → acts on repo root (`git rev-parse --show-toplevel`); `--root` overrides; outside a repo w/o `--root` → exit 2
+V6: `--version` prints crate version & built-in catalog version
 
 ## §T TASKS
 
 id|status|task|cites
 T1|.|dispatch `check`/`report`/`gen`/`lay`/`map`/`import`/`detect`/`seed`/`confirm`/`migrate`/`protect` + usage|V1,V2,V3,V4,`.:I`
+T2|.|root discovery from subdirectory + `--version`|V5,V6
 
 ## §B BUGS
 
