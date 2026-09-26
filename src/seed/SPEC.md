@@ -42,7 +42,7 @@ V3: seeded exemptions ledger = empty list, valid (`.:V11`, `.:V23`)
 ## §T TASKS
 
 id|status|task|cites
-T1|.|seed writer + skip-if-exists|V1,`.:T55`
+T1|.|seed writer + skip-if-exists + empty ledger valid|V1,V3,`.:T55`
 T2|.|`.gitignore` composition|V2
 T3|.|`.pklith` from detected fragments + binary-asset exemptions|V1,`.:V11`
 

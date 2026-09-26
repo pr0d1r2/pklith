@@ -49,6 +49,7 @@ T1|.|template parser + filters + plural rules|V1
 T2|.|`exists` + `orphan`|V4
 T3|.|`mentions` (factory_bot `factory :{stem\|snake}` under `spec/factories/**`)|V2
 T4|.|`changed` over staged diff|V3
+T5|.|test: editing file content flips only `mentions` results|V5
 
 ## §B BUGS
 
