@@ -12,11 +12,20 @@ and enforces that no file goes unchecked.
 The command is `pkli`. It is not part of [Pkl](https://pkl-lang.org), the
 configuration language hk uses; the name only borrows it.
 
-Status: early. `pkli check` works: it reads `.pklith` at the repository root and
-reports every tracked file type that has no row, and every row that matches
-no file. Generating hk steps, laying them, and the rest of the design are not
-built yet; the design lives in [`SPEC.md`](SPEC.md) and the `SPEC.md` files
-under `src/`.
+Status: early, but the core loop works, and pklith's own gate is built with
+it:
+
+- `pkli check`: every tracked file type has a row in `.pklith`, no row is
+  stale, and every check a row claims is an hk step that actually reaches
+  those files.
+- `pkli gen [--check]`: renders `.pklith` into `hk.pklith.pkl`, the hk steps
+  your `hk.pkl` imports.
+- `pkli lay [--dry-run]`: adds each missing check as its own commit, through
+  your git hooks, and rolls everything back if one is refused.
+- `pkli import DOC`: turns a legacy linter-coverage document into `.pklith`.
+
+There is no built-in catalog of checks yet, so `.pklith` defines its own.
+The design lives in [`SPEC.md`](SPEC.md) and the `SPEC.md` files under `src/`.
 
 ## License
 
