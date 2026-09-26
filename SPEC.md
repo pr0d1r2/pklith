@@ -87,6 +87,7 @@ R15|setting survey|set-and-setting setting half: `flake/default.nix` 4248 lines 
 R16|name clash|`lydite` free on 11 registries yet GitHub org `lydite` + lydite.org = active Go code-quality CLI, same space ∴ registries alone ⊥ prove a name free|gh, DNS 2026-09-25
 R17|commit style|recent subjects: xenolith/microlith/itok = `type(scope): claim` hybrid; ashlar/sherd = prose `<topic>: <claim>`. hybrid keeps claim & stays machine-readable|`git log` 5 repos 2026-09-26
 R18|fleet sweep (T70)|9 repos w/ a legacy doc, legacy checker vs `pkli check --registry` on `pkli import`: GAPS IDENTICAL in 9/9 (leadgen `packwerk`; set-and-setting 23 types, where the doc is ⊥ its real coverage source). import token sets = legacy awk in 9/9 (170 tokens). only diff = STALE rows legacy cannot see (`R4`): nix-config lists `.json` w/ ⊥ json file (legacy 0, pkli 1); leadgen lists 10 linter NAMES (`typos`, `gitleaks` …) as types. ∴ root V4 holds for gaps; stale is a stricter verdict, ⊥ a regression|sweep 2026-09-26
+R19|glob engine (src T2)|hk 1.58.1 matches step globs w/ `globset` 0.4 (`src/glob.rs`): `GlobBuilder::empty_alternates(true)`, `literal_separator` OFF ∴ `*.rs` matches `src/a.rs` (`*` crosses `/`); `dir` steps turn it ON. pklith uses the same crate & options ∴ a claim is judged exactly as the runner matches (`src:V1`, cover V3). hand-rolled = a 2nd reading of one rule. licenses: globset and its deps are MIT or dual-licensed incl. MIT, inside deny.toml allow|hk source `src/glob.rs`, `Cargo.toml`
 
 ## §V INVARIANTS
 
