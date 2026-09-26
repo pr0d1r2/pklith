@@ -97,7 +97,7 @@ V5: ∀ tracked file ! resolve to exactly 1 type & type ! have ≥1 check beyond
 V6: generated files (`hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block, `§N`) ⊥ hand-edited; stale → gate fails
 V7: `pkl/` & vendored files ⊥ touched by fixers
 V8: ∀ commit on `main` passes full `hk check`
-V9: `.context-limits` ceilings ∀ `SPEC.md` enforced by `itok`/`sherd budget`; raise = reviewed commit w/ reason
+V9: `.context-limits` chain ceilings ∀ `SPEC.md` enforced by `sherd budget`; per-file ceilings via `itok` wait on T71; raise = reviewed commit w/ reason
 V10: shipped nix package tested AS BUILT (`nix build` + fixture repo), ⊥ only source-tree run; built artifact carries ⊥ leftover `@…@` | `*_PATH` placeholder
 V11: missing `.pklith` → exit 2, ⊥ skip, ⊥ pass. missing OPTIONAL input (exempt list, plural table) = empty, ⊥ error
 V12: hk hooks installed IN the commit that brings hk. ∀ later commit made through real `pre-commit`/`commit-msg`; ⊥ `--no-verify`, ⊥ hooks-disabled commit. red hook → commit ⊥ lands
@@ -152,7 +152,7 @@ T22|x|`mth check` ∀ `**/SPEC.md`|V1,V2
 T23|x|`sherd check`|V2
 T24|x|`sherd sync --check` (nav)|V6
 T25|x|`sherd budget` + `.context-limits`|V9
-T26|.|`itok check`|V9
+T26|.|`itok check` BLOCKED: itok reads `.context-limits` (fixed name) as per-FILE ceilings, sherd as per-CHAIN; one file ⊥ serves both. V9 held by `sherd budget` (T25) until itok takes a limits path (T71)|V9,B11
 T27|.|`rustfmt`|V2,V15
 T28|.|`clippy -D warnings`|V2
 T29|.|`test` (nextest, non-empty suite: exit-code contract)|V2
@@ -197,6 +197,7 @@ T67|.|pre-publish audit: ∀ committed file & message ⊥ names an unpublished f
 T68|.|`CHANGELOG.md` (keep-a-changelog) + `changelog-touched` step: golden or `src/` change w/o `[Unreleased]` entry → red|V33
 T69|.|release: version bump PR → tag → crates.io publish → cachix push of `pklith` for 3 tier-1 systems; `cargo semver-checks` gates the bump|V33,V10
 T70|.|fleet sweep: ∀ repo under `../` using a legacy coverage tool or set-and-setting setting → legacy verdict vs `pkli check` on imported `.pklith`; diffs → §B or fix|V34,V4
+T71|.|raise itok issue: `itok check` takes a limits path, so per-file ceilings can live beside sherd chain ceilings|B11
 
 ## §B BUGS
 
@@ -211,3 +212,4 @@ B7|2026-09-25|set-and-setting `B97`: `GIT_DIR` leaked from hook env corrupted a 
 B8|2026-09-07|set-and-setting `B98`: hardcoded system literal ∴ darwin pre-push could ⊥ pass|V21
 B9|2026-09-25|set-and-setting `B25`: `lefthook install` wrote default stub before materialization ∴ fidelity failed|V22
 B10|2026-09-25|set-and-setting D1: ledger awk registers only `ticket:` entries ∴ reason-only exemption ignored|V23
+B11|2026-09-26|`itok check` & `sherd budget` both read `.context-limits`: itok per FILE (root `SPEC.md` 7,242 tok, whole file), sherd per CHAIN at rule depth (5,217). ceilings right for one are wrong for the other ∴ itok step ⊥ adopted|V9
