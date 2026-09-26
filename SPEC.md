@@ -124,10 +124,10 @@ V31: `.pklith` carries a format version line; newer than pkli understands → ex
 ## §T TASKS
 
 id|status|task|cites
-T1|.|seed via `alr apply --only C1`: LICENSE, `.gitignore`, `Cargo.toml` (lints, `unsafe_code = "forbid"`), `src/main.rs`, README stub|R12
+T1|.|seed via `alr apply --only C1`: LICENSE, `.gitignore`, `Cargo.toml` (lints, `unsafe_code = "forbid"`), `src/main.rs`, README stub. `alr` writes prose subjects: T1-T2 predate T4 & are exempt; `commit-msg` judges new commits only|R12,V12
 T2|.|toolchain via `alr apply --only C2` + itok/microlith/sherd inputs + `nixConfig` substituter; `.envrc`|R5,R12
 T3|.|hk commit: hk in devShell, vendored `pkl/Config.pkl`, empty-step `hk.pkl` (pre-commit fix+stash, commit-msg, pre-push, check, fix), hooks installed; REFUSE w/o hk|V1,V7,V12
-T4|.|`commit-msg` step: subject `type(scope): claim`, ≤72 chars|V12,V13
+T4|.|`commit-msg` step: subject `type(scope): claim`, ≤72 chars. a regex in `hk.pkl` (pkli ⊥ exists yet), moved into catalog once it does|V12,V13
 T5|.|`trailing-whitespace` (fixer excludes `pkl/`)|V2,V7
 T6|.|`final-newline`|V2,V7
 T7|.|`line-endings`|V2,V7
