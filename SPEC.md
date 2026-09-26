@@ -61,6 +61,27 @@ self|.|-
 - env: `LEFTHOOK_LINTER_COVERAGE_DOC`, `LEFTHOOK_LINTER_COVERAGE_ROOT`, `LEFTHOOK_UNIT_COVERAGE_CONFIG`, `LEFTHOOK_UNIT_COVERAGE_ROOT` → compat entries only
 - nix: `packages.<system>.default` = `pklith` (bin `pkli`); `packages.<system>.compat` = legacy entry names
 
+## §R RESEARCH
+
+id|topic|finding|src
+R1|legacy base|`lefthook-linter-coverage.sh`: doc default `docs/linter-coverage.md`; `git ls-files` only; ext = `sed -n 's/.*\.//p'` on basename; bare (no dot) basename separate; prints `.ext` \| `name`; exit 0/1|../nix-lefthook-linter-coverage
+R2|legacy full|`lefthook-linter-coverage-full.sh`: doc env REQUIRED; `LEFTHOOK_LINTER_COVERAGE_ROOT` → `find . -type f ! -path './.git/*'`; key = `sed 's/.*\.//'` ∴ bare name → itself; prints `.justfile` for bare; needs `gawk`|../nix-lefthook-linter-coverage-full
+R3|legacy doc parse|both: `/^\|/` rows, col 1 only, ∀ backtick token, leading `.` stripped. header row has no backtick ∴ skipped. col 2 (linter) IGNORED; `-` in col 2 = exempt by convention, reason in col 3|`linter-coverage.awk`, `parse-coverage-doc.sh`, `docs/linter-coverage.md`
+R4|legacy gaps|`x.tar.gz` → `gz` only; `.envrc` → `envrc`; ⊥ stale detection; ⊥ which-linter info; ⊥ report; ⊥ generation; submodule gitlink counted as file|R1,R2 reading
+R5|hk on 26.05|nixos-26.05 ships ⊥ `hk`; `nix-hk` builds it from fleet pin, cachix `pr0d1r2.cachix.org`|../nix-hk/README.md
+R6|sibling gates|itok 39 · microlith 39 · sherd 34 hk steps. common: hygiene via `hk util`, ripsecrets, typos, actionlint, zizmor, shellcheck, nixfmt, taplo, spec fmt/check, fmt/clippy/test, coverage, semver|../{itok,microlith,sherd}/hk.pkl
+R7|hygiene trap|`check-merge-conflict` passes real markers w/o `--assume-in-merge`|../sherd/hk.pkl T87 comment
+R8|legacy PR review|12 PRs, 30 commits, 1 issue. bugs: awk `--` read as filename by GNU awk (21f30f5); doc path could be read as awk flag (bd2f981); `-full` #5 placeholder unsubstituted when consumer builds from `flake = false` src ∴ gawk reads nothing ∴ ∀ ext "uncovered"; unset doc env ∴ check inert on most consumers. hygiene: per-ext size limits `lock` 65536 `nix` 10240; lock 81,715→44,951 B; lock nodes 59→17|gh pr/issue list both repos
+R9|unit-coverage|`.unit-coverage.toml` `[[rules]]`: `glob dirs test_dir pattern(mirror\|flat) test_ext test_suffix strip normalize exclude`; `.coverage-allowlist`; env `LEFTHOOK_UNIT_COVERAGE_{CONFIG,ROOT,TIMEOUT}`; 30 PRs ⊥ reviewed yet (T47)|github.com/pr0d1r2/nix-lefthook-unit-coverage
+R10|rspec-spec-cov|matchers `be_covered_with_specification`, `.with_reflection` (spec changes w/ impl), `.spec_bigger`, `.mentioning_methods`. first 2 = mechanical & taken; last 2 = quality PROXIES ∴ ⊥|github.com/pr0d1r2/rspec-specification-coverage
+R11|set-and-setting|own `linter-coverage` + `coveragePerFileClass` + `materializationFor`. bugs: `B53`/`B77` check in map w/o file class ∴ completeness rejected map; `B55` `all` class read as literal; `B57` tracked `lefthook.yml` drifted from generated; `B96` missing EXEMPTIONS ledger → exit 1 ∴ ∀ push blocked|../set-and-setting/SPEC.md
+R12|ashlar|courses: 1 course = 1 commit, gate RUN green @ each (`V2`), rule+runner+doc 1 commit (`V3`), body names deliberate omissions (`V10`), AGENTS.md derived from `hk.pkl` + `integration-doc` step (`V14`), commit subject prose `<topic>: <claim>` (fleet claim partial, see R17). GAPS vs us: commits w/ hooks DISABLED (`T11`), hooks DEGRADE w/o hk (`V21`), C3/C4 bundle many checks|../ashlar/SPEC.md
+R13|name|`pklith` free 2026-09-26 on crates.io npm PyPI RubyGems brew formula+cask Hex NuGet AUR Debian nixpkgs CRAN; GitHub user/org free; 1 unrelated substring repo; ⊥ live .com/.org/.dev/.io|registry API, `gh api`, `dig`
+R14|totality|∀ file → exactly 1 bucket; unassigned file = never linted & reads green. linter coverage = totality applied to linting|unpublished sibling runner spec
+R15|setting survey|set-and-setting setting half: `flake/default.nix` 4248 lines + ~30 bash scripts; ~340 bats + ~85 nix checks. runner-agnostic: `check-fragment-map.nix` (20 fragments, `checksPerFragment`, `coveragePerFileClass`, canon units, required contexts), `detect-fragments.sh`, 24 `mk*Check`, seed/canon, drift/graph checks, branch protection. lefthook-bound: `assemble-lefthook.sh`, fragment YAMLs, migration overlay, `confirm.sh` fidelity, `lefthook install`, `migrate.sh` (1129 lines). read-only defects: D1 ledger awk registers only `ticket:` entries; D2 `all` class w/ checks marks ∀ file covered ∴ vacuous; D3 `wrappersForFragment` lacks `just xml tcl awk`|../set-and-setting (survey 2026-09-25)
+R16|name clash|`lydite` free on 11 registries yet GitHub org `lydite` + lydite.org = active Go code-quality CLI, same space ∴ registries alone ⊥ prove a name free|gh, DNS 2026-09-25
+R17|commit style|recent subjects: xenolith/microlith/itok = `type(scope): claim` hybrid; ashlar/sherd = prose `<topic>: <claim>`. hybrid keeps claim & stays machine-readable|`git log` 5 repos 2026-09-26
+
 ## §V INVARIANTS
 
 V1: gate that cannot run has ⊥ passed. missing tool → exit ≠ 0, ⊥ silent skip
