@@ -30,8 +30,30 @@ hooks {
     stash = "git"
     steps = fast
   }
+  // Subject `type(scope): claim`, at most 72 characters, and a body that
+  // says why (pklith §C, T4). A regex here rather than pkli, which does not
+  // exist yet; it moves into the catalog once it does. No backslashes: pkl
+  // would pass them to the shell doubled, so brackets stand in for escapes.
+  // No `${#var}` either: hk renders the command as a template first, and
+  // `{#` opens a template comment, so every message failed to render.
   ["commit-msg"] {
-    steps {}
+    steps {
+      ["commit-msg"] {
+        check = #"""
+          f="$(git rev-parse --git-path COMMIT_EDITMSG)"
+          [ -f "$f" ] || { echo "commit-msg: no message file at $f, so nothing was checked." >&2; exit 1; }
+          msg="$(grep -v '^#' "$f")"
+          subject="$(printf '%s' "$msg" | sed -n 1p)"
+          case "$subject" in "Merge "*|"Revert "*|"fixup! "*|"squash! "*) exit 0 ;; esac
+          printf '%s' "$subject" | grep -Eq '^(feat|fix|docs|test|chore|refactor|perf|build|ci)([(][a-z0-9/._-]+[)])?!?: [^ ]' || {
+            echo "commit-msg: subject must be 'type(scope): claim', type one of feat fix docs test chore refactor perf build ci. Got: $subject" >&2; exit 1; }
+          n="$(printf '%s' "$subject" | wc -m | tr -d ' ')"
+          [ "$n" -le 72 ] || { echo "commit-msg: subject is $n characters, the limit is 72. Say less, or move detail to the body." >&2; exit 1; }
+          body="$(printf '%s' "$msg" | sed -n '2,$p' | grep -v '^Co-Authored-By:' | grep -c '[^[:space:]]' || true)"
+          [ "$body" -gt 0 ] || { echo "commit-msg: the body is empty. Say WHY: the diff already shows what changed." >&2; exit 1; }
+          """#
+      }
+    }
   }
   ["pre-push"] {
     steps = all
