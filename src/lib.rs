@@ -6,4 +6,5 @@ pub mod catalog;
 pub mod cover;
 pub mod proc;
 pub mod registry;
+pub mod report;
 pub mod scan;
