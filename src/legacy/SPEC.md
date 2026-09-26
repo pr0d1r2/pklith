@@ -16,6 +16,7 @@ sib|src/registry|`.pklith` parse/fmt: types → check sets, rules, plural, exemp
 sib|src/catalog|check definitions: category, nix attr, runner glob, hk step, fix, failure msg
 sib|src/rule|companion rules: exists, mentions, changed, orphan; path templates
 sib|src/hook|read effective hk config via `pkl eval`: step → globs
+sib|src/cover|verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps
 
 ## §C CONSTRAINTS
 
