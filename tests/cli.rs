@@ -197,3 +197,59 @@ fn pkli_with_hook_env(dir: &Path, other: &Path) -> Result<(Option<i32>, String, 
         String::from_utf8(out.stderr)?,
     ))
 }
+
+const LEGACY: &str = "| Extension | Linter | Notes |\n|---|---|---|\n| `.rs` | clippy | |\n";
+
+const IMPORTED: &str = "format 1\n\n## types\ntype|checks|min|exempt\nrs|-|-|legacy: clippy\n";
+
+/// `import` prints a .pklith on stdout: it is data (cli V3).
+#[test]
+fn import_prints_a_registry_on_stdout() -> Result {
+    let dir = temp("import")?;
+    std::fs::write(dir.join("legacy.md"), LEGACY)?;
+    let (code, stdout, stderr) = pkli(&dir, &["import", "legacy.md"])?;
+    assert_eq!(
+        (code, stdout.as_str(), stderr.as_str()),
+        (Some(0), IMPORTED, "")
+    );
+    Ok(std::fs::remove_dir_all(dir)?)
+}
+
+/// `check --registry` judges a repository without writing into it: the
+/// fleet sweep (T70) relies on that.
+#[test]
+fn a_registry_outside_the_repository_judges_it() -> Result {
+    let dir = repo("registry", None)?;
+    let registry = std::env::temp_dir().join(format!("pklith-cli-{}-imported", std::process::id()));
+    std::fs::write(&registry, IMPORTED)?;
+    let (code, _, stderr) = pkli(&dir, &["check", "--registry", &registry.to_string_lossy()])?;
+    assert_eq!((code, stderr.as_str()), (Some(0), ""));
+    std::fs::remove_file(registry)?;
+    Ok(std::fs::remove_dir_all(dir)?)
+}
+
+const IMPORT_ERRORS: [(&[&str], &str); 4] = [
+    (
+        &["import", "no-such.md"],
+        "pkli import: cannot read no-such.md: ",
+    ),
+    (
+        &["import", "empty-table.md"],
+        "pkli import: parsed nothing: ",
+    ),
+    (&["import"], "usage: pkli"),
+    (&["check", "--root", "a", "--root", "b"], "usage: pkli"),
+];
+
+/// Unreadable or empty documents, and malformed arguments, exit 2.
+#[test]
+fn import_and_option_errors_exit_2() -> Result {
+    let dir = temp("import-errors")?;
+    std::fs::write(dir.join("empty-table.md"), "| a | b |\n|---|---|\n")?;
+    for (args, prefix) in IMPORT_ERRORS {
+        let (code, stdout, stderr) = pkli(&dir, args)?;
+        assert_eq!((code, stdout.as_str()), (Some(2), ""), "{args:?}");
+        assert!(stderr.starts_with(prefix), "{args:?}: {stderr}");
+    }
+    Ok(std::fs::remove_dir_all(dir)?)
+}
