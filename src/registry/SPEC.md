@@ -50,6 +50,7 @@ T1|.|parser + errors w/ line numbers|V1,V2,V3,V6
 T2|.|`*` spread + `min` accounting|V5,B1
 T3|.|formatter + roundtrip proptest|V4
 T4|.|format version line + refusal of newer versions|`.:V31`
+T5|.|test: exempt row w/ reason only registers as covered|`.:V23`
 
 ## §B BUGS
 
