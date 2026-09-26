@@ -57,6 +57,7 @@
             # the commit that adds its step.
             pkgs.ripsecrets
             pkgs.jq
+            pkgs.typos
           ];
           RUST_BACKTRACE = "1";
 

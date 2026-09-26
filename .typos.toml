@@ -1,0 +1,4 @@
+# typos configuration. pkl/ holds hk's schema vendored verbatim; its
+# spelling is upstream's to fix, and an edit here would fork it (V7).
+[files]
+extend-exclude = ["pkl/"]

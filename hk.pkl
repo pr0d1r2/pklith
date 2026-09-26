@@ -112,6 +112,15 @@ local fast = new Mapping<String, Step> {
       done
       """#
   }
+  // `--force-exclude`: typos skips `.typos.toml` excludes for paths named on
+  // the command line unless told otherwise, and hk names every path.
+  ["typos"] {
+    glob = List("**/*")
+    check = """
+      command -v typos >/dev/null 2>&1 || { echo 'hk: typos is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
+      typos --force-exclude {{files}}
+      """
+  }
   // -- end of fast --
 }
 
