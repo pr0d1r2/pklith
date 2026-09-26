@@ -32,6 +32,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 - row: `id|category|nix|glob|check|fix|msg`. category ∈ `hygiene lint format secret spec test coverage supply`.
 - built-in rows seeded from sibling gates (`.:R6`); `.pklith ## checks` overrides by id.
 - `glob` = the RUNNER glob; gen emits it verbatim into the hk step.
+- fragment row: `fragment|triggers|checks|seed`. triggers = file types, paths, globs (read by src/detect); checks = catalog ids; seed = seed file ids (src/seed). built-in order = fragment order.
 
 ## §V INVARIANTS
 
