@@ -12,8 +12,11 @@ and enforces that no file goes unchecked.
 The command is `pkli`. It is not part of [Pkl](https://pkl-lang.org), the
 configuration language hk uses; the name only borrows it.
 
-Status: specification only. The design lives in [`SPEC.md`](SPEC.md) and the
-`SPEC.md` files under `src/`.
+Status: early. `pkli check` works: it reads `.pklith` at the repository root and
+reports every tracked file type that has no row, and every row that matches
+no file. Generating hk steps, laying them, and the rest of the design are not
+built yet; the design lives in [`SPEC.md`](SPEC.md) and the `SPEC.md` files
+under `src/`.
 
 ## License
 
