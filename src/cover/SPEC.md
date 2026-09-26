@@ -30,3 +30,14 @@ V3: CLAIM ⊥ BACKED: registry says type T → check C, but ∃ file of T ⊥ ma
 V4: exempt = covered, reported separately w/ reason
 V5: empty repo → ok, ⊥ error
 V6: totality: ∀ file ∈ exactly 1 type; 0 → gap, ⊥ silently dropped (`.:R14`)
+
+## §T TASKS
+
+id|status|task|cites
+T1|.|Coverage type + gap/stale|V1,V2,V4,V5,V6
+T2|.|claim-vs-runner join via src/hook|V3
+T3|.|fold rule results|-
+
+## §B BUGS
+
+id|date|cause|fix
