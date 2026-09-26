@@ -50,7 +50,7 @@ V9: stdout: 1 line per commit made (`<sha> <subject>`); nothing to lay → silen
 ## §T TASKS
 
 id|status|task|cites
-T1|.|planner: required − present, ordered|V5,V7,`.:V15`
+T1|x|planner: required − present, ordered|V5,V7,`.:V15`
 T2|.|per-check writer via src/gen fragment fn|V2
 T3|.|git driver: add exact paths, commit through hooks|V1,V2
 T4|.|rollback|V3,V6
