@@ -57,11 +57,20 @@ fn step(check: &Check) -> String {
     out + "  }\n"
 }
 
-/// The check command, and on failure its message (catalog V1): what went
-/// wrong and what to do, prefixed with the check id.
+/// The check command, guarded and explained. A missing tool is reported as
+/// missing, never as a finding (root V1); a failure prints the check's
+/// message (catalog V1): what went wrong and what to do.
 fn explained(check: &Check) -> String {
-    let message = shell_quote(&format!("{}: {}", check.id, check.msg));
-    format!("{} || {{ echo {message} >&2; exit 1; }}", check.check)
+    let tool = check.check.split_whitespace().next().unwrap_or_default();
+    let missing = shell_quote(&format!(
+        "{}: {tool} is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.",
+        check.id
+    ));
+    let failed = shell_quote(&format!("{}: {}", check.id, check.msg));
+    format!(
+        "command -v {tool} >/dev/null 2>&1 || {{ echo {missing} >&2; exit 1; }}; {} || {{ echo {failed} >&2; exit 1; }}",
+        check.check
+    )
 }
 
 /// Single-quote `text` for sh.
@@ -146,15 +155,15 @@ import "pkl/Config.pkl"
 steps: Mapping<String, Config.Step> = new {
   ["fmt"] {
     glob = List("**/*.rs", "build.rs")
-    check = "cargo fmt --check || { echo 'fmt: m' >&2; exit 1; }"
+    check = "command -v cargo >/dev/null 2>&1 || { echo 'fmt: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo fmt --check || { echo 'fmt: m' >&2; exit 1; }"
     fix = "cargo fmt"
   }
   ["typos"] {
     glob = List("**/*")
-    check = "typos {{files}} || { echo 'typos: m' >&2; exit 1; }"
+    check = "command -v typos >/dev/null 2>&1 || { echo 'typos: typos is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; typos {{files}} || { echo 'typos: m' >&2; exit 1; }"
   }
   ["links"] {
-    check = ##"lychee "q"# x || { echo 'links: it'\''s broken' >&2; exit 1; }"##
+    check = ##"command -v lychee >/dev/null 2>&1 || { echo 'links: lychee is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; lychee "q"# x || { echo 'links: it'\''s broken' >&2; exit 1; }"##
     env {
       ["A"] = "1"
       ["B"] = "x=y"
@@ -194,7 +203,7 @@ steps: Mapping<String, Config.Step> = new {
         let json = String::from_utf8(crate::proc::output(&mut cmd)?)?;
         assert!(
             json.contains(
-                r##""check": "lychee \"q\"# x || { echo 'links: it'\\''s broken' >&2; exit 1; }""##
+                r##"; lychee \"q\"# x || { echo 'links: it'\\''s broken' >&2; exit 1; }""##
             ),
             "{json}"
         );
