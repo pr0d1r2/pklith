@@ -6,7 +6,7 @@
 //! local fast = (pklith.steps) { /* the repository's own steps */ }
 //! ```
 
-use crate::catalog::Check;
+use crate::catalog::{Category, Check};
 use crate::registry::Registry;
 use std::fmt::Write as _;
 
@@ -27,18 +27,27 @@ pub fn used<'a>(registry: &Registry, catalog: &'a [Check]) -> Vec<&'a Check> {
     used
 }
 
-/// The Pkl module: one typed hk step per check. It imports the vendored hk
-/// schema, so it evaluates offline and a wrong field fails to evaluate
-/// (V4).
+/// The Pkl module: one typed hk step per check, in two mappings. `steps`
+/// run on every commit; `push` holds coverage checks, which rebuild the crate
+/// instrumented and belong to push and CI. Splitting here keeps hk.pkl free
+/// of filtering, which hk's own Pkl evaluator mishandles (root B12). The
+/// module imports the vendored hk schema, so it evaluates offline and a wrong
+/// field fails to evaluate (V4).
 #[must_use]
 pub fn pkl(checks: &[&Check]) -> String {
-    let mut out = format!(
-        "{HEADER}import \"pkl/Config.pkl\"\n\nsteps: Mapping<String, Config.Step> = new {{\n"
-    );
-    for check in checks {
-        out.push_str(&step(check));
-    }
-    out + "}\n"
+    let (push, commit): (Vec<&Check>, Vec<&Check>) = checks
+        .iter()
+        .partition(|c| c.category == Category::Coverage);
+    format!(
+        "{HEADER}import \"pkl/Config.pkl\"\n\n{}\n{}",
+        mapping("steps", &commit),
+        mapping("push", &push)
+    )
+}
+
+fn mapping(name: &str, checks: &[&Check]) -> String {
+    let body: String = checks.iter().map(|c| step(c)).collect();
+    format!("{name}: Mapping<String, Config.Step> = new {{\n{body}}}\n")
 }
 
 /// One step. No glob means whole-tree (V7); env is emitted with the step
@@ -142,10 +151,11 @@ typos|lint|typos|**/*|typos {{files}}|-|-|m
 fmt|format|rustfmt|**/*.rs, build.rs|cargo fmt --check|cargo fmt|-|m
 links|lint|lychee|-|lychee "q"# x|-|A=1, B=x=y|it's broken
 unused|lint|-|*|x|-|-|m
+cov|coverage|-|**/*.rs|cov --check|-|-|m
 ## types
 type|checks|min|exempt
 *|typos|-|-
-rs|fmt|-|-
+rs|fmt,cov|-|-
 md|links|-|-
 "##;
 
@@ -168,6 +178,13 @@ steps: Mapping<String, Config.Step> = new {
       ["A"] = "1"
       ["B"] = "x=y"
     }
+  }
+}
+
+push: Mapping<String, Config.Step> = new {
+  ["cov"] {
+    glob = List("**/*.rs")
+    check = "command -v cov >/dev/null 2>&1 || { echo 'cov: cov is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cov --check || { echo 'cov: m' >&2; exit 1; }"
   }
 }
 "###;

@@ -132,10 +132,6 @@ steps: Mapping<String, Config.Step> = new {
     glob = List("**/*.rs", "Cargo.toml")
     check = "command -v cargo >/dev/null 2>&1 || { echo 'doctest: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo test --doc -q || { echo 'doctest: a doc example failed' >&2; exit 1; }"
   }
-  ["coverage"] {
-    glob = List("**/*.rs", "Cargo.toml", ".coverage")
-    check = "command -v sherd >/dev/null 2>&1 || { echo 'coverage: sherd is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; sherd coverage --check || { echo 'coverage: line coverage fell below .coverage' >&2; exit 1; }"
-  }
   ["flake-lock-graph"] {
     glob = List("flake.lock")
     check = "command -v scripts/flake-lock-graph.sh >/dev/null 2>&1 || { echo 'flake-lock-graph: scripts/flake-lock-graph.sh is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; scripts/flake-lock-graph.sh {{files}} || { echo 'flake-lock-graph: flake.lock grew a second nixpkgs or too many nodes' >&2; exit 1; }"
@@ -143,5 +139,12 @@ steps: Mapping<String, Config.Step> = new {
   ["deny"] {
     glob = List("Cargo.toml", "Cargo.lock", "deny.toml")
     check = "command -v cargo >/dev/null 2>&1 || { echo 'deny: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo deny check --disable-fetch licenses bans || { echo 'deny: a license or ban rule failed' >&2; exit 1; }"
+  }
+}
+
+push: Mapping<String, Config.Step> = new {
+  ["coverage"] {
+    glob = List("**/*.rs", "Cargo.toml", ".coverage")
+    check = "command -v sherd >/dev/null 2>&1 || { echo 'coverage: sherd is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; sherd coverage --check || { echo 'coverage: line coverage fell below .coverage' >&2; exit 1; }"
   }
 }
