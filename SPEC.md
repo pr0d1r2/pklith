@@ -45,7 +45,7 @@ self|.|-
 
 ## §I INTERFACES
 
-- cmd: `pkli check [--root DIR]` → gate verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps. 0 ok / 1 finding / 2 usage | unreadable
+- cmd: `pkli check [--root DIR] [--staged|--range A..B]` → gate verdict; diff input feeds `changed` rules only: type gaps, stale, claim ⊥ backed by runner, rule gaps. 0 ok / 1 finding / 2 usage | unreadable
 - cmd: `pkli report [--format text|json|md]` → matrix file type × check w/ file counts + rule results. exit 0 unless usage
 - cmd: `pkli gen [--check]` → write `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md step table block. `--check` writes ⊥, exit 1 if stale
 - cmd: `pkli lay [--only ID,…] [--dry-run]` → 1 commit per missing check, fixed order, hooks ON, red → rollback (src/lay)
