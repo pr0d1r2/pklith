@@ -7,6 +7,7 @@ use std::path::{Path, PathBuf};
 pub const USAGE: &str = "usage: pkli <command>\n
   check [--root DIR] [--registry FILE]  every tracked file has a type in .pklith with its checks
   gen [--check]                         write hk.pklith.pkl from .pklith; --check: fail when it is stale
+  lay --dry-run                         the commits lay would make, one subject per line
   import DOC                            a .pklith from a legacy linter coverage document, on stdout
 ";
 
@@ -35,6 +36,7 @@ pub fn run(args: &[String], cwd: &Path) -> Outcome {
         Some((verb, rest)) if verb == "check" => check(rest, cwd),
         Some((verb, [])) if verb == "gen" => generate(cwd, false),
         Some((verb, [flag])) if verb == "gen" && flag == "--check" => generate(cwd, true),
+        Some((verb, [flag])) if verb == "lay" && flag == "--dry-run" => lay_plan(cwd),
         Some((verb, [doc])) if verb == "import" => import(Path::new(doc)),
         _ => exit(2, USAGE),
     }
@@ -184,4 +186,28 @@ fn written(root: &Path, text: &str) -> Outcome {
 fn pkl_for(root: &Path) -> Result<String, String> {
     let (registry, catalog) = load(&root.join(".pklith"))?;
     Ok(crate::r#gen::pkl(&crate::r#gen::used(&registry, &catalog)))
+}
+
+/// `lay --dry-run`: the subjects of the commits lay would make, in order,
+/// on stdout (data), writing nothing (lay V4).
+fn lay_plan(cwd: &Path) -> Outcome {
+    match lay_subjects(cwd) {
+        Ok(subjects) => Outcome {
+            code: 0,
+            stdout: subjects,
+            stderr: String::new(),
+        },
+        Err(message) => exit(2, format!("pkli lay: {message}\n")),
+    }
+}
+
+fn lay_subjects(cwd: &Path) -> Result<String, String> {
+    let root = toplevel(cwd)?;
+    let (registry, catalog) = load(&root.join(".pklith"))?;
+    let files = files(&root, false)?;
+    let steps = crate::hook::steps(&root).map_err(|e| format!("cannot read hk's steps: {e}"))?;
+    let present: Vec<String> = steps.into_iter().map(|s| s.id).collect();
+    let claimed = crate::cover::claimed_somewhere(&files, &registry);
+    let plan = crate::lay::plan(&registry, &catalog, &present, &claimed);
+    Ok(plan.iter().map(|c| crate::lay::subject(c) + "\n").collect())
 }
