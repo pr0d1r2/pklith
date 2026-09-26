@@ -12,6 +12,13 @@ up|src|product code nodes — scan, detect, registry, catalog, rule, hook, legac
 self|src/registry|`.pklith` parse/fmt: types → check sets, rules, plural, exempt
 sib|src/scan|enumerate files, basename → exactly 1 file type
 
+## §C CONSTRAINTS
+
+- syntax = sectioned pipe tables, FORMAT cell rules (`\|` escape, `-` empty), `#` comments. ⊥ TOML (adds dep).
+- `## types` → `type|checks|min|exempt`. `checks` = comma list of catalog ids (MANY per type). `min` default 1. `exempt` = reason | `-`.
+- type `*` = UNIVERSAL checks (typos, whitespace, …), spread to ∀ type. ⊥ a literal type.
+- `## checks` → local catalog rows (override | extend src/catalog). `## rules` → src/rule rows. `## plural` → `singular|plural`.
+
 ## §V INVARIANTS
 
 V1: type row ! have ≥`min` checks beyond `*` XOR exempt reason. both | neither → error w/ line no
