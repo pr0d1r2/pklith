@@ -116,6 +116,7 @@ V26: pre-commit hot path (`check --staged`, `map --staged`) costs O(changed file
 V27: speed is the port's reason ∴ measured: `pkli check` & `gen` wall time vs set-and-setting shell on same fixture repos, recorded in §R; budgets set from that measurement, ⊥ guessed, & a regression fails a bench step
 V28: vendored `pkl/Config.pkl` == schema of the pinned hk version; hk bump & schema re-vendor land in ONE commit
 V29: ∀ step tool from a nix-pinned package; ⊥ fetched at run time (⊥ remotes, ⊥ `npx`/`pipx run`, ⊥ `curl | sh`)
+V30: ∀ built-in catalog check proven in pklith's OWN test suite against a planted violation fixture, even for file types this repo lacks
 
 ## §T TASKS
 
@@ -185,6 +186,7 @@ T62|.|`package-nix` step: `nix build` → run built `pkli` on fixture repo; grep
 T63|.|one process-spawn helper scrubbing `GIT_DIR` `GIT_INDEX_FILE` `GIT_WORK_TREE`; test: pkli run from inside a real hook on a 2nd repo leaves both intact|V20
 T64|.|bench: fixture repos (small, 10k files, fleet-sized) × set-and-setting shell vs pkli → §R row; `bench` step w/ budgets from it|V27
 T65|.|`schema-pin` step: vendored `pkl/Config.pkl` matches pinned hk's schema|V28
+T66|.|fixture per built-in catalog check: planted violation → step red, clean twin → green|V30,V2
 
 ## §B BUGS
 
