@@ -277,6 +277,17 @@ local fast = new Mapping<String, Step> {
       actionlint {{files}}
       """
   }
+  // zizmor AUDITS what actionlint parses: token scope, credential
+  // persistence, unpinned actions, injection. `--offline`: no network in
+  // the gate.
+  ["zizmor"] {
+    glob = List(".github/workflows/*.yml", ".github/workflows/*.yaml")
+    depends = List("actionlint")
+    check = """
+      command -v zizmor >/dev/null 2>&1 || { echo 'hk: zizmor is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
+      zizmor --offline --no-progress {{files}}
+      """
+  }
   // -- end of fast --
 }
 

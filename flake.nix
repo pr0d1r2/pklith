@@ -111,6 +111,7 @@
             pkgs.shellcheck
             pkgs.lychee
             pkgs.actionlint
+            pkgs.zizmor
             (linterCoverage pkgs)
             # Coverage: cargo-llvm-cov plus llvm-cov/llvm-profdata, which nixpkgs
             # rustc does not ship; wired through the env vars it looks for.

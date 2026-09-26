@@ -23,7 +23,7 @@ the legacy checker and this file (T44).
 | `.pkl` | - | `hk.pkl` is evaluated against the vendored schema by every hk run, so a malformed one fails every hook; `pkl/Config.pkl` is vendored |
 | `.envrc` | shellcheck | direnv entry |
 | `.sh` | shellcheck | `scripts/` |
-| `.yml` | actionlint | `.github/workflows/`; zizmor arrives next (T38) |
+| `.yml` | actionlint, zizmor | `.github/workflows/` |
 | `pre-commit`, `commit-msg`, `pre-push` | shellcheck | tracked hooks in `.githooks/` |
 | `.gitignore` | - | git configuration; hygiene steps only |
 | `.context-limits` | sherd-budget | read and validated by it |
