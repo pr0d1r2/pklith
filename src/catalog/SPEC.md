@@ -25,3 +25,14 @@ V1: ∀ row: `msg` ! non-empty — feeds AGENTS.md table (`.:V14`) & failure tex
 V2: `nix` attr resolves in pinned nixpkgs | named flake input; gate test evals ∀ built-in attr
 V3: `check` ⊥ empty; `fix` ? `-`
 V4: ids unique; built-in order stable (= lay order within category)
+
+## §T TASKS
+
+id|status|task|cites
+T1|.|catalog row type + parser shared w/ registry cell rules|V3,V4
+T2|.|built-in catalog: hk util hygiene family, ripsecrets, typos, nixfmt, shellcheck, shfmt, taplo, rustfmt, clippy, rubocop, actionlint, zizmor, mth, sherd, itok|V1,`.:R6`
+T3|.|test: ∀ built-in nix attr evals|V2
+
+## §B BUGS
+
+id|date|cause|fix
