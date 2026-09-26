@@ -15,6 +15,13 @@ sib|src/detect|active fragments from scanned files, fixed order
 sib|src/registry|`.pklith` parse/fmt: types → check sets, rules, plural, exempt
 sib|src/catalog|check definitions: category, nix attr, runner glob, hk step, fix, failure msg
 
+## §C CONSTRAINTS
+
+- row: `id|kind|select|target|except`. kinds: `exists` (path template) · `mentions` (glob + literal pattern template) · `changed` (target changes when source changes; diff input) · `orphan` (reverse: target w/o source).
+- template vars `{path} {dir} {stem} {ext}`; filters `strip:<prefix>` `suffix:<s>` `ext:<e>` `snake` `dash` `plural`.
+- `plural` = fixed suffix rules (`+s`; `y`→`ies`; `s x ch sh`→`+es`) + `## plural` table for irregulars. ⊥ inflector guess.
+- ⊥ `spec_bigger`, ⊥ `mentioning_methods` — quality proxies (`.:R10`).
+
 ## §V INVARIANTS
 
 V1: template render deterministic; unknown var | filter → error at parse, ⊥ empty string
