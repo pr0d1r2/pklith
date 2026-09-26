@@ -34,7 +34,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 ## §V INVARIANTS
 
-V1: ∀ file → candidate types ordered: exact basename > longest compound suffix > last ext. first DECLARED wins (`.:V5`)
+V1: ∀ file → candidate types ordered: most specific `path:` class (longest literal prefix) > exact basename > longest compound suffix > last ext. first DECLARED wins (`.:V5`)
 V2: dotfile `.envrc` ≡ legacy key `envrc` (`.:R1` parity, `.:V4`)
 V3: submodule gitlinks & symlinks-to-dir ⊥ files (`.:R4`)
 V4: non-UTF-8 path → error naming it, ⊥ lossy skip

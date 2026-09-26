@@ -31,6 +31,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 - syntax = sectioned pipe tables, FORMAT cell rules (`\|` escape, `-` empty), `#` comments. ⊥ TOML (adds dep).
 - `## types` → `type|checks|min|exempt`. `checks` = comma list of catalog ids (MANY per type). `min` default 1. `exempt` = reason | `-`.
+- type key syntax: `sh` (ext) · `tar.gz` (compound) · `Makefile` (bare) · `.envrc` (dotfile, ≡ `envrc`) · `path:<glob>` (path class, e.g. `path:docs/**/*.md`). path classes port set-and-setting `coveragePerFileClass` path & glob keys.
 - type `*` = UNIVERSAL checks (typos, whitespace, …), spread to ∀ type. ⊥ a literal type.
 - `## checks` → local catalog rows (override | extend src/catalog). `## rules` → src/rule rows. `## plural` → `singular|plural`.
 
