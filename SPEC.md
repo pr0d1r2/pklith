@@ -135,7 +135,7 @@ T5|x|`trailing-whitespace` (fixer excludes `pkl/`)|V2,V7
 T6|x|`final-newline`|V2,V7
 T7|x|`line-endings`|V2,V7
 T8|x|`no-bom`|V2
-T9|.|`no-merge-conflict --assume-in-merge`|V2,R7
+T9|x|`no-merge-conflict --assume-in-merge`|V2,R7
 T10|.|`no-case-conflict`|V2
 T11|.|`no-broken-symlinks`|V2
 T12|.|`no-private-key`|V2

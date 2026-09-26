@@ -43,6 +43,12 @@ local fast = new Mapping<String, Step> {
     glob = List("**/*")
     check = "hk util check-byte-order-marker {{files}}"
   }
+  // `--assume-in-merge`: without it the check looks only while git says a
+  // merge is in progress, and passes a file carrying real markers (R7).
+  ["no-merge-conflict"] {
+    glob = List("**/*")
+    check = "hk util check-merge-conflict --assume-in-merge {{files}}"
+  }
   // -- end of fast --
 }
 
