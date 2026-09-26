@@ -41,6 +41,8 @@ V2: idempotent: 2nd run writes ⊥
 V3: `--check` exit 1 iff on-disk ≠ generated (`.:V6`)
 V4: emitted pkl evals under vendored `pkl/Config.pkl`
 V5: emitted nix parses & passes `nixfmt --check`
+V6: ∀ emitted step bounded by a timeout (hk field if schema has one ?, else wrapper) — runaway guard, ⊥ perf budget
+V7: whole-tree steps (`pkli check`, coverage) ⊥ glob-gated: a deletion | rename changes their verdict w/o touching a matching file
 
 ## §T TASKS
 
