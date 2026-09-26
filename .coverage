@@ -1,1 +1,6 @@
-100.00
+# Line coverage floor, a ratchet read by `sherd coverage --check`: it may
+# rise, and only `sherd coverage --record` moves it.
+#
+# Measured when set (2026-09-26): 4 of 4 lines, 100%. It has held at 100% as
+# the crate grew; lowering it is a reviewed commit that says why here.
+lines 100.00
