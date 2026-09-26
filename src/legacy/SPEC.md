@@ -30,3 +30,18 @@ V2: compat exit codes & missing-list lines == legacy (`.:R1` `.ext`/`name`, `.:R
 V3: `import`: col 2 `-` → exempt, reason = col 3 (Notes); unknown check hint → exempt `legacy: <col2>` ⊥ silent drop
 V4: doc parse in-process. ⊥ runtime awk/sed/gawk
 V5: read error | 0 tokens from doc w/ table rows → exit 2 "parsed nothing", ⊥ gap list
+
+## §T TASKS
+
+id|status|task|cites
+T1|.|port legacy bats fixtures (3 repos) as Rust golden tests|V1,V2,`.:R1`,`.:R2`,`.:R3`,`.:R9`
+T2|.|linter doc parser|V1,V4,V5
+T3|.|`.unit-coverage.toml` subset parser + `.coverage-allowlist`|`.:R9`
+T4|.|`import` both formats|V3
+T5|.|compat entries ×3|V2,`.:T46`
+
+## §B BUGS
+
+id|date|cause|fix
+B1|2026-05-09|legacy base: `awk -- "$doc"` — GNU awk reads `--` as filename ∴ parse broke (21f30f5)|V4
+B2|2026-09-07|legacy `-full` #5: build placeholder `…_AWK_PROGRAM_PATH` unsubstituted when consumer builds from `flake = false` src; gawk error to stderr inside `< <(…)` ∴ loop reads nothing ∴ ∀ ext "uncovered" (20 false gaps)|V5,`.:V10`
