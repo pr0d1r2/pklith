@@ -23,3 +23,13 @@ sib|src/report|render matrix & verdict: text, json, md
 sib|src/gen|emit `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block; `--check` drift
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
 sib|src/protect|branch protection required contexts from CI job names via `gh api`
+
+## §V INVARIANTS
+
+V1: hooks not installed | hk missing → exit 2 before any write (`.:V12`, `.:V1`)
+V2: 1 check = 1 commit (`.:V13`); ⊥ bundle, ⊥ split
+V3: red hook → reset `--mixed` to pre-run HEAD, remove files lay created; ⊥ `--hard`, operator's uncommitted work kept
+V4: `--dry-run` → 0 fs writes, 0 git ops
+V5: idempotent: 2nd run → 0 commits
+V6: dirty index touching a planned path → exit 2, 0 writes
+V7: same inputs → same commits (subjects, bodies, trees) (`.:V3`)
