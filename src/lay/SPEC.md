@@ -43,6 +43,7 @@ V4: `--dry-run` → 0 fs writes, 0 git ops
 V5: idempotent: 2nd run → 0 commits
 V6: dirty index touching a planned path → exit 2, 0 writes
 V7: same inputs → same commits (subjects, bodies, trees) (`.:V3`)
+V8: commit carries ONLY lay's paths; operator's other staged changes stay staged & uncommitted
 
 ## §T TASKS
 
@@ -52,6 +53,7 @@ T2|.|per-check writer via src/gen fragment fn|V2
 T3|.|git driver: add exact paths, commit through hooks|V1,V2
 T4|.|rollback|V3,V6
 T5|.|tests: PLANT red check → rollback; apply twice → 0 commits; dry-run → 0 writes|V3,V4,V5
+T6|.|test: operator has unrelated staged change → lay commits exclude it, index still holds it|V8
 
 ## §B BUGS
 
