@@ -5,6 +5,7 @@
 pub mod catalog;
 pub mod cli;
 pub mod cover;
+pub mod r#gen;
 pub mod legacy;
 pub mod proc;
 pub mod registry;
