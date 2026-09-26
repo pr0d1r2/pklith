@@ -22,3 +22,8 @@ sib|src/map|guard mode: changed paths → covering specs
 sib|src/report|render matrix & verdict: text, json, md
 sib|src/gen|emit `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block; `--check` drift
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
+
+## §V INVARIANTS
+
+V1: `--dry-run` → prints payload, 0 API calls
+V2: job rename → context set changes → shown as breaking diff before apply
