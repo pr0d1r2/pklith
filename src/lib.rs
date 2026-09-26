@@ -2,4 +2,5 @@
 //!
 //! One module per spec node (`src/<node>/SPEC.md`), added as each is built.
 
+pub mod proc;
 pub mod scan;

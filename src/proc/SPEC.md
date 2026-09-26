@@ -42,7 +42,7 @@ V3: stdout returned as bytes; decoding is the caller's decision
 ## §T TASKS
 
 id|status|task|cites
-T1|.|`command` builder w/ scrub + `output` runner + error type|V1,V2,V3,`.:T63`
+T1|x|`command` builder w/ scrub + `output` runner + error type|V1,V2,V3,`.:T63`
 
 ## §B BUGS
 
