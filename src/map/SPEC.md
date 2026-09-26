@@ -30,3 +30,12 @@ sib|src/cover|verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps
 V1: changed impl matching a rule selector w/ 0 existing mapped specs → exit 1 naming it
 V2: changed file matching no rule → ignored, ⊥ error
 V3: output deterministic & deduped
+
+## §T TASKS
+
+id|status|task|cites
+T1|.|map fn + `--staged` input|V1,V2,V3
+
+## §B BUGS
+
+id|date|cause|fix
