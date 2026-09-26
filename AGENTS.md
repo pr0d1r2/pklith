@@ -36,11 +36,11 @@ Notes for anyone, human or agent, changing this repository.
 | `taplo` | commit | `**/*.toml` | yes |
 | `rustfmt` | commit | `**/*.rs` | yes |
 | `typos` | commit | `**/*` | - |
+| `shellcheck` | commit | `.githooks/*` `.envrc` `**/*.sh` | - |
+| `clippy` | commit | `**/*.rs` `Cargo.toml` `clippy.toml` | - |
 | `actionlint` | commit | `.github/workflows/*.yml` `.github/workflows/*.yaml` | - |
 | `zizmor` | commit | `.github/workflows/*.yml` `.github/workflows/*.yaml` | - |
-| `clippy` | commit | `**/*.rs` `Cargo.toml` `clippy.toml` | - |
 | `rustdoc` | commit | `**/*.rs` `Cargo.toml` | - |
-| `shellcheck` | commit | `.githooks/*` `.envrc` `**/*.sh` | - |
 | `links` | commit | `**/*.md` | - |
 | `mth-fmt` | commit | `**/SPEC.md` | yes |
 | `mth-check` | commit | `**/SPEC.md` | - |

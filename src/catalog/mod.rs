@@ -189,16 +189,20 @@ pub fn builtin() -> Result<Vec<Check>, Error> {
 }
 
 /// The built-in catalog with local rows laid over it: a local row replaces
-/// the built-in one with the same id, a new id extends the catalog.
+/// the built-in one with the same id where it stands, so lay order holds
+/// (V4); a new id extends the catalog.
 ///
 /// # Errors
 ///
 /// An [`Error`] when an id is defined twice in the local rows (V4).
-pub fn merge(builtin: Vec<Check>, local: Vec<Check>) -> Result<Vec<Check>, Error> {
+pub fn merge(builtin: Vec<Check>, mut local: Vec<Check>) -> Result<Vec<Check>, Error> {
     unique(&local)?;
     let mut merged: Vec<Check> = builtin
         .into_iter()
-        .filter(|b| local.iter().all(|l| l.id != b.id))
+        .map(|b| match local.iter().position(|l| l.id == b.id) {
+            Some(i) => local.remove(i),
+            None => b,
+        })
         .collect();
     merged.extend(local);
     Ok(merged)
@@ -352,7 +356,7 @@ mod tests {
             .iter()
             .map(|c| (c.id.as_str(), c.check.as_str()))
             .collect();
-        assert_eq!(ids, [("b", "b"), ("a", "new"), ("c", "c")]);
+        assert_eq!(ids, [("a", "new"), ("b", "b"), ("c", "c")]);
         let twice = merge(vec![], checks("a|lint|-|*|x|-|-|m\na|lint|-|*|y|-|-|m")?)
             .err()
             .map(|e| e.to_string());
