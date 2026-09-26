@@ -20,6 +20,11 @@ sib|src/legacy|3 legacy formats: read, `import`, compat entries
 sib|src/cover|verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps
 sib|src/map|guard mode: changed paths → covering specs
 
+## §C CONSTRAINTS
+
+- seed set per fragment from catalog: `.editorconfig`, `.gitattributes`, `.gitignore` fragments, size limits, exemptions ledger, `.typos.toml`, LICENSE, README stub.
+- templates embedded in binary; ⊥ network.
+
 ## §V INVARIANTS
 
 V1: `--init` skip-if-exists; existing file ⊥ touched (`.:V25`)
