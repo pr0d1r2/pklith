@@ -111,6 +111,8 @@ V22: hooks installed only AFTER `hk.pkl` materialized ∴ ⊥ stub config ever g
 V23: exemption w/ reason & ⊥ ticket is valid & registers
 V24: `migrate`: check set before == check set after, else refuse w/ 0 writes
 V25: seed files repo-owned (written once, skip-if-exists). hk files (`hk.pkl`, `hk.pklith.pkl`) & `nix/pklith.nix` TRACKED ∴ fresh clone gates w/o running pkli; only shared tool configs (e.g. `.markdownlint.yml`) materialized & gitignored
+V26: pre-commit hot path (`check --staged`, `map --staged`) costs O(changed files): each changed file resolves to a type & its rules. full totality scan runs at pre-push & CI
+V27: speed is the port's reason ∴ measured: `pkli check` & `gen` wall time vs set-and-setting shell on same fixture repos, recorded in §R; budgets set from that measurement, ⊥ guessed, & a regression fails a bench step
 
 ## §T TASKS
 
@@ -178,6 +180,7 @@ T60|.|set-and-setting consumes pklith via flake input; its setting shell retired
 T61|.|`lib.devShell` for consumers + test: shell entered on repo w/o `hk.pkl` installs no hooks|V22,V12
 T62|.|`package-nix` step: `nix build` → run built `pkli` on fixture repo; grep built outputs for `@…@` \| `*_PATH` placeholders|V10
 T63|.|one process-spawn helper scrubbing `GIT_DIR` `GIT_INDEX_FILE` `GIT_WORK_TREE`; test: pkli run from inside a real hook on a 2nd repo leaves both intact|V20
+T64|.|bench: fixture repos (small, 10k files, fleet-sized) × set-and-setting shell vs pkli → §R row; `bench` step w/ budgets from it|V27
 
 ## §B BUGS
 
