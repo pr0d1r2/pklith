@@ -86,6 +86,7 @@ R14|totality|∀ file → exactly 1 bucket; unassigned file = never linted & rea
 R15|setting survey|set-and-setting setting half: `flake/default.nix` 4248 lines + ~30 bash scripts; ~340 bats + ~85 nix checks. runner-agnostic: `check-fragment-map.nix` (20 fragments, `checksPerFragment`, `coveragePerFileClass`, canon units, required contexts), `detect-fragments.sh`, 24 `mk*Check`, seed/canon, drift/graph checks, branch protection. lefthook-bound: `assemble-lefthook.sh`, fragment YAMLs, migration overlay, `confirm.sh` fidelity, `lefthook install`, `migrate.sh` (1129 lines). read-only defects: D1 ledger awk registers only `ticket:` entries; D2 `all` class w/ checks marks ∀ file covered ∴ vacuous; D3 `wrappersForFragment` lacks `just xml tcl awk`|../set-and-setting (survey 2026-09-25)
 R16|name clash|`lydite` free on 11 registries yet GitHub org `lydite` + lydite.org = active Go code-quality CLI, same space ∴ registries alone ⊥ prove a name free|gh, DNS 2026-09-25
 R17|commit style|recent subjects: xenolith/microlith/itok = `type(scope): claim` hybrid; ashlar/sherd = prose `<topic>: <claim>`. hybrid keeps claim & stays machine-readable|`git log` 5 repos 2026-09-26
+R18|fleet sweep (T70)|9 repos w/ a legacy doc, legacy checker vs `pkli check --registry` on `pkli import`: GAPS IDENTICAL in 9/9 (leadgen `packwerk`; set-and-setting 23 types, where the doc is ⊥ its real coverage source). import token sets = legacy awk in 9/9 (170 tokens). only diff = STALE rows legacy cannot see (`R4`): nix-config lists `.json` w/ ⊥ json file (legacy 0, pkli 1); leadgen lists 10 linter NAMES (`typos`, `gitleaks` …) as types. ∴ root V4 holds for gaps; stale is a stricter verdict, ⊥ a regression|sweep 2026-09-26
 
 ## §V INVARIANTS
 
@@ -196,7 +197,7 @@ T66|.|fixture per built-in catalog check: planted violation → step red, clean 
 T67|.|pre-publish audit: ∀ committed file & message ⊥ names an unpublished fleet repo (ashlar today); publish it or anonymize|R12,R14
 T68|.|`CHANGELOG.md` (keep-a-changelog) + `changelog-touched` step: golden or `src/` change w/o `[Unreleased]` entry → red|V33
 T69|.|release: version bump PR → tag → crates.io publish → cachix push of `pklith` for 3 tier-1 systems; `cargo semver-checks` gates the bump|V33,V10
-T70|.|fleet sweep: ∀ repo under `../` using a legacy coverage tool or set-and-setting setting → legacy verdict vs `pkli check` on imported `.pklith`; diffs → §B or fix|V34,V4
+T70|x|fleet sweep: ∀ repo under `../` using a legacy coverage tool or set-and-setting setting → legacy verdict vs `pkli check` on imported `.pklith`; diffs → §B or fix|V34,V4
 T71|.|OPTIONAL: raise itok issue: `itok check` takes a limits path; ⊥ needed while `file-ceilings` holds (T26)|B11
 T72|x|`shellcheck` on `.githooks/*` & `.envrc` (shell w/o `.sh` name ∴ glob by path)|V2,V5
 
