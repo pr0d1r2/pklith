@@ -47,9 +47,9 @@ V5: read error | 0 tokens from doc w/ table rows → exit 2 "parsed nothing", �
 
 id|status|task|cites
 T1|.|port legacy bats fixtures (3 repos) as Rust golden tests|V1,V2,`.:R1`,`.:R2`,`.:R3`,`.:R9`
-T2|.|linter doc parser|V1,V4,V5
+T2|x|linter doc parser|V1,V4,V5
 T3|.|`.unit-coverage.toml` subset parser + `.coverage-allowlist`|`.:R9`
-T4|.|`import` both formats|V3
+T4|x|`import` both formats|V3
 T5|.|compat entries ×3|V2,`.:T46`
 
 ## §B BUGS
