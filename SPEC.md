@@ -117,6 +117,7 @@ V27: speed is the port's reason ∴ measured: `pkli check` & `gen` wall time vs 
 V28: vendored `pkl/Config.pkl` == schema of the pinned hk version; hk bump & schema re-vendor land in ONE commit
 V29: ∀ step tool from a nix-pinned package; ⊥ fetched at run time (⊥ remotes, ⊥ `npx`/`pipx run`, ⊥ `curl | sh`)
 V30: ∀ built-in catalog check proven in pklith's OWN test suite against a planted violation fixture, even for file types this repo lacks
+V31: `.pklith` carries a format version line; newer than pkli understands → exit 2 naming both versions, ⊥ best-effort parse
 
 ## §T TASKS
 
