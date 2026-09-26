@@ -32,23 +32,6 @@
         "type": "github"
       }
     },
-    "linter-coverage-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1780827696,
-        "narHash": "sha256-cTcFNuSqkuQcCphYLLXwvT3s1AO9nKzKb+wgYg+ocRc=",
-        "owner": "pr0d1r2",
-        "repo": "nix-lefthook-linter-coverage",
-        "rev": "7b202b2104acf5ed9747f667eb37b240384b0b86",
-        "type": "github"
-      },
-      "original": {
-        "owner": "pr0d1r2",
-        "repo": "nix-lefthook-linter-coverage",
-        "rev": "7b202b2104acf5ed9747f667eb37b240384b0b86",
-        "type": "github"
-      }
-    },
     "microlith": {
       "inputs": {
         "itok": "itok",
@@ -175,7 +158,6 @@
     },
     "root": {
       "inputs": {
-        "linter-coverage-src": "linter-coverage-src",
         "microlith": "microlith",
         "nix-hk": "nix-hk",
         "nixpkgs": [

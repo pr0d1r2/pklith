@@ -240,16 +240,6 @@ local fast = new Mapping<String, Step> {
       shellcheck --shell=bash {{files}}
       """
   }
-  // Every tracked file type is in docs/linter-coverage.md with its checks
-  // or an exemption reason (V5). Whole-tree: a new type is judged by what is
-  // tracked, whichever file the commit touched. The legacy base checker, a
-  // bootstrap until pkli replaces it (T44).
-  ["linter-coverage"] {
-    check = """
-      command -v lefthook-linter-coverage >/dev/null 2>&1 || { echo 'hk: lefthook-linter-coverage is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
-      lefthook-linter-coverage
-      """
-  }
   // V14: the step table in AGENTS.md is generated from this file, so it
   // cannot drift from the gate it describes.
   ["agents-table"] {
@@ -320,10 +310,11 @@ local fast = new Mapping<String, Step> {
       [ "$over" = 0 ] || { printf '%s\n' "$out" | grep 'sherd/V50' >&2; echo "file-ceilings: $over file(s) over their token ceiling. Split the file; a raise is a reviewed decision." >&2; exit 1; }
       """#
   }
-  // Dogfood (root T44): pkli judges this repository with the pkli being
-  // built, from the working tree, never an installed copy that could lag it.
-  // Whole-tree like linter-coverage, which it runs beside until the
-  // parallel run (V34) lets it replace that step.
+  // Every tracked file type has a row in .pklith with its checks or an
+  // exemption reason (V5), judged by the pkli being built, from the working
+  // tree, never an installed copy that could lag it (root T44). It replaced
+  // the legacy linter-coverage step after the fleet sweep found identical
+  // gaps (R18). Whole-tree: a new type counts whichever file was touched.
   ["pkli-check"] {
     depends = List("clippy")
     check = "cargo run -q --bin pkli -- check"
