@@ -25,6 +25,10 @@ sib|src/lay|1 commit per missing check, hooks ON, rollback on red
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
 sib|src/protect|branch protection required contexts from CI job names via `gh api`
 
+## §C CONSTRAINTS
+
+- checks: completeness (∀ active fragment's checks present), fidelity (on-disk `hk.pkl` fragment == generated), coherence (∀ step binary on PATH), executability (`pkl eval` + hk validate), idempotence (gen twice → 0 diff).
+
 ## §V INVARIANTS
 
 V1: writes ⊥
