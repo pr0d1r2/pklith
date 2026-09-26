@@ -24,10 +24,20 @@
     # fork the rev and every cached hk would miss while looking like success.
     nix-hk.url = "github:pr0d1r2/nix-hk";
     nix-hk.inputs.nixpkgs-lock.follows = "nixpkgs-lock";
+    # Spec tooling, pinned to releases. Each follows our nixpkgs-lock and
+    # nix-hk so the lock keeps one nixpkgs (flake-lock-graph).
+    microlith.url = "github:pr0d1r2/microlith/v0.7.3";
+    microlith.inputs.nixpkgs-lock.follows = "nixpkgs-lock";
+    microlith.inputs.nix-hk.follows = "nix-hk";
   };
 
   outputs =
-    { nixpkgs, nix-hk, ... }:
+    {
+      nixpkgs,
+      nix-hk,
+      microlith,
+      ...
+    }:
     let
       # The tier-1 systems of §C. No system literal appears anywhere else
       # (V21): everything below is written against whatever `pkgs` it is given.
@@ -60,6 +70,8 @@
             pkgs.typos
             pkgs.nixfmt
             pkgs.taplo
+            # SPEC.md format and structure (mth), from the pinned microlith.
+            microlith.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];
           RUST_BACKTRACE = "1";
 

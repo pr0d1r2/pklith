@@ -147,7 +147,7 @@ T17|x|`nixfmt`|V2,V15
 T18|x|`taplo`|V2,V15
 T19|.|`no-commit-to-branch` main|V8
 T20|x|vendor `FORMAT.md` + `FORMAT-EXTENSIONS.md` from pinned microlith|V7
-T21|.|`mth fmt --check` ∀ `**/SPEC.md`|V1,V2
+T21|x|`mth fmt --check` ∀ `**/SPEC.md`|V1,V2
 T22|.|`mth check` ∀ `**/SPEC.md`|V1,V2
 T23|.|`sherd check`|V2
 T24|.|`sherd sync --check` (nav)|V6

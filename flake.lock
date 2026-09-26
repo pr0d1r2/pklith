@@ -1,5 +1,102 @@
 {
   "nodes": {
+    "itok": {
+      "inputs": {
+        "hk": [
+          "microlith",
+          "nix-hk"
+        ],
+        "microlith": "microlith_2",
+        "nixpkgs": [
+          "microlith",
+          "itok",
+          "nixpkgs-lock",
+          "nixpkgs"
+        ],
+        "nixpkgs-lock": [
+          "microlith",
+          "nixpkgs-lock"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788092230,
+        "narHash": "sha256-bKaQ5Ejf3X5ObtxiwDIDHpCbZCkjQ9Ttdr7H1cTkIxs=",
+        "owner": "pr0d1r2",
+        "repo": "itok",
+        "rev": "7bb0cc19947eaf45b97cd4d1787df91fddbdda90",
+        "type": "github"
+      },
+      "original": {
+        "owner": "pr0d1r2",
+        "repo": "itok",
+        "type": "github"
+      }
+    },
+    "microlith": {
+      "inputs": {
+        "itok": "itok",
+        "nix-hk": [
+          "nix-hk"
+        ],
+        "nixpkgs": [
+          "microlith",
+          "nixpkgs-lock",
+          "nixpkgs"
+        ],
+        "nixpkgs-lock": [
+          "nixpkgs-lock"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789925744,
+        "narHash": "sha256-uNVVUqzh7Od5UzDhKu5X7R3Xeje/8vmk0zOGbu5SsQE=",
+        "owner": "pr0d1r2",
+        "repo": "microlith",
+        "rev": "58a36c3bc90b76e1f561996b14cf3beaf9a40ed2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "pr0d1r2",
+        "ref": "v0.7.3",
+        "repo": "microlith",
+        "type": "github"
+      }
+    },
+    "microlith_2": {
+      "inputs": {
+        "nix-hk": [
+          "microlith",
+          "itok",
+          "hk"
+        ],
+        "nixpkgs": [
+          "microlith",
+          "itok",
+          "microlith",
+          "nixpkgs-lock",
+          "nixpkgs"
+        ],
+        "nixpkgs-lock": [
+          "microlith",
+          "itok",
+          "nixpkgs-lock"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786709569,
+        "narHash": "sha256-KLxL48Qug7X0R9F/bG0MpJTsn/kmQz17CXQN4saLsks=",
+        "owner": "pr0d1r2",
+        "repo": "microlith",
+        "rev": "aa0380ac3b51b8d46bd536de28ea83452f01be90",
+        "type": "github"
+      },
+      "original": {
+        "owner": "pr0d1r2",
+        "ref": "v0.6.1",
+        "repo": "microlith",
+        "type": "github"
+      }
+    },
     "nix-hk": {
       "inputs": {
         "nixpkgs": [
@@ -61,6 +158,7 @@
     },
     "root": {
       "inputs": {
+        "microlith": "microlith",
         "nix-hk": "nix-hk",
         "nixpkgs": [
           "nixpkgs-lock",

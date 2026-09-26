@@ -142,6 +142,16 @@ local fast = new Mapping<String, Step> {
       """
     fix = "taplo fmt {{files}}"
   }
+  // One statement per line, no line over the cap, on every spec node. The
+  // format owner's own rules, from the pinned microlith (V14 there).
+  ["mth-fmt"] {
+    glob = List("**/SPEC.md")
+    check = """
+      command -v mth >/dev/null 2>&1 || { echo 'hk: mth is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
+      for f in {{files}}; do mth fmt --check "$f" || exit 1; done
+      """
+    fix = #"for f in {{files}}; do mth fmt "$f" || exit 1; done"#
+  }
   // -- end of fast --
 }
 
