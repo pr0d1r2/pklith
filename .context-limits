@@ -1,0 +1,31 @@
+# Per-path token CHAIN ceilings, gated by `sherd budget` (V9). The format is
+# itok's and sherd's, reused rather than reinvented.
+#
+# A chain is the cost of REACHING a node: root, every ancestor, and the node
+# itself, which is what a reader pays before seeing any code. Longest
+# matching prefix wins, so every node carries its own row.
+#
+# Set 2026-09-26 at ~25% above measured (`sherd budget`: root 5,217 · src
+# 5,501 · largest leaf src/lay 6,056), rounded up to 100. The slack is so a
+# legitimate addition does not force a raise; a raise is a reviewed commit
+# with its reason. Every chain pays the root, so a row added to the root
+# SPEC.md is billed 19 times.
+SPEC.md        6600
+src            6900
+src/catalog    7600
+src/cli        7300
+src/confirm    7100
+src/cover      7500
+src/detect     7200
+src/gen        7500
+src/hook       7200
+src/lay        7600
+src/legacy     7500
+src/map        7200
+src/migrate    7200
+src/protect    7100
+src/registry   7600
+src/report     7200
+src/rule       7500
+src/scan       7400
+src/seed       7300

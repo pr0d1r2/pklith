@@ -186,6 +186,17 @@ local fast = new Mapping<String, Step> {
       """
     fix = "sherd sync"
   }
+  // V9: chain ceilings from `.context-limits`. Globbed on the spec files and
+  // the limits file only: a chain is built from SPEC.md files, so a
+  // code-only commit cannot move a budget.
+  ["sherd-budget"] {
+    glob = List("**/SPEC.md", ".context-limits")
+    depends = List("sherd-nav")
+    check = """
+      command -v sherd >/dev/null 2>&1 || { echo 'hk: sherd is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
+      sherd budget >/dev/null || { sherd budget | grep OVER; echo 'hk: a spec chain is over its ceiling. Every chain pays the root, so slim or move text before raising a number; a raise is a reviewed commit with its reason (V9).' >&2; exit 1; }
+      """
+  }
   // -- end of fast --
 }
 

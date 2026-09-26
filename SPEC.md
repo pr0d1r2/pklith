@@ -151,7 +151,7 @@ T21|x|`mth fmt --check` ∀ `**/SPEC.md`|V1,V2
 T22|x|`mth check` ∀ `**/SPEC.md`|V1,V2
 T23|x|`sherd check`|V2
 T24|x|`sherd sync --check` (nav)|V6
-T25|.|`sherd budget` + `.context-limits`|V9
+T25|x|`sherd budget` + `.context-limits`|V9
 T26|.|`itok check`|V9
 T27|.|`rustfmt`|V2,V15
 T28|.|`clippy -D warnings`|V2
