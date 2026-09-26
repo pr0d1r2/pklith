@@ -289,6 +289,15 @@ local fast = new Mapping<String, Step> {
     depends = List("clippy")
     check = "cargo run -q --bin pkli -- check"
   }
+  // gen V3, root T44: hk.pklith.pkl is generated from .pklith by the pkli
+  // being built; a hand edit, or a .pklith change without regenerating,
+  // fails here. The fix regenerates.
+  ["gen-check"] {
+    glob = List(".pklith", "hk.pklith.pkl")
+    depends = List("clippy")
+    check = "cargo run -q --bin pkli -- gen --check"
+    fix = "cargo run -q --bin pkli -- gen"
+  }
   // -- end of fast --
 }
 

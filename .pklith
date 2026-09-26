@@ -42,6 +42,7 @@ flake-lock-graph|supply|jq|flake.lock|scripts/flake-lock-graph.sh {{files}}|-|-|
 deny|supply|cargo-deny|Cargo.toml, Cargo.lock, deny.toml|cargo deny check --disable-fetch licenses bans|-|-|a license or ban rule failed
 agents-table|spec|-|hk.pkl, AGENTS.md, scripts/agents-table.sh|scripts/agents-table.sh --check|scripts/agents-table.sh|-|AGENTS.md step table is stale
 pkli-check|spec|cargo|-|cargo run -q --bin pkli -- check|-|-|a tracked file type has no row in .pklith, or a row matches nothing
+gen-check|spec|cargo|.pklith, hk.pklith.pkl|cargo run -q --bin pkli -- gen --check|cargo run -q --bin pkli -- gen|-|hk.pklith.pkl no longer matches .pklith; run `pkli gen`
 
 ## types
 type|checks|min|exempt
@@ -64,4 +65,4 @@ coverage|coverage|-|-
 pkl|-|-|hk.pkl is evaluated against the vendored schema by every hk run; pkl/Config.pkl is vendored
 gitignore|-|-|git configuration; hygiene steps only
 LICENSE|-|-|license text, nothing to lint
-pklith|pkli-check|-|-
+pklith|pkli-check,gen-check|-|-
