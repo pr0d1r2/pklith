@@ -17,6 +17,7 @@ legacy|3 legacy formats: read, `import`, compat entries|native `.pklith` syntax|
 cover|verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps|walking, rendering, exit codes|-
 map|guard mode: changed paths → covering specs|running test runners|-
 report|render matrix & verdict: text, json, md|computing coverage|-
+gen|emit `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block; `--check` drift|running hk, running nix, committing|-
 seed|repo-owned seed files & shared configs, skip-if-exists|generated hk/nix files|-
 
 ## §N NAV

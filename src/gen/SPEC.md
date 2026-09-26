@@ -2,14 +2,14 @@
 
 ## §G GOAL
 
-Render Coverage: matrix file type × check w/ file counts, rule results, verdict.
+From registry + catalog emit hk steps, nix package list & AGENTS.md step table.
 
 ## §N NAV
 
 rel|path|lens
 up|.|-
 up|src|product code nodes — scan, detect, registry, catalog, rule, hook, legacy, cover, map, report, gen, lay, seed, confirm, migrate, protect, cli
-self|src/report|render matrix & verdict: text, json, md
+self|src/gen|emit `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block; `--check` drift
 sib|src/scan|enumerate files, basename → exactly 1 file type
 sib|src/detect|active fragments from scanned files, fixed order
 sib|src/registry|`.pklith` parse/fmt: types → check sets, rules, plural, exempt
@@ -19,27 +19,5 @@ sib|src/hook|read effective hk config via `pkl eval`: step → globs
 sib|src/legacy|3 legacy formats: read, `import`, compat entries
 sib|src/cover|verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps
 sib|src/map|guard mode: changed paths → covering specs
-sib|src/gen|emit `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block; `--check` drift
+sib|src/report|render matrix & verdict: text, json, md
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
-
-## §C CONSTRAINTS
-
-- json hand-written | ≤1 dep; justify in `.:R`.
-- text on failure: name each gap + fix hint (add check | exempt w/ reason).
-
-## §V INVARIANTS
-
-V1: stable row & column order ∀ formats (`.:V3`)
-V2: json keys always present; empty = `[]`, ⊥ absent key
-V3: `check` success = silence; `report` always prints
-
-## §T TASKS
-
-id|status|task|cites
-T1|.|text renderer|V1,V3
-T2|.|json renderer + schema test|V1,V2
-T3|.|md matrix (drop-in for legacy `docs/linter-coverage.md`)|V1
-
-## §B BUGS
-
-id|date|cause|fix

@@ -19,6 +19,7 @@ sib|src/hook|read effective hk config via `pkl eval`: step → globs
 sib|src/legacy|3 legacy formats: read, `import`, compat entries
 sib|src/cover|verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps
 sib|src/report|render matrix & verdict: text, json, md
+sib|src/gen|emit `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block; `--check` drift
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
 
 ## §C CONSTRAINTS
