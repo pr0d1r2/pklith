@@ -31,3 +31,13 @@ sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
 
 V1: `--dry-run` → prints payload, 0 API calls
 V2: job rename → context set changes → shown as breaking diff before apply
+
+## §T TASKS
+
+id|status|task|cites
+T1|.|context derivation from workflows + golden tests|V2,`.:T58`
+T2|.|`gh api` apply + dry-run|V1
+
+## §B BUGS
+
+id|date|cause|fix
