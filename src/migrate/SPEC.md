@@ -25,3 +25,9 @@ sib|src/lay|1 commit per missing check, hooks ON, rollback on red
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
 sib|src/confirm|acceptance of a materialized repo: completeness, fidelity, coherence, executability, idempotence
 sib|src/protect|branch protection required contexts from CI job names via `gh api`
+
+## §V INVARIANTS
+
+V1: check set before == after, else refuse w/ 0 writes (`.:V24`)
+V2: deterministic & idempotent: 2nd run → 0 changes
+V3: unmapped lefthook command → named in refusal, ⊥ dropped
