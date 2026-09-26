@@ -27,3 +27,16 @@ V3: duplicate type | rule id → error naming both lines
 V4: `fmt` idempotent; parse(fmt(x)) = parse(x)
 V5: `*` ⊥ satisfies `min` (universal hygiene ≠ real coverage)
 V6: absent optional section = empty, ⊥ error (`.:V11`)
+
+## §T TASKS
+
+id|status|task|cites
+T1|.|parser + errors w/ line numbers|V1,V2,V3,V6
+T2|.|`*` spread + `min` accounting|V5,B1
+T3|.|formatter + roundtrip proptest|V4
+
+## §B BUGS
+
+id|date|cause|fix
+B1|2026-08-11|set-and-setting B55: `all` class read as a literal type ∴ unassigned-file test failed|V5
+B2|2026-08-11|set-and-setting B53/B77: check listed in map w/o file class ∴ completeness rejected whole map, 4 checks at once|V2
