@@ -11,6 +11,11 @@ up|.|-
 up|src|product code nodes — scan, detect, registry, catalog, rule, hook, legacy, cover, map, report, gen, lay, seed, confirm, migrate, protect, cli
 self|src/scan|enumerate files, basename → exactly 1 file type
 
+## §C CONSTRAINTS
+
+- default source = `git ls-files -z` (NUL-safe). `--root DIR` → walk, skip `.git/`.
+- type kinds: `bare` (basename w/o dot: `justfile`, `Makefile`) · `ext` (last suffix `gz`) · `compound` (`tar.gz`) · `dotfile` (`.envrc`). kind recorded, ⊥ lost.
+
 ## §V INVARIANTS
 
 V1: ∀ file → candidate types ordered: exact basename > longest compound suffix > last ext. first DECLARED wins (`.:V5`)
