@@ -2,14 +2,14 @@
 
 ## §G GOAL
 
-Accept or reject a materialized repo, read-only.
+Move a lefthook-materialized repo onto hk without losing a check.
 
 ## §N NAV
 
 rel|path|lens
 up|.|-
 up|src|product code nodes — scan, detect, registry, catalog, rule, hook, legacy, cover, map, report, gen, lay, seed, confirm, migrate, protect, cli
-self|src/confirm|acceptance of a materialized repo: completeness, fidelity, coherence, executability, idempotence
+self|src/migrate|lefthook-materialized repo → hk, gated on check-set equivalence
 sib|src/scan|enumerate files, basename → exactly 1 file type
 sib|src/detect|active fragments from scanned files, fixed order
 sib|src/registry|`.pklith` parse/fmt: types → check sets, rules, plural, exempt
@@ -23,24 +23,5 @@ sib|src/report|render matrix & verdict: text, json, md
 sib|src/gen|emit `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block; `--check` drift
 sib|src/lay|1 commit per missing check, hooks ON, rollback on red
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
-sib|src/migrate|lefthook-materialized repo → hk, gated on check-set equivalence
+sib|src/confirm|acceptance of a materialized repo: completeness, fidelity, coherence, executability, idempotence
 sib|src/protect|branch protection required contexts from CI job names via `gh api`
-
-## §C CONSTRAINTS
-
-- checks: completeness (∀ active fragment's checks present), fidelity (on-disk `hk.pkl` fragment == generated), coherence (∀ step binary on PATH), executability (`pkl eval` + hk validate), idempotence (gen twice → 0 diff).
-
-## §V INVARIANTS
-
-V1: writes ⊥
-V2: any sub-check unable to run → fail, ⊥ skip (`.:V1`)
-V3: each failure names sub-check, file & fix
-
-## §T TASKS
-
-id|status|task|cites
-T1|.|5 sub-checks + planted-failure tests|V1,V2,V3,`.:T56`
-
-## §B BUGS
-
-id|date|cause|fix

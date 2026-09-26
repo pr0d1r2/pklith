@@ -24,6 +24,7 @@ sib|src/gen|emit `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block; `--check` d
 sib|src/lay|1 commit per missing check, hooks ON, rollback on red
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
 sib|src/confirm|acceptance of a materialized repo: completeness, fidelity, coherence, executability, idempotence
+sib|src/migrate|lefthook-materialized repo → hk, gated on check-set equivalence
 
 ## §C CONSTRAINTS
 
