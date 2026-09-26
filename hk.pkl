@@ -320,6 +320,14 @@ local fast = new Mapping<String, Step> {
       [ "$over" = 0 ] || { printf '%s\n' "$out" | grep 'sherd/V50' >&2; echo "file-ceilings: $over file(s) over their token ceiling. Split the file; a raise is a reviewed decision." >&2; exit 1; }
       """#
   }
+  // Dogfood (root T44): pkli judges this repository with the pkli being
+  // built, from the working tree, never an installed copy that could lag it.
+  // Whole-tree like linter-coverage, which it runs beside until the
+  // parallel run (V34) lets it replace that step.
+  ["pkli-check"] {
+    depends = List("clippy")
+    check = "cargo run -q --bin pkli -- check"
+  }
   // -- end of fast --
 }
 

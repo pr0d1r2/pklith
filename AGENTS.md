@@ -18,7 +18,7 @@ Notes for anyone, human or agent, changing this repository.
 ## The gate
 
 <!-- BEGIN steps: generated from hk.pkl by scripts/agents-table.sh; do not edit -->
-32 steps run on every commit and 33 on push and `hk check`; the commit-msg hook checks the message.
+33 steps run on every commit and 34 on push and `hk check`; the commit-msg hook checks the message.
 
 | step | runs on | files | fixes |
 |---|---|---|---|
@@ -54,5 +54,6 @@ Notes for anyone, human or agent, changing this repository.
 | `deny` | commit | `Cargo.toml` `Cargo.lock` `deny.toml` | - |
 | `doctest` | commit | `**/*.rs` `Cargo.toml` | - |
 | `file-ceilings` | commit | `**/*.rs` | - |
+| `pkli-check` | commit | whole tree | - |
 | `coverage` | push | `**/*.rs` `Cargo.toml` `.coverage` | - |
 <!-- END steps -->
