@@ -31,7 +31,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 - default source = `git ls-files -z` (NUL-safe). `--root DIR` → walk, skip `.git/`.
 - type kinds: `bare` (basename w/o dot: `justfile`, `Makefile`) · `dotfile` (`.envrc`) · `name` (whole basename w/ dots: `Cargo.lock`) · `compound` (`tar.gz`) · `ext` (last suffix `gz`). kind recorded, ⊥ lost.
-- keys drop ONE leading `.` (`.envrc` → `envrc`, `.typos.toml` → `typos.toml`), as the legacy tools did (`.:R3`); candidates dedup by key, first kept.
+- keys drop ONE leading `.` (`.envrc` → `envrc`, `.typos.toml` → `typos.toml`), as the legacy tools did (`.:R3`). compound suffixes exclude the whole name ∴ keys never repeat.
 
 ## §V INVARIANTS
 
