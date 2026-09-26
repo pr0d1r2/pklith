@@ -62,7 +62,7 @@ pre-push|shellcheck|-|-
 yml|actionlint,zizmor|-|-
 context-limits|sherd-budget|-|-
 coverage|coverage|-|-
-pkl|-|-|hk.pkl is evaluated against the vendored schema by every hk run; pkl/Config.pkl is vendored
+pkl|-|-|evaluated by the hk-parity step in hk.pkl with both pkl and hk's pklr, against the vendored schema; pkl/Config.pkl is vendored
 gitignore|-|-|git configuration; hygiene steps only
 LICENSE|-|-|license text, nothing to lint
 pklith|pkli-check,gen-check|-|-

@@ -298,6 +298,13 @@ local fast = new Mapping<String, Step> {
     check = "cargo run -q --bin pkli -- gen --check"
     fix = "cargo run -q --bin pkli -- gen"
   }
+  // V35 (B12): hk's own Pkl evaluator and `pkl eval` must see the same steps,
+  // each with a command. Hand-written here, not generated, so it does not
+  // depend on the construct it guards.
+  ["hk-parity"] {
+    glob = List("hk.pkl", "hk.pklith.pkl", "pkl/**", "scripts/hk-parity.sh")
+    check = "scripts/hk-parity.sh"
+  }
   // -- end of fast --
 }
 
