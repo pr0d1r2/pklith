@@ -30,3 +30,13 @@ sib|src/map|guard mode: changed paths → covering specs
 V1: `--init` skip-if-exists; existing file ⊥ touched (`.:V25`)
 V2: `.gitignore` fragments concatenated in fragment order
 V3: seeded exemptions ledger = empty list, valid (`.:V11`, `.:V23`)
+
+## §T TASKS
+
+id|status|task|cites
+T1|.|seed writer + skip-if-exists|V1,`.:T55`
+T2|.|`.gitignore` composition|V2
+
+## §B BUGS
+
+id|date|cause|fix
