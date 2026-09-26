@@ -52,4 +52,4 @@ T4|.|write-if-changed + `--check`|V2,V3,B1
 ## §B BUGS
 
 id|date|cause|fix
-B1|2026-08-11|set-and-setting B57: tracked `lefthook.yml` drifted from generated ∴ confirm diff red|V3
+B1|2026-08-11|set-and-setting `B57`: tracked `lefthook.yml` drifted from generated ∴ confirm diff red|V3

@@ -53,5 +53,5 @@ T3|.|formatter + roundtrip proptest|V4
 ## §B BUGS
 
 id|date|cause|fix
-B1|2026-08-11|set-and-setting B55: `all` class read as a literal type ∴ unassigned-file test failed|V5
-B2|2026-08-11|set-and-setting B53/B77: check listed in map w/o file class ∴ completeness rejected whole map, 4 checks at once|V2
+B1|2026-08-11|set-and-setting `B55`: `all` class read as a literal type ∴ unassigned-file test failed|V5
+B2|2026-08-11|set-and-setting `B53`/`B77`: check listed in map w/o file class ∴ completeness rejected whole map, 4 checks at once|V2
