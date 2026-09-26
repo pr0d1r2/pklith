@@ -127,10 +127,10 @@ V34: cutover (T44, T48, T60) only after a PARALLEL RUN: pkli & the tool it repla
 ## §T TASKS
 
 id|status|task|cites
-T1|.|seed in ashlar C1 shape, BY HAND: LICENSE, `.gitignore`, `Cargo.toml` (lints, `unsafe_code = "forbid"`), `src/main.rs`, README stub. `alr apply` has ⊥ `--only` yet & lays C1-C4 as bundles w/ hooks off (⊥ V12, V13)|R12,V12,V13
-T2|.|toolchain in ashlar C2 shape, by hand: flake on `nixpkgs-lock`, Rust toolchain devShell; `.envrc`. `nix-hk` + `nixConfig` substituter land w/ hk (T3); itok/microlith/sherd inputs w/ their steps (T21-T26)|R5,R12,V15
-T3|.|hk commit: `nix-hk` input + cachix `nixConfig`, hk & pkl in devShell, vendored `pkl/Config.pkl`, empty-step `hk.pkl` (pre-commit fix+stash, commit-msg, pre-push, check, fix), hooks installed; REFUSE w/o hk|V1,V7,V12
-T4|.|`commit-msg` step: subject `type(scope): claim`, ≤72 chars, body non-empty. a regex in `hk.pkl` (pkli ⊥ exists yet), moved into catalog once it does|V12,V13
+T1|x|seed in ashlar C1 shape, BY HAND: LICENSE, `.gitignore`, `Cargo.toml` (lints, `unsafe_code = "forbid"`), `src/main.rs`, README stub. `alr apply` has ⊥ `--only` yet & lays C1-C4 as bundles w/ hooks off (⊥ V12, V13)|R12,V12,V13
+T2|x|toolchain in ashlar C2 shape, by hand: flake on `nixpkgs-lock`, Rust toolchain devShell; `.envrc`. `nix-hk` + `nixConfig` substituter land w/ hk (T3); itok/microlith/sherd inputs w/ their steps (T21-T26)|R5,R12,V15
+T3|x|hk commit: `nix-hk` input + cachix `nixConfig`, hk & pkl in devShell, vendored `pkl/Config.pkl`, empty-step `hk.pkl` (pre-commit fix+stash, commit-msg, pre-push, check, fix), hooks installed; REFUSE w/o hk|V1,V7,V12
+T4|x|`commit-msg` step: subject `type(scope): claim`, ≤72 chars, body non-empty. a regex in `hk.pkl` (pkli ⊥ exists yet), moved into catalog once it does|V12,V13
 T5|.|`trailing-whitespace` (fixer excludes `pkl/`)|V2,V7
 T6|.|`final-newline`|V2,V7
 T7|.|`line-endings`|V2,V7
