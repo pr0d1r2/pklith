@@ -1,6 +1,8 @@
 //! Enumerate repository files and classify each basename to exactly one file
 //! type (`src/scan/SPEC.md`).
 
+use std::path::Path;
+
 /// How a candidate key was derived from a basename (scan §C).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Kind {
@@ -73,9 +75,160 @@ fn suffixes(name: &str) -> impl Iterator<Item = &str> {
         .filter(|s| !s.is_empty())
 }
 
+/// Why a file list could not be produced.
+#[derive(Debug)]
+pub enum Error {
+    /// git itself failed.
+    Git(crate::proc::Error),
+    /// A path is not UTF-8 (V4); shown lossily so it can be found.
+    NotUtf8(String),
+    /// A `git ls-files --stage` record without a tab.
+    Malformed(String),
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Git(e) => write!(f, "{e}"),
+            Self::NotUtf8(p) => write!(f, "path is not UTF-8: {p}"),
+            Self::Malformed(r) => write!(f, "unexpected git ls-files record: {r}"),
+        }
+    }
+}
+
+impl std::error::Error for Error {}
+
+/// Git modes that are not files: a submodule (V3).
+const GITLINK: &str = "160000";
+/// A symlink; it counts as a file unless it points at a directory (V3).
+const SYMLINK: &str = "120000";
+
+/// Tracked and staged paths under `root`, sorted and unique (V5), without
+/// submodules or symlinks to directories (V3).
+///
+/// # Errors
+///
+/// [`Error::Git`] when git fails, [`Error::NotUtf8`] for a path that is not
+/// UTF-8 (V4), [`Error::Malformed`] for output git should never produce.
+pub fn tracked(root: &Path) -> Result<Vec<String>, Error> {
+    let mut cmd = crate::proc::command("git", root);
+    cmd.args(["ls-files", "-z", "--stage"]);
+    let bytes = crate::proc::output(&mut cmd).map_err(Error::Git)?;
+    let mut paths: Vec<String> = parse_stage(&bytes)?
+        .into_iter()
+        .filter(|(mode, path)| is_file(root, mode, path))
+        .map(|(_, path)| path)
+        .collect();
+    paths.sort();
+    paths.dedup();
+    Ok(paths)
+}
+
+fn is_file(root: &Path, mode: &str, path: &str) -> bool {
+    match mode {
+        GITLINK => false,
+        SYMLINK => !root.join(path).is_dir(),
+        _ => true,
+    }
+}
+
+/// `(mode, path)` from NUL-separated `<mode> <object> <stage>\t<path>` records.
+fn parse_stage(bytes: &[u8]) -> Result<Vec<(String, String)>, Error> {
+    bytes
+        .split(|b| *b == 0)
+        .filter(|r| !r.is_empty())
+        .map(parse_record)
+        .collect()
+}
+
+fn parse_record(record: &[u8]) -> Result<(String, String), Error> {
+    let lossy = || String::from_utf8_lossy(record).into_owned();
+    let tab = record
+        .iter()
+        .position(|b| *b == b'\t')
+        .ok_or_else(|| Error::Malformed(lossy()))?;
+    let (meta, path) = record.split_at(tab);
+    let path = std::str::from_utf8(path.get(1..).unwrap_or_default())
+        .map_err(|_| Error::NotUtf8(lossy()))?;
+    let mode = String::from_utf8_lossy(meta)
+        .split(' ')
+        .next()
+        .unwrap_or_default()
+        .to_owned();
+    Ok((mode, path.to_owned()))
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{Kind, candidates};
+    use super::{Kind, candidates, parse_stage, tracked};
+    use std::path::{Path, PathBuf};
+
+    fn temp(name: &str) -> Result<PathBuf, std::io::Error> {
+        let dir = std::env::temp_dir().join(format!("pklith-scan-{}-{name}", std::process::id()));
+        std::fs::create_dir_all(&dir)?;
+        Ok(dir)
+    }
+
+    fn git(dir: &Path, args: &[&str]) -> Result<Vec<u8>, crate::proc::Error> {
+        crate::proc::output(crate::proc::command("git", dir).args(args))
+    }
+
+    /// V3 and V5 on a real index: staged files count, a submodule and a
+    /// symlink to a directory do not, a symlink to a file does.
+    #[test]
+    fn tracked_lists_files_only_sorted() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = fixture()?;
+        assert_eq!(tracked(&dir)?, ["a.txt", "sub/b.rs", "to-file"]);
+        std::fs::remove_dir_all(&dir)?;
+        Ok(())
+    }
+
+    /// A submodule entry needs no real submodule: an index entry with mode 160000.
+    const GITLINK: &str = "160000,0123456789abcdef0123456789abcdef01234567,vendor/mod";
+
+    fn fixture() -> Result<PathBuf, Box<dyn std::error::Error>> {
+        let dir = temp("tracked")?;
+        git(&dir, &["init", "-q"])?;
+        std::fs::create_dir_all(dir.join("sub"))?;
+        std::fs::write(dir.join("sub/b.rs"), "")?;
+        std::fs::write(dir.join("a.txt"), "")?;
+        std::os::unix::fs::symlink("sub", dir.join("to-dir"))?;
+        std::os::unix::fs::symlink("a.txt", dir.join("to-file"))?;
+        git(&dir, &["add", "-A"])?;
+        git(&dir, &["update-index", "--add", "--cacheinfo", GITLINK])?;
+        Ok(dir)
+    }
+
+    #[test]
+    fn outside_a_repository_git_fails_by_name() -> Result<(), std::io::Error> {
+        let dir = temp("no-repo")?;
+        let err = tracked(&dir).err().map(|e| e.to_string());
+        assert!(err.is_some_and(|e| e.starts_with("`git ls-files -z --stage` failed:")));
+        std::fs::remove_dir_all(&dir)
+    }
+
+    /// V4: a path that is not UTF-8 is an error naming it, never skipped.
+    #[test]
+    fn a_non_utf8_path_is_an_error_naming_it() {
+        let err = parse_stage(b"100644 abc 0\tok.txt\x00100644 abc 0\tbad\xff.txt\0")
+            .err()
+            .map(|e| e.to_string());
+        assert_eq!(
+            err.as_deref(),
+            Some("path is not UTF-8: 100644 abc 0\tbad\u{fffd}.txt")
+        );
+    }
+
+    #[test]
+    fn a_record_without_a_tab_is_malformed() {
+        let err = parse_stage(b"100644 abc 0 no-tab\0")
+            .err()
+            .map(|e| e.to_string());
+        assert_eq!(
+            err.as_deref(),
+            Some("unexpected git ls-files record: 100644 abc 0 no-tab")
+        );
+    }
 
     fn typed(path: &str) -> Vec<(String, Kind)> {
         candidates(path)
