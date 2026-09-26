@@ -155,7 +155,7 @@ T29|.|`test` (nextest, non-empty suite: exit-code contract)|V2
 T30|.|`doctest`|V2
 T31|.|`rustdoc -D warnings`|V2
 T32|.|`coverage` floor + `.coverage`|V2
-T33|.|bootstrap `linter-coverage`: legacy `-full` input + step + `docs/linter-coverage.md`, until T44|V5
+T33|.|bootstrap `linter-coverage`: legacy BASE `nix-lefthook-linter-coverage` input + step + `docs/linter-coverage.md`, until T44. ⊥ `-full`: its #5 (every configured run reads nothing) is still open|V5,`src/legacy:B2`
 T34|.|AGENTS.md step table derived from `hk.pkl` + `integration-doc` step|V14
 T35|.|`links` (lychee offline) ∀ docs|V2
 T36|.|`.github/workflows/ci.yml` = orchestration only, `hk check` on 3 tier-1 systems|V8
