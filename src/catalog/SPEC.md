@@ -13,6 +13,12 @@ self|src/catalog|check definitions: category, nix attr, runner glob, hk step, fi
 sib|src/scan|enumerate files, basename → exactly 1 file type
 sib|src/registry|`.pklith` parse/fmt: types → check sets, rules, plural, exempt
 
+## §C CONSTRAINTS
+
+- row: `id|category|nix|glob|check|fix|msg`. category ∈ `hygiene lint format secret spec test coverage supply`.
+- built-in rows seeded from sibling gates (`.:R6`); `.pklith ## checks` overrides by id.
+- `glob` = the RUNNER glob; gen emits it verbatim into the hk step.
+
 ## §V INVARIANTS
 
 V1: ∀ row: `msg` ! non-empty — feeds AGENTS.md table (`.:V14`) & failure text
