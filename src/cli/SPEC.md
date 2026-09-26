@@ -27,6 +27,10 @@ sib|src/confirm|acceptance of a materialized repo: completeness, fidelity, coher
 sib|src/migrate|lefthook-materialized repo → hk, gated on check-set equivalence
 sib|src/protect|branch protection required contexts from CI job names via `gh api`
 
+## §C CONSTRAINTS
+
+- hand arg parse (fleet style); ? `lexopt` if hand parse breaks fn limits.
+
 ## §V INVARIANTS
 
 V1: exit codes: 0 ok / 1 finding / 2 usage | I/O error. ∀ verb
