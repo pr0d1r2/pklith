@@ -37,3 +37,13 @@ V1: exit codes: 0 ok / 1 finding / 2 usage | I/O error. ∀ verb
 V2: unknown flag → usage on stderr, exit 2
 V3: stdout = data only; diagnostics → stderr
 V4: ∀ path arg opened as path, ⊥ read as flag
+
+## §T TASKS
+
+id|status|task|cites
+T1|.|dispatch `check`/`report`/`gen`/`lay`/`map`/`import` + usage|V1,V2,V3,V4,`.:I`
+
+## §B BUGS
+
+id|date|cause|fix
+B1|2026-05-09|legacy base: doc path starting `-` could be read as awk flag (bd2f981)|V4
