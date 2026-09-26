@@ -21,6 +21,11 @@ sib|src/cover|verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps
 sib|src/map|guard mode: changed paths → covering specs
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
 
+## §C CONSTRAINTS
+
+- json hand-written | ≤1 dep; justify in `.:R`.
+- text on failure: name each gap + fix hint (add check | exempt w/ reason).
+
 ## §V INVARIANTS
 
 V1: stable row & column order ∀ formats (`.:V3`)
