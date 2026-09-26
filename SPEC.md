@@ -132,7 +132,7 @@ T2|x|toolchain in ashlar C2 shape, by hand: flake on `nixpkgs-lock`, Rust toolch
 T3|x|hk commit: `nix-hk` input + cachix `nixConfig`, hk & pkl in devShell, vendored `pkl/Config.pkl`, empty-step `hk.pkl` (pre-commit fix+stash, commit-msg, pre-push, check, fix), hooks installed; REFUSE w/o hk|V1,V7,V12
 T4|x|`commit-msg` step: subject `type(scope): claim`, ≤72 chars, body non-empty. a regex in `hk.pkl` (pkli ⊥ exists yet), moved into catalog once it does|V12,V13
 T5|x|`trailing-whitespace` (fixer excludes `pkl/`)|V2,V7
-T6|.|`final-newline`|V2,V7
+T6|x|`final-newline`|V2,V7
 T7|.|`line-endings`|V2,V7
 T8|.|`no-bom`|V2
 T9|.|`no-merge-conflict --assume-in-merge`|V2,R7

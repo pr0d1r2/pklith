@@ -27,6 +27,12 @@ local fast = new Mapping<String, Step> {
     check_diff = "hk util trailing-whitespace --diff {{files}}"
     fix = "hk util trailing-whitespace --fix {{files}}"
   }
+  ["final-newline"] {
+    glob = List("**/*")
+    exclude = List("pkl/**")
+    check_diff = "hk util end-of-file-fixer --diff {{files}}"
+    fix = "hk util end-of-file-fixer --fix {{files}}"
+  }
   // -- end of fast --
 }
 
