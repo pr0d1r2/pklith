@@ -3,8 +3,7 @@
 /// what order) and never hides what runs.
 ///
 /// Steps arrive one per commit (pklith V13), each proven against a planted
-/// violation first (V2). This first version has none: it exists so the hooks
-/// can be installed in the same commit that brings hk (V12, V22).
+/// violation first (V2), with the proof in that commit's body (V32).
 amends "pkl/Config.pkl"
 
 /// The first failure is the most useful thing to show, and steps are ordered
@@ -17,7 +16,19 @@ env {
 }
 
 /// Run on every commit: cheap, file-scoped steps.
-local fast = new Mapping<String, Step> {}
+///
+/// The `hk util` family first: native to the runner, so they need no package
+/// in the shell. Read-only checks see every file; FIXERS exclude `pkl/`, a
+/// schema vendored verbatim that an edit would silently fork (V7).
+local fast = new Mapping<String, Step> {
+  ["trailing-whitespace"] {
+    glob = List("**/*")
+    exclude = List("pkl/**")
+    check_diff = "hk util trailing-whitespace --diff {{files}}"
+    fix = "hk util trailing-whitespace --fix {{files}}"
+  }
+  // -- end of fast --
+}
 
 /// Run on push and in CI: everything in `fast`, plus whole-tree steps.
 local all = (fast) {}
