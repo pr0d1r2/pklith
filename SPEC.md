@@ -143,7 +143,7 @@ T13|x|`ripsecrets` + `.secretsignore`|V1,V2
 T14|x|`no-large-files` w/ per-ext limits (`lock` 65536, `nix` 10240)|V2,R8
 T15|x|`flake.lock` node-count ceiling|V2,R8
 T16|x|`typos` + `.typos.toml`|V2
-T17|.|`nixfmt`|V2,V15
+T17|x|`nixfmt`|V2,V15
 T18|.|`taplo`|V2,V15
 T19|.|`no-commit-to-branch` main|V8
 T20|.|vendor `FORMAT.md` + `FORMAT-EXTENSIONS.md` from pinned microlith|V7

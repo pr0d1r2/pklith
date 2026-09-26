@@ -58,6 +58,7 @@
             pkgs.ripsecrets
             pkgs.jq
             pkgs.typos
+            pkgs.nixfmt
           ];
           RUST_BACKTRACE = "1";
 

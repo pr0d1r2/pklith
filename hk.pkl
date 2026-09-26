@@ -121,6 +121,16 @@ local fast = new Mapping<String, Step> {
       typos --force-exclude {{files}}
       """
   }
+  // The flake decides what every other step runs with, so drift in it is
+  // drift everywhere; one formatting keeps its diffs about content.
+  ["nixfmt"] {
+    glob = List("**/*.nix")
+    check = """
+      command -v nixfmt >/dev/null 2>&1 || { echo 'hk: nixfmt is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
+      nixfmt --check {{files}}
+      """
+    fix = "nixfmt {{files}}"
+  }
   // -- end of fast --
 }
 
