@@ -23,6 +23,10 @@ sib|src/report|render matrix & verdict: text, json, md
 sib|src/gen|emit `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block; `--check` drift
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
 
+## §C CONSTRAINTS
+
+- contexts parsed from workflow files; applied via `gh api`. network ONLY here, named & opt-in.
+
 ## §V INVARIANTS
 
 V1: `--dry-run` → prints payload, 0 API calls
