@@ -56,6 +56,12 @@ local fast = new Mapping<String, Step> {
     glob = List("**/*")
     check = "hk util check-case-conflict {{files}}"
   }
+  // Whole-tree, no glob: hk's file selection drops a broken symlink (the
+  // target it would stat does not exist), so a `{{files}}` step never sees
+  // the one file it exists to catch. Every tracked and staged path instead.
+  ["no-broken-symlinks"] {
+    check = "git ls-files -z | xargs -0 hk util check-symlinks"
+  }
   // -- end of fast --
 }
 
