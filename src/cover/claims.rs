@@ -44,6 +44,25 @@ pub fn unbacked(files: &[String], registry: &Registry, steps: &[Step]) -> Vec<Un
     found
 }
 
+/// Checks at least one file claims, each once, in first-claimed order. lay
+/// lays only these (root V15): a check no file claims would be stale at
+/// birth.
+#[must_use]
+pub fn claimed_somewhere(files: &[String], registry: &Registry) -> Vec<String> {
+    let declared: Vec<&TypeRow> = registry.types.iter().filter(|t| t.key != "*").collect();
+    let (universal, classes) = (universal(registry), classes(&declared));
+    let mut seen: Vec<String> = Vec::new();
+    for file in files {
+        let row = resolve(file, &declared, &classes).and_then(|i| declared.get(i));
+        for check in row.map(|r| claimed(r, &universal)).unwrap_or_default() {
+            if !seen.contains(check) {
+                seen.push(check.clone());
+            }
+        }
+    }
+    seen
+}
+
 fn universal(registry: &Registry) -> Vec<&String> {
     registry
         .types
@@ -170,6 +189,26 @@ mod tests {
     fn steps_are_only_needed_when_something_is_claimed() -> Result<(), Error> {
         assert!(claims_any(&parse(REGISTRY)?));
         assert!(!claims_any(&parse(IMPORTED)?));
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod claimed_tests {
+    use super::claimed_somewhere;
+    use crate::registry::{Error, parse};
+
+    const REGISTRY: &str = "format 1\n## types\ntype|checks|min|exempt\n*|ws|-|-\nrs|clippy,fmt|-|-\npy|ruff|-|-\npath:vendor/**|-|-|vendored\n";
+
+    /// Only checks some file claims: no `.py` file means no ruff; the exempt
+    /// class claims nothing; the universal check counts once.
+    #[test]
+    fn only_checks_a_file_claims_are_listed() -> Result<(), Error> {
+        let files = ["a.rs", "vendor/b.py", "b.rs"].map(str::to_owned);
+        assert_eq!(
+            claimed_somewhere(&files, &parse(REGISTRY)?),
+            ["clippy", "fmt", "ws"]
+        );
         Ok(())
     }
 }
