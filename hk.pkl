@@ -230,6 +230,16 @@ local fast = new Mapping<String, Step> {
     depends = List("clippy")
     check = "RUSTDOCFLAGS='-D warnings' cargo doc --no-deps --document-private-items -q"
   }
+  // Shell without a `.sh` name: the tracked hooks and `.envrc`, which runs
+  // on every shell entry, where a silent mistake costs most. Globbed by
+  // path, since there is no extension to match.
+  ["shellcheck"] {
+    glob = List(".githooks/*", ".envrc", "**/*.sh")
+    check = """
+      command -v shellcheck >/dev/null 2>&1 || { echo 'hk: shellcheck is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
+      shellcheck --shell=bash {{files}}
+      """
+  }
   // -- end of fast --
 }
 

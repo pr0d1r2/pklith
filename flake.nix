@@ -75,6 +75,7 @@
             pkgs.nixfmt
             pkgs.taplo
             pkgs.cargo-nextest
+            pkgs.shellcheck
             # Coverage: cargo-llvm-cov plus llvm-cov/llvm-profdata, which nixpkgs
             # rustc does not ship; wired through the env vars it looks for.
             pkgs.cargo-llvm-cov

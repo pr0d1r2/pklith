@@ -198,6 +198,7 @@ T68|.|`CHANGELOG.md` (keep-a-changelog) + `changelog-touched` step: golden or `s
 T69|.|release: version bump PR → tag → crates.io publish → cachix push of `pklith` for 3 tier-1 systems; `cargo semver-checks` gates the bump|V33,V10
 T70|.|fleet sweep: ∀ repo under `../` using a legacy coverage tool or set-and-setting setting → legacy verdict vs `pkli check` on imported `.pklith`; diffs → §B or fix|V34,V4
 T71|.|raise itok issue: `itok check` takes a limits path, so per-file ceilings can live beside sherd chain ceilings|B11
+T72|x|`shellcheck` on `.githooks/*` & `.envrc` (shell w/o `.sh` name ∴ glob by path)|V2,V5
 
 ## §B BUGS
 
