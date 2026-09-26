@@ -35,7 +35,8 @@ fn a_registry_outside_the_repository_judges_it() -> Result {
     Ok(std::fs::remove_dir_all(dir)?)
 }
 
-const IMPORT_ERRORS: [(&[&str], &str); 4] = [
+const IMPORT_ERRORS: [(&[&str], &str); 5] = [
+    (&["gen", "--bogus"], "usage: pkli"),
     (
         &["import", "no-such.md"],
         "pkli import: cannot read no-such.md: ",

@@ -4,6 +4,9 @@
 use crate::catalog::Check;
 use crate::registry::Registry;
 
+mod apply;
+pub use apply::{Context, Failure, lay};
+
 /// The checks to lay, in the order they are laid (lay §C): what the
 /// registry uses, minus what hk.pkl already runs, minus what no file claims
 /// (root V15). Universal `*` checks first, then category, then catalog

@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 pub const USAGE: &str = "usage: pkli <command>\n
   check [--root DIR] [--registry FILE]  every tracked file has a type in .pklith with its checks
   gen [--check]                         write hk.pklith.pkl from .pklith; --check: fail when it is stale
-  lay --dry-run                         the commits lay would make, one subject per line
+  lay [--dry-run]                       one commit per missing check, through the hooks; --dry-run: list them
   import DOC                            a .pklith from a legacy linter coverage document, on stdout
 ";
 
@@ -32,12 +32,24 @@ fn exit(code: u8, stderr: impl Into<String>) -> Outcome {
 /// Run `pkli` with `args` (without the program name) from `cwd`.
 #[must_use]
 pub fn run(args: &[String], cwd: &Path) -> Outcome {
-    match args.split_first() {
-        Some((verb, rest)) if verb == "check" => check(rest, cwd),
-        Some((verb, [])) if verb == "gen" => generate(cwd, false),
-        Some((verb, [flag])) if verb == "gen" && flag == "--check" => generate(cwd, true),
-        Some((verb, [flag])) if verb == "lay" && flag == "--dry-run" => lay_plan(cwd),
-        Some((verb, [doc])) if verb == "import" => import(Path::new(doc)),
+    let Some((verb, rest)) = args.split_first() else {
+        return exit(2, USAGE);
+    };
+    match (verb.as_str(), rest) {
+        ("check", _) => check(rest, cwd),
+        ("gen", []) => generate(cwd, false),
+        ("lay", []) => lay_run(cwd),
+        ("import", [doc]) => import(Path::new(doc)),
+        ("gen" | "lay", [flag]) => flagged(verb, flag, cwd),
+        _ => exit(2, USAGE),
+    }
+}
+
+/// `gen --check` and `lay --dry-run`: each verb's one flag.
+fn flagged(verb: &str, flag: &str, cwd: &Path) -> Outcome {
+    match (verb, flag) {
+        ("gen", "--check") => generate(cwd, true),
+        ("lay", "--dry-run") => lay_plan(cwd),
         _ => exit(2, USAGE),
     }
 }
@@ -188,26 +200,90 @@ fn pkl_for(root: &Path) -> Result<String, String> {
     Ok(crate::r#gen::pkl(&crate::r#gen::used(&registry, &catalog)))
 }
 
+/// What both `lay` and `lay --dry-run` read.
+struct LayInputs {
+    root: PathBuf,
+    registry: crate::registry::Registry,
+    catalog: Vec<crate::catalog::Check>,
+    present: Vec<String>,
+    claimed: Vec<String>,
+}
+
+fn lay_inputs(cwd: &Path) -> Result<LayInputs, String> {
+    let root = toplevel(cwd)?;
+    let (registry, catalog) = load(&root.join(".pklith"))?;
+    let files = files(&root, false)?;
+    let present = present(&root)?;
+    let claimed = crate::cover::claimed_somewhere(&files, &registry);
+    Ok(LayInputs {
+        root,
+        registry,
+        catalog,
+        present,
+        claimed,
+    })
+}
+
+/// Step ids hk already runs. For planning, an hk.pkl with no steps yet is
+/// a repository with nothing laid, not an error (hook V2 guards judging).
+fn present(root: &Path) -> Result<Vec<String>, String> {
+    match crate::hook::steps(root) {
+        Ok(steps) => Ok(steps.into_iter().map(|s| s.id).collect()),
+        Err(crate::hook::Error::NoSteps) => Ok(Vec::new()),
+        Err(e) => Err(format!("cannot read hk's steps: {e}")),
+    }
+}
+
 /// `lay --dry-run`: the subjects of the commits lay would make, in order,
 /// on stdout (data), writing nothing (lay V4).
 fn lay_plan(cwd: &Path) -> Outcome {
-    match lay_subjects(cwd) {
-        Ok(subjects) => Outcome {
+    let subjects = lay_inputs(cwd).map(|i| {
+        let plan = crate::lay::plan(&i.registry, &i.catalog, &i.present, &i.claimed);
+        plan.iter()
+            .map(|c| crate::lay::subject(c) + "\n")
+            .collect::<String>()
+    });
+    match subjects {
+        Ok(stdout) => Outcome {
             code: 0,
-            stdout: subjects,
+            stdout,
             stderr: String::new(),
         },
         Err(message) => exit(2, format!("pkli lay: {message}\n")),
     }
 }
 
-fn lay_subjects(cwd: &Path) -> Result<String, String> {
-    let root = toplevel(cwd)?;
-    let (registry, catalog) = load(&root.join(".pklith"))?;
-    let files = files(&root, false)?;
-    let steps = crate::hook::steps(&root).map_err(|e| format!("cannot read hk's steps: {e}"))?;
-    let present: Vec<String> = steps.into_iter().map(|s| s.id).collect();
-    let claimed = crate::cover::claimed_somewhere(&files, &registry);
-    let plan = crate::lay::plan(&registry, &catalog, &present, &claimed);
-    Ok(plan.iter().map(|c| crate::lay::subject(c) + "\n").collect())
+fn laying(inputs: &LayInputs) -> Result<String, crate::lay::Failure> {
+    let plan = crate::lay::plan(
+        &inputs.registry,
+        &inputs.catalog,
+        &inputs.present,
+        &inputs.claimed,
+    );
+    let used = crate::r#gen::used(&inputs.registry, &inputs.catalog);
+    let ctx = crate::lay::Context {
+        root: &inputs.root,
+        used,
+        present: inputs.present.clone(),
+    };
+    crate::lay::lay(&ctx, &plan)
+}
+
+/// `lay`: one commit per planned check, through the hooks; one `<sha>
+/// <subject>` line per commit on stdout (lay V9). Exit 2 when it cannot
+/// start, 1 when a commit was refused and everything was rolled back (V3).
+fn lay_run(cwd: &Path) -> Outcome {
+    let inputs = match lay_inputs(cwd) {
+        Ok(inputs) => inputs,
+        Err(message) => return exit(2, format!("pkli lay: {message}\n")),
+    };
+    match laying(&inputs) {
+        Ok(stdout) => Outcome {
+            code: 0,
+            stdout,
+            stderr: String::new(),
+        },
+        Err(crate::lay::Failure::NotReady(m)) => exit(2, format!("pkli lay: {m}\n")),
+        Err(crate::lay::Failure::RolledBack(m)) => exit(1, format!("pkli lay: {m}\n")),
+    }
 }

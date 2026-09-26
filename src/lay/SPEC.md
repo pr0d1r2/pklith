@@ -51,12 +51,12 @@ V9: stdout: 1 line per commit made (`<sha> <subject>`); nothing to lay → silen
 
 id|status|task|cites
 T1|x|planner: required − present, ordered|V5,V7,`.:V15`
-T2|.|per-check writer via src/gen fragment fn|V2
-T3|.|git driver: add exact paths, commit through hooks|V1,V2
-T4|.|rollback|V3,V6
-T5|.|tests: PLANT red check → rollback; apply twice → 0 commits; dry-run → 0 writes|V3,V4,V5
-T6|.|test: operator has unrelated staged change → lay commits exclude it, index still holds it|V8
-T7|.|test: stdout lists exactly the commits made; 2nd run prints nothing|V9,V5
+T2|x|per-check writer via src/gen fragment fn|V2
+T3|x|git driver: add exact paths, commit through hooks|V1,V2
+T4|x|rollback|V3,V6
+T5|x|tests: PLANT red check → rollback; apply twice → 0 commits; dry-run → 0 writes|V3,V4,V5
+T6|x|test: operator has unrelated staged change → lay commits exclude it, index still holds it|V8
+T7|x|test: stdout lists exactly the commits made; 2nd run prints nothing|V9,V5
 
 ## §B BUGS
 
