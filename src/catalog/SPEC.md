@@ -29,7 +29,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 ## §C CONSTRAINTS
 
-- row: `id|category|nix|glob|check|fix|msg`. category ∈ `hygiene lint format secret spec test coverage supply`.
+- row: `id|category|nix|glob|check|fix|env|msg`. `env` = vars the step needs & their values, emitted w/ the step (`.:V19`); `-` if none. category ∈ `hygiene lint format secret spec test coverage supply`.
 - built-in rows seeded from sibling gates (`.:R6`); `.pklith ## checks` overrides by id.
 - `glob` = the RUNNER glob; gen emits it verbatim into the hk step.
 - fragment row: `fragment|triggers|checks|seed`. triggers = file types, paths, globs (read by src/detect); checks = catalog ids; seed = seed file ids (src/seed). built-in order = fragment order.
@@ -47,6 +47,8 @@ id|status|task|cites
 T1|.|catalog row type + parser shared w/ registry cell rules|V3,V4
 T2|.|built-in catalog: hk util hygiene family, ripsecrets, typos, nixfmt, shellcheck, shfmt, taplo, rustfmt, clippy, rubocop, actionlint, zizmor, mth, sherd, itok|V1,`.:R6`
 T3|.|test: ∀ built-in nix attr evals|V2
+T4|.|`env` column: gen emits it; test: step w/ unset required env ⊥ emitted|`.:V19`
+T5|.|test: ∀ built-in `check` resolves to a binary of its `nix` attr; `npx`/`pipx run`/`curl` in a row → rejected|`.:V29`
 
 ## §B BUGS
 
