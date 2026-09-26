@@ -83,16 +83,37 @@ fn check(args: &[String], cwd: &Path) -> Outcome {
         return exit(2, USAGE);
     };
     match judge(opts, cwd) {
-        Ok(coverage) => exit(u8::from(!coverage.ok()), crate::report::text(&coverage)),
+        Ok((coverage, unbacked)) => {
+            let text = crate::report::text(&coverage) + &crate::report::unbacked(&unbacked);
+            exit(u8::from(!coverage.ok() || !unbacked.is_empty()), text)
+        }
         Err(message) => exit(2, format!("pkli check: {message}\n")),
     }
 }
 
-fn judge(opts: Options, cwd: &Path) -> Result<crate::cover::Coverage, String> {
+type Verdict = (crate::cover::Coverage, Vec<crate::cover::Unbacked>);
+
+fn judge(opts: Options, cwd: &Path) -> Result<Verdict, String> {
     let walk = opts.root.is_some();
     let root = opts.root.map_or_else(|| toplevel(cwd), Ok)?;
     let (registry, _) = load(&opts.registry.unwrap_or_else(|| root.join(".pklith")))?;
-    Ok(crate::cover::judge(&files(&root, walk)?, &registry))
+    let files = files(&root, walk)?;
+    let unbacked = backing(&root, &files, &registry)?;
+    Ok((crate::cover::judge(&files, &registry), unbacked))
+}
+
+/// cover V3: claims no hk step backs. hk.pkl is read only when something
+/// is claimed; an imported legacy registry claims nothing.
+fn backing(
+    root: &Path,
+    files: &[String],
+    registry: &crate::registry::Registry,
+) -> Result<Vec<crate::cover::Unbacked>, String> {
+    if !crate::cover::claims_any(registry) {
+        return Ok(Vec::new());
+    }
+    let steps = crate::hook::steps(root).map_err(|e| format!("cannot read hk's steps: {e}"))?;
+    Ok(crate::cover::unbacked(files, registry, &steps))
 }
 
 fn files(root: &Path, walk: bool) -> Result<Vec<String>, String> {

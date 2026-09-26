@@ -1,6 +1,6 @@
 //! Render a coverage verdict (`src/report/SPEC.md`).
 
-use crate::cover::{Coverage, Gap, Stale};
+use crate::cover::{Coverage, Gap, Stale, Unbacked};
 
 /// The verdict as text for a person or a hook log: one line per finding,
 /// each saying what to do. Empty when the verdict passes, so a passing check
@@ -11,6 +11,21 @@ pub fn text(coverage: &Coverage) -> String {
     let gaps = coverage.gaps.iter().map(gap_line);
     let stale = coverage.stale.iter().map(stale_line);
     gaps.chain(stale).map(|line| line + "\n").collect()
+}
+
+/// Claims no hk step backs (cover V3), one line per check and reason.
+#[must_use]
+pub fn unbacked(found: &[Unbacked]) -> String {
+    found.iter().map(unbacked_line).collect()
+}
+
+fn unbacked_line(u: &Unbacked) -> String {
+    let (check, n, files) = (&u.check, u.files.len(), u.files.join(", "));
+    let noun = if n == 1 { "file" } else { "files" };
+    format!(
+        "unbacked: `{check}` is claimed for {n} {noun} its hk step never checks: {}: {files}; fix the step, or stop claiming it\n",
+        u.problem
+    )
 }
 
 fn gap_line(gap: &Gap) -> String {
