@@ -20,3 +20,9 @@ sib|src/legacy|3 legacy formats: read, `import`, compat entries
 sib|src/cover|verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps
 sib|src/map|guard mode: changed paths → covering specs
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
+
+## §V INVARIANTS
+
+V1: stable row & column order ∀ formats (`.:V3`)
+V2: json keys always present; empty = `[]`, ⊥ absent key
+V3: `check` success = silence; `report` always prints
