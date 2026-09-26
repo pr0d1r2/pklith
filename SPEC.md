@@ -194,6 +194,7 @@ T65|.|`schema-pin` step: vendored `pkl/Config.pkl` matches pinned hk's schema|V2
 T66|.|fixture per built-in catalog check: planted violation → step red, clean twin → green|V30,V2
 T67|.|pre-publish audit: ∀ committed file & message ⊥ names an unpublished fleet repo (ashlar today); publish it or anonymize|R12,R14
 T68|.|`CHANGELOG.md` (keep-a-changelog) + `changelog-touched` step: golden or `src/` change w/o `[Unreleased]` entry → red|V33
+T69|.|release: version bump PR → tag → crates.io publish → cachix push of `pklith` for 3 tier-1 systems; `cargo semver-checks` gates the bump|V33,V10
 
 ## §B BUGS
 
