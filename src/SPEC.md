@@ -7,6 +7,7 @@ Product code hub. Pipeline: scan → detect; registry + catalog → rule, hook, 
 ## §F FEDERATION
 
 dir|owns|⊥owns|tokens
+proc|run external programs one way: git hook env scrubbed, failures named|what any program is for|-
 scan|enumerate files, basename → exactly 1 file type|registry syntax, verdicts|-
 detect|active fragments from scanned files, fixed order|which checks a fragment brings|-
 registry|`.pklith` parse/fmt: types → check sets, rules, plural, exempt|check definitions, file walk|-
@@ -34,12 +35,12 @@ self|src|product code nodes — scan, detect, registry, catalog, rule, hook, leg
 ## §C CONSTRAINTS
 
 - data flows 1 way (V1). lower node ⊥ imports higher.
-- pure fns over values; fs/git/process I/O only in scan, registry load, hook, gen write, seed write, lay, confirm, migrate, cli. network only in protect.
+- pure fns over values; fs/git/process I/O only in proc (spawning), scan, registry load, hook, gen write, seed write, lay, confirm, migrate, cli. network only in protect.
 - ONE glob engine shared by catalog, rule, hook, cover ∴ claim & runner match same way.
 
 ## §V INVARIANTS
 
-V1: node deps ! DAG: {scan, registry, catalog} → {detect, rule, hook, legacy} → {cover, map, seed} → {report, gen, protect} → {lay, confirm, migrate} → cli. cycle ⊥
+V1: node deps ! DAG: proc → {scan, registry, catalog} → {detect, rule, hook, legacy} → {cover, map, seed} → {report, gen, protect} → {lay, confirm, migrate} → cli. cycle ⊥
 
 ## §T TASKS
 

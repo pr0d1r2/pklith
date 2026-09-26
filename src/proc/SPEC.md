@@ -2,15 +2,14 @@
 
 ## §G GOAL
 
-Accept or reject a materialized repo, read-only.
+Run external programs (git, hk, pkl) one way: git hook env scrubbed, failures named.
 
 ## §N NAV
 
 rel|path|lens
 up|.|-
 up|src|product code nodes — scan, detect, registry, catalog, rule, hook, legacy, cover, map, report, gen, lay, seed, confirm, migrate, protect, cli
-self|src/confirm|acceptance of a materialized repo: completeness, fidelity, coherence, executability, idempotence
-sib|src/proc|run external programs one way: git hook env scrubbed, failures named
+self|src/proc|run external programs one way: git hook env scrubbed, failures named
 sib|src/scan|enumerate files, basename → exactly 1 file type
 sib|src/detect|active fragments from scanned files, fixed order
 sib|src/registry|`.pklith` parse/fmt: types → check sets, rules, plural, exempt
@@ -24,24 +23,26 @@ sib|src/report|render matrix & verdict: text, json, md
 sib|src/gen|emit `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block; `--check` drift
 sib|src/lay|1 commit per missing check, hooks ON, rollback on red
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
+sib|src/confirm|acceptance of a materialized repo: completeness, fidelity, coherence, executability, idempotence
 sib|src/migrate|lefthook-materialized repo → hk, gated on check-set equivalence
 sib|src/protect|branch protection required contexts from CI job names via `gh api`
 sib|src/cli|arg dispatch, usage, exit codes
 
 ## §C CONSTRAINTS
 
-- checks: completeness (∀ active fragment's checks present), fidelity (on-disk `hk.pkl` fragment == generated), coherence (∀ step binary on PATH), executability (`pkl eval` + hk validate), idempotence (gen twice → 0 diff).
+- sole place `std::process::Command` is built (`.:V20`); ⊥ other node spawns directly.
+- removes `GIT_DIR` `GIT_INDEX_FILE` `GIT_WORK_TREE` unless the caller opts in.
 
 ## §V INVARIANTS
 
-V1: writes ⊥
-V2: any sub-check unable to run → fail, ⊥ skip (`.:V1`)
-V3: each failure names sub-check, file & fix
+V1: ∀ spawned command lacks the 3 git hook vars by default
+V2: spawn failure | non-zero exit → error naming program, args & stderr, ⊥ empty output as success
+V3: stdout returned as bytes; decoding is the caller's decision
 
 ## §T TASKS
 
 id|status|task|cites
-T1|.|5 sub-checks + planted-failure tests|V1,V2,V3,`.:T56`
+T1|.|`command` builder w/ scrub + `output` runner + error type|V1,V2,V3,`.:T63`
 
 ## §B BUGS
 

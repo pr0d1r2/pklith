@@ -23,6 +23,7 @@ src/lay        7600
 src/legacy     7500
 src/map        7200
 src/migrate    7200
+src/proc       7400
 src/protect    7100
 src/registry   7600
 src/report     7200

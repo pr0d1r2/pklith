@@ -10,6 +10,7 @@ rel|path|lens
 up|.|-
 up|src|product code nodes — scan, detect, registry, catalog, rule, hook, legacy, cover, map, report, gen, lay, seed, confirm, migrate, protect, cli
 self|src/rule|companion rules: exists, mentions, changed, orphan; path templates
+sib|src/proc|run external programs one way: git hook env scrubbed, failures named
 sib|src/scan|enumerate files, basename → exactly 1 file type
 sib|src/detect|active fragments from scanned files, fixed order
 sib|src/registry|`.pklith` parse/fmt: types → check sets, rules, plural, exempt
