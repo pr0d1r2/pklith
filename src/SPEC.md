@@ -12,6 +12,7 @@ detect|active fragments from scanned files, fixed order|which checks a fragment 
 registry|`.pklith` parse/fmt: types → check sets, rules, plural, exempt|check definitions, file walk|-
 catalog|check definitions: category, nix attr, runner glob, hk step, fix, failure msg|which type needs which check|-
 rule|companion rules: exists, mentions, changed, orphan; path templates|linter checks, running tests|-
+hook|read effective hk config via `pkl eval`: step → globs|writing hk config|-
 
 ## §N NAV
 
