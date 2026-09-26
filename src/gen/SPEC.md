@@ -49,6 +49,7 @@ T1|.|pkl emitter + golden tests|V1,V4
 T2|.|nix emitter + golden tests|V1,V5
 T3|.|AGENTS.md block emitter|V1,`.:V14`
 T4|.|write-if-changed + `--check`|V2,V3,B1
+T5|.|golden test: emitted files carry ⊥ system literal|`.:V21`
 
 ## §B BUGS
 
