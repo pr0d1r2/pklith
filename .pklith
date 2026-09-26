@@ -65,4 +65,6 @@ coverage|coverage|-|-
 pkl|-|-|evaluated by the hk-parity step in hk.pkl with both pkl and hk's pklr, against the vendored schema; pkl/Config.pkl is vendored
 gitignore|-|-|git configuration; hygiene steps only
 LICENSE|-|-|license text, nothing to lint
+path:pkl/**|-|-|vendored hk schema and its provenance note; the fixers and ripsecrets skip pkl/ (V7), hk-parity evaluates the schema
+path:FORMAT*.md|-|-|vendored verbatim from microlith; the fixers skip it (V7)
 pklith|pkli-check,gen-check|-|-
