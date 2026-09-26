@@ -272,21 +272,13 @@ local fast = new Mapping<String, Step> {
     depends = List("test")
     check = "cargo test --doc -q"
   }
-  // Per-file ceilings (root T26): sherd measures every `.rs` file's code
-  // (4,000 tokens) and tests (2,000) against V50, but only ADVISES; `sherd
-  // check` exits 0 over the ceiling. This makes its measurement binding
-  // instead of adding itok, whose limits file conflicts with the chain
-  // ceilings (B11).
+  // Per-file token ceilings (root T26): sherd's advisory V50 made binding
+  // by scripts/file-ceilings.sh, instead of itok, whose limits file
+  // conflicts with the chain ceilings (B11).
   ["file-ceilings"] {
     glob = List("**/*.rs")
     depends = List("sherd-check")
-    check = #"""
-      command -v sherd >/dev/null 2>&1 || { echo 'hk: sherd is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
-      out="$(sherd check 2>&1)"
-      over="$(printf '%s\n' "$out" | sed -n 's/.* \([0-9][0-9]*\) over ceiling.*/\1/p')"
-      [ -n "$over" ] || { echo 'file-ceilings: sherd printed no ceiling count, so nothing was checked.' >&2; exit 1; }
-      [ "$over" = 0 ] || { printf '%s\n' "$out" | grep 'sherd/V50' >&2; echo "file-ceilings: $over file(s) over their token ceiling. Split the file; a raise is a reviewed decision." >&2; exit 1; }
-      """#
+    check = "scripts/file-ceilings.sh"
   }
   // Every tracked file type has a row in .pklith with its checks or an
   // exemption reason (V5), judged by the pkli being built, from the working
