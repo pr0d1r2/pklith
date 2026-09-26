@@ -1,5 +1,21 @@
 # SPEC
 
+## §G GOAL
+
+`pklith` (cmd `pkli`) — hk guardrails MATERIALIZER: from a repo's tracked files & a declared setting, derive which checks ∀ file needs — MULTIPLE linters & checks per file type, 1-to-1 unit test per impl, companion files (e.g. model → factory) — then GENERATE hk steps (Pkl) + nix packages, LAY them 1 check per commit, and CHECK, REPORT & ENFORCE coverage. purely mechanical: ⊥ LLM, ⊥ inference, ⊥ network.
+
+PORT: the SETTING half of `set-and-setting` (nix + ~30 bash scripts, lefthook) → Rust on hk, for speed (R15). set half (skills, `mkSet`) stays there.
+
+NAME: Pkl (hk's config language) + lith (stone) — fleet family `microlith`, `xenolith`. unique on 12 registries, GitHub & DNS (R13); `lydite` rejected — clashes w/ active same-space tool (R16).
+
+REPLACES (open-sourced, sunsets them): setting half of `set-and-setting`; `nix-lefthook-linter-coverage`, `nix-lefthook-linter-coverage-full`, `nix-lefthook-unit-coverage`; existence half of `rspec-specification-coverage`. consumer swaps input, gate stays green (V4).
+
+FIRST BUILT: this repo's own guardrails (§T T1–T43), check by check, 1 commit each, hooks live from first hk commit (V12) — before any product code.
+
+## §F FEDERATION
+
+dir|owns|⊥owns|tokens
+
 ## §N NAV
 
 rel|path|lens
