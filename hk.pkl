@@ -288,6 +288,15 @@ local fast = new Mapping<String, Step> {
       zizmor --offline --no-progress {{files}}
       """
   }
+  // Licenses and bans from deny.toml. `--disable-fetch`: no network; the
+  // advisory database, which does need it, is its own step (T40).
+  ["deny"] {
+    glob = List("Cargo.toml", "Cargo.lock", "deny.toml")
+    check = """
+      command -v cargo-deny >/dev/null 2>&1 || { echo 'hk: cargo-deny is not on PATH. Re-enter the dev shell. This is a MISSING TOOL, not a finding.' >&2; exit 1; }
+      cargo deny check --disable-fetch licenses bans
+      """
+  }
   // -- end of fast --
 }
 

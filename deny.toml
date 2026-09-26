@@ -1,0 +1,13 @@
+# cargo-deny: licenses and bans (T39). Advisories are a separate step
+# (T40) because they need a database fetched from the network.
+
+[licenses]
+# Only what the crate uses today (its own MIT). A dependency under anything
+# else fails here, so adding a license is a reviewed decision, not a
+# discovery after release. Unused allowances would be warned about.
+allow = ["MIT"]
+confidence-threshold = 0.93
+
+[bans]
+multiple-versions = "deny"
+wildcards = "deny"
