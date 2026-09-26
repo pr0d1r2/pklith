@@ -138,7 +138,7 @@ T8|x|`no-bom`|V2
 T9|x|`no-merge-conflict --assume-in-merge`|V2,R7
 T10|x|`no-case-conflict`|V2
 T11|x|`no-broken-symlinks`|V2
-T12|.|`no-private-key`|V2
+T12|x|`no-private-key`|V2
 T13|.|`ripsecrets` + `.secretsignore`|V1,V2
 T14|.|`no-large-files` w/ per-ext limits (`lock` 65536, `nix` 10240)|V2,R8
 T15|.|`flake.lock` node-count ceiling|V2,R8

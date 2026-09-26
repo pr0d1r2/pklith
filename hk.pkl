@@ -62,6 +62,11 @@ local fast = new Mapping<String, Step> {
   ["no-broken-symlinks"] {
     check = "git ls-files -z | xargs -0 hk util check-symlinks"
   }
+  // Irreversible if it fires late: a key in git history stays in history.
+  ["no-private-key"] {
+    glob = List("**/*")
+    check = "hk util detect-private-key {{files}}"
+  }
   // -- end of fast --
 }
 
