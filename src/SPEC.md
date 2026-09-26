@@ -23,6 +23,7 @@ seed|repo-owned seed files & shared configs, skip-if-exists|generated hk/nix fil
 confirm|acceptance of a materialized repo: completeness, fidelity, coherence, executability, idempotence|writing anything|-
 migrate|lefthook-materialized repo → hk, gated on check-set equivalence|steady-state generation|-
 protect|branch protection required contexts from CI job names via `gh api`|local hooks|-
+cli|arg dispatch, usage, exit codes|every verb's logic|-
 
 ## §N NAV
 

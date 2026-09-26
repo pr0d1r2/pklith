@@ -25,6 +25,7 @@ sib|src/lay|1 commit per missing check, hooks ON, rollback on red
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
 sib|src/migrate|lefthook-materialized repo → hk, gated on check-set equivalence
 sib|src/protect|branch protection required contexts from CI job names via `gh api`
+sib|src/cli|arg dispatch, usage, exit codes
 
 ## §C CONSTRAINTS
 
