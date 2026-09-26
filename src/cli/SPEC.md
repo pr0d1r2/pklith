@@ -41,7 +41,7 @@ V4: ∀ path arg opened as path, ⊥ read as flag
 ## §T TASKS
 
 id|status|task|cites
-T1|.|dispatch `check`/`report`/`gen`/`lay`/`map`/`import` + usage|V1,V2,V3,V4,`.:I`
+T1|.|dispatch `check`/`report`/`gen`/`lay`/`map`/`import`/`detect`/`seed`/`confirm`/`migrate`/`protect` + usage|V1,V2,V3,V4,`.:I`
 
 ## §B BUGS
 
