@@ -79,22 +79,11 @@ local fast = new Mapping<String, Step> {
       ripsecrets {{files}} || { echo 'hk: a possible secret is staged. A real one must never be committed. A false positive goes in .secretsignore.' >&2; exit 1; }
       """
   }
-  // Per-type limits, from the legacy packages' measured budgets (R8): a
-  // flake.lock over 64 KiB means a duplicated input graph, a flake.nix over
-  // 10 KiB means logic that belongs in its own file. Everything else: 500
-  // KiB. `hk util check-added-large-files` has one global limit only.
+  // Per-type size limits (R8), in scripts/no-large-files.sh: `hk util
+  // check-added-large-files` has one global limit only.
   ["no-large-files"] {
     glob = List("**/*")
-    check = #"""
-      fail=0
-      for f in {{files}}; do
-        [ -f "$f" ] || continue
-        case "$f" in *.lock) max=65536 ;; *.nix) max=10240 ;; *) max=512000 ;; esac
-        n="$(wc -c < "$f" | tr -d ' ')"
-        [ "$n" -le "$max" ] || { echo "no-large-files: $f is $n bytes; the limit for its type is $max." >&2; fail=1; }
-      done
-      exit "$fail"
-      """#
+    check = "scripts/no-large-files.sh {{files}}"
   }
   // §C: ONE nixpkgs rev. A second nixpkgs node means an input stopped
   // following nixpkgs-lock: a second toolchain in the closure and every
