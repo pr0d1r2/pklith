@@ -19,3 +19,9 @@ sib|src/hook|read effective hk config via `pkl eval`: step → globs
 sib|src/legacy|3 legacy formats: read, `import`, compat entries
 sib|src/cover|verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps
 sib|src/map|guard mode: changed paths → covering specs
+
+## §V INVARIANTS
+
+V1: `--init` skip-if-exists; existing file ⊥ touched (`.:V25`)
+V2: `.gitignore` fragments concatenated in fragment order
+V3: seeded exemptions ledger = empty list, valid (`.:V11`, `.:V23`)
