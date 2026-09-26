@@ -97,7 +97,7 @@ V5: ∀ tracked file ! resolve to exactly 1 type & type ! have ≥1 check beyond
 V6: generated files (`hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block, `§N`) ⊥ hand-edited; stale → gate fails
 V7: `pkl/` & vendored files ⊥ touched by fixers
 V8: ∀ commit on `main` passes full `hk check`
-V9: `.context-limits` chain ceilings ∀ `SPEC.md` enforced by `sherd budget`; per-file ceilings via `itok` wait on T71; raise = reviewed commit w/ reason
+V9: `.context-limits` chain ceilings ∀ `SPEC.md` enforced by `sherd budget`; `.rs` file ceilings (sherd `V50`: code 4000, tests 2000 tok) by `file-ceilings`; raise = reviewed commit w/ reason
 V10: shipped nix package tested AS BUILT (`nix build` + fixture repo), ⊥ only source-tree run; built artifact carries ⊥ leftover `@…@` | `*_PATH` placeholder
 V11: missing `.pklith` → exit 2, ⊥ skip, ⊥ pass. missing OPTIONAL input (exempt list, plural table) = empty, ⊥ error
 V12: hk hooks installed IN the commit that brings hk. ∀ later commit made through real `pre-commit`/`commit-msg`; ⊥ `--no-verify`, ⊥ hooks-disabled commit. red hook → commit ⊥ lands
@@ -152,7 +152,7 @@ T22|x|`mth check` ∀ `**/SPEC.md`|V1,V2
 T23|x|`sherd check`|V2
 T24|x|`sherd sync --check` (nav)|V6
 T25|x|`sherd budget` + `.context-limits`|V9
-T26|.|`itok check` BLOCKED: itok reads `.context-limits` (fixed name) as per-FILE ceilings, sherd as per-CHAIN; one file ⊥ serves both. V9 held by `sherd budget` (T25) until itok takes a limits path (T71)|V9,B11
+T26|x|per-file ceilings: sherd `V50` measurement made binding by `file-ceilings` step (sherd only advises). ⊥ `itok check`: its `.context-limits` reading conflicts w/ chain ceilings (B11)|V9,B11
 T27|x|`rustfmt`|V2,V15
 T28|x|`clippy -D warnings`|V2
 T29|x|`test` (nextest, non-empty suite: exit-code contract)|V2
@@ -197,7 +197,7 @@ T67|.|pre-publish audit: ∀ committed file & message ⊥ names an unpublished f
 T68|.|`CHANGELOG.md` (keep-a-changelog) + `changelog-touched` step: golden or `src/` change w/o `[Unreleased]` entry → red|V33
 T69|.|release: version bump PR → tag → crates.io publish → cachix push of `pklith` for 3 tier-1 systems; `cargo semver-checks` gates the bump|V33,V10
 T70|.|fleet sweep: ∀ repo under `../` using a legacy coverage tool or set-and-setting setting → legacy verdict vs `pkli check` on imported `.pklith`; diffs → §B or fix|V34,V4
-T71|.|raise itok issue: `itok check` takes a limits path, so per-file ceilings can live beside sherd chain ceilings|B11
+T71|.|OPTIONAL: raise itok issue: `itok check` takes a limits path; ⊥ needed while `file-ceilings` holds (T26)|B11
 T72|x|`shellcheck` on `.githooks/*` & `.envrc` (shell w/o `.sh` name ∴ glob by path)|V2,V5
 
 ## §B BUGS
