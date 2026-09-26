@@ -121,6 +121,7 @@ V29: ∀ step tool from a nix-pinned package; ⊥ fetched at run time (⊥ remot
 V30: ∀ built-in catalog check proven in pklith's OWN test suite against a planted violation fixture, even for file types this repo lacks
 V31: `.pklith` carries a format version line; newer than pkli understands → exit 2 naming both versions, ⊥ best-effort parse
 V32: ∀ check commit body records its planted violation & the red verdict line it produced; the proof V2 demands survives in history, ⊥ only in a terminal
+V33: emitted bytes change for the same inputs → ≥ minor version & a `CHANGELOG.md` entry naming the files consumers will see change; golden diff w/o changelog touch → red
 
 ## §T TASKS
 
@@ -192,6 +193,7 @@ T64|.|bench: fixture repos (small, 10k files, fleet-sized) × set-and-setting sh
 T65|.|`schema-pin` step: vendored `pkl/Config.pkl` matches pinned hk's schema|V28
 T66|.|fixture per built-in catalog check: planted violation → step red, clean twin → green|V30,V2
 T67|.|pre-publish audit: ∀ committed file & message ⊥ names an unpublished fleet repo (ashlar today); publish it or anonymize|R12,R14
+T68|.|`CHANGELOG.md` (keep-a-changelog) + `changelog-touched` step: golden or `src/` change w/o `[Unreleased]` entry → red|V33
 
 ## §B BUGS
 
