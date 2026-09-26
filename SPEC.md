@@ -41,6 +41,7 @@ self|.|-
 - tier-1 systems: aarch64-darwin, x86_64-linux, aarch64-linux (CI matrix). ⊥ Windows.
 - runtime deps: `hk`, `pkl` (hk evaluates `hk.pkl` w/ it; src/hook reads via `pkl eval`), `git`. ⊥ lefthook.
 - commit subject = hybrid `type(scope): claim` — Conventional Commits header (type ∈ `feat fix docs test chore refactor perf build ci`, scope = check name, spec node or §id) + prose claim saying what is now true. body carries WHY. enforced by `commit-msg` step. `lay` writes `ci(<check>): <claim>`. fleet: xenolith, microlith, itok (R17).
+- after T19 (`no-commit-to-branch` main): work lands via branch + PR. merge = rebase or merge commit, ⊥ squash: squash collapses the granular commits this repo is built from.
 - published profile: deny, semver, package, THIRD-PARTY-NOTICES, badges. MIT.
 - ⊥ name a private fleet repo in any committed file | commit message; check visibility w/ `gh repo view` first.
 - caveman encoding ∀ spec text. human docs = prose.
