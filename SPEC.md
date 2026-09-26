@@ -109,3 +109,67 @@ V22: hooks installed only AFTER `hk.pkl` materialized ∴ ⊥ stub config ever g
 V23: exemption w/ reason & ⊥ ticket is valid & registers
 V24: `migrate`: check set before == check set after, else refuse w/ 0 writes
 V25: seed files repo-owned (written once, skip-if-exists); materialized files regenerated & gitignored
+
+## §T TASKS
+
+id|status|task|cites
+T1|.|seed via `alr apply --only C1`: LICENSE, `.gitignore`, `Cargo.toml` (lints, `unsafe_code = "forbid"`), `src/main.rs`, README stub|R12
+T2|.|toolchain via `alr apply --only C2` + itok/microlith/sherd inputs + `nixConfig` substituter; `.envrc`|R5,R12
+T3|.|hk commit: hk in devShell, vendored `pkl/Config.pkl`, empty-step `hk.pkl` (pre-commit fix+stash, commit-msg, pre-push, check, fix), hooks installed; REFUSE w/o hk|V1,V7,V12
+T4|.|`commit-msg` step: subject `type(scope): claim`, ≤72 chars|V12,V13
+T5|.|`trailing-whitespace` (fixer excludes `pkl/`)|V2,V7
+T6|.|`final-newline`|V2,V7
+T7|.|`line-endings`|V2,V7
+T8|.|`no-bom`|V2
+T9|.|`no-merge-conflict --assume-in-merge`|V2,R7
+T10|.|`no-case-conflict`|V2
+T11|.|`no-broken-symlinks`|V2
+T12|.|`no-private-key`|V2
+T13|.|`ripsecrets` + `.secretsignore`|V1,V2
+T14|.|`no-large-files` w/ per-ext limits (`lock` 65536, `nix` 10240)|V2,R8
+T15|.|`flake.lock` node-count ceiling|V2,R8
+T16|.|`typos` + `.typos.toml`|V2
+T17|.|`nixfmt`|V2,V15
+T18|.|`taplo`|V2,V15
+T19|.|`no-commit-to-branch` main|V8
+T20|.|vendor `FORMAT.md` + `FORMAT-EXTENSIONS.md` from pinned microlith|-
+T21|.|`mth fmt --check` ∀ `**/SPEC.md`|V1,V2
+T22|.|`mth check` ∀ `**/SPEC.md`|V1,V2
+T23|.|`sherd check`|V2
+T24|.|`sherd sync --check` (nav)|V6
+T25|.|`sherd budget` + `.context-limits`|V9
+T26|.|`itok check`|V9
+T27|.|`rustfmt`|V2,V15
+T28|.|`clippy -D warnings`|V2
+T29|.|`test` (nextest, non-empty suite: exit-code contract)|V2
+T30|.|`doctest`|V2
+T31|.|`rustdoc -D warnings`|V2
+T32|.|`coverage` floor + `.coverage`|V2
+T33|.|bootstrap `linter-coverage`: legacy `-full` input + step + `docs/linter-coverage.md`, until T44|V5
+T34|.|AGENTS.md step table derived from `hk.pkl` + `integration-doc` step|V14
+T35|.|`links` (lychee offline) ∀ docs|V2
+T36|.|`.github/workflows/ci.yml` = orchestration only, `hk check` on 3 tier-1 systems|V8
+T37|.|`actionlint`|V2,V15
+T38|.|`zizmor`|V2,V15
+T39|.|`deny` (licenses, bans) + `deny.toml`|V2
+T40|.|`deny-advisories`|V2
+T41|.|`semver` (cargo semver-checks)|V2
+T42|.|`package` / must-package|V2
+T43|.|README badges generated + `readme-badges` step|V6
+T44|.|dogfood swap: T33 legacy step → `pkli check` + `gen --check`; drop legacy input|V4,V6
+T45|.|re-lay reproduction: `pkli lay` into temp repo → ∀ laid file byte-identical to this tree|V3,V13
+T46|.|compat package + README migration guide|V4,V10
+T47|.|review `nix-lefthook-unit-coverage` PRs + SPEC → backprop|R9
+T48|.|deprecation notice + migration link in 3 legacy READMEs, after V4 parity proven|V4
+T49|.|raise ashlar issue: hooks-disabled commits & degrade-w/o-hk vs V12/V1; bundled courses vs V13|R12
+T50|.|port map: ∀ set-and-setting setting entry point → pklith verb \| dropped w/ reason|R15
+T51|.|port `check-fragment-map.nix` → built-in catalog fragments (20) + importer|V17,R15
+T52|.|port `detect-fragments.sh` semantics; its 33 bats → golden tests|V16
+T53|.|port 24 `mk*Check` → catalog rows|V17
+T54|.|`hk.pkl` emission replaces `assemble-lefthook.sh`; its 53 bats → step-set equivalence goldens|V13,V18
+T55|.|seed + canon port|V25
+T56|.|confirm port (hk: `hk validate`, step set vs fragments, idempotence)|V22
+T57|.|migrate port: lefthook repo → hk|V24
+T58|.|protect port: required contexts from CI job names|-
+T59|.|raise set-and-setting issues for D1, D2, D3|R15
+T60|.|set-and-setting consumes pklith via flake input; its setting shell retired|V4
