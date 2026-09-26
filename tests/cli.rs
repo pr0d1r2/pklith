@@ -160,3 +160,40 @@ fn an_unreadable_directory_is_an_error() -> Result {
     );
     Ok(std::fs::remove_dir_all(dir)?)
 }
+
+/// Root T63, V20 (set-and-setting B97): with a hook's git variables
+/// pointing at another repository, as git sets them for hooks in worktrees
+/// and during a rebase, pkli still judges its own repository. Without the
+/// scrub, `git ls-files` would read the other repository's index.
+#[test]
+fn hook_variables_from_another_repository_do_not_leak() -> Result {
+    let b = repo("leak-b", Some(OK))?;
+    std::fs::write(b.join("only-in-b.py"), "")?;
+    Command::new("git")
+        .args(["add", "only-in-b.py"])
+        .current_dir(&b)
+        .output()?;
+    let a = repo("leak-a", None)?;
+    let (code, _, stderr) = pkli_with_hook_env(&b, &a)?;
+    let want = "gap: `py` has no row in .pklith (1 file: only-in-b.py); add its checks, or an exemption reason\n";
+    assert_eq!((code, stderr.as_str()), (Some(1), want));
+    std::fs::remove_dir_all(a)?;
+    Ok(std::fs::remove_dir_all(b)?)
+}
+
+/// `pkli check` in `dir` with `GIT_DIR`, `GIT_INDEX_FILE` and
+/// `GIT_WORK_TREE` all pointing at `other`.
+fn pkli_with_hook_env(dir: &Path, other: &Path) -> Result<(Option<i32>, String, String)> {
+    let git = other.join(".git");
+    let mut cmd = Command::new(env!("CARGO_BIN_EXE_pkli"));
+    cmd.arg("check").current_dir(dir);
+    cmd.env("GIT_DIR", &git)
+        .env("GIT_INDEX_FILE", git.join("index"))
+        .env("GIT_WORK_TREE", other);
+    let out = cmd.output()?;
+    Ok((
+        out.status.code(),
+        String::from_utf8(out.stdout)?,
+        String::from_utf8(out.stderr)?,
+    ))
+}
