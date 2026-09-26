@@ -50,7 +50,7 @@ self|.|-
 - cmd: `pkli gen [--check]` → write `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md step table block. `--check` writes ⊥, exit 1 if stale
 - cmd: `pkli lay [--only ID,…] [--dry-run]` → 1 commit per missing check, fixed order, hooks ON, red → rollback (src/lay)
 - cmd: `pkli map [--staged|FILE…]` → specs covering changed paths (guard mode); changed impl w/ 0 mapped specs → exit 1
-- cmd: `pkli import <linter-doc.md|.unit-coverage.toml|check-fragment-map.nix>` → `.pklith` rows on stdout
+- cmd: `pkli import <linter-doc.md|.unit-coverage.toml|fragment-map.json>` → `.pklith` rows on stdout. fragment map = `nix eval --json --file lib/check-fragment-map.nix` output; pkli ⊥ evaluates nix
 - cmd: `pkli detect` → ordered active fragment list from tracked files (src/detect)
 - cmd: `pkli seed [--init]` → repo-owned seed & shared configs; `--init` skip-if-exists (src/seed)
 - cmd: `pkli confirm` → acceptance: completeness, fidelity, coherence, executability, idempotence (src/confirm)

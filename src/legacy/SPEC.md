@@ -30,6 +30,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 ## §C CONSTRAINTS
 
 - linter doc parse = `.:R3` exactly. col 2 read as check hint only on `import`.
+- set-and-setting fragment map read as JSON produced by `nix eval --json`; ⊥ nix parsing, ⊥ nix at runtime.
 - `.unit-coverage.toml` = fixed schema (`.:R9`) → hand parser for that subset ?, ⊥ general TOML dep.
 - compat env: `LEFTHOOK_LINTER_COVERAGE_DOC` (base default `docs/linter-coverage.md`, full required), `LEFTHOOK_LINTER_COVERAGE_ROOT`, `LEFTHOOK_UNIT_COVERAGE_CONFIG` (default `.unit-coverage.toml`), `LEFTHOOK_UNIT_COVERAGE_ROOT`.
 
