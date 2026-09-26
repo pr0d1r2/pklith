@@ -60,6 +60,7 @@ self|.|-
 - file: `.pklith` → registry: types, checks, rules, plural, exempt (src/registry)
 - file: `hk.pkl`, `pkl/Config.pkl`, `.githooks/*`, `.context-limits`, `.typos.toml`, `flake.nix`, `AGENTS.md` → this repo's guardrails
 - env: `LEFTHOOK_LINTER_COVERAGE_DOC`, `LEFTHOOK_LINTER_COVERAGE_ROOT`, `LEFTHOOK_UNIT_COVERAGE_CONFIG`, `LEFTHOOK_UNIT_COVERAGE_ROOT` → compat entries only
+- nix: `lib.devShell { pkgs, src }` → devShell w/ hk, pkl, git, pkli & packages from `nix/pklith.nix`; shellHook runs `hk install` only when `hk.pkl` exists (V22). replaces set-and-setting `mkDevShells`
 - nix: `packages.<system>.default` = `pklith` (bin `pkli`); `packages.<system>.compat` = legacy entry names
 
 ## §R RESEARCH
@@ -174,6 +175,7 @@ T57|.|migrate port: lefthook repo → hk|V24
 T58|.|protect port: required contexts from CI job names|-
 T59|.|raise set-and-setting issues for D1, D2, D3|R15
 T60|.|set-and-setting consumes pklith via flake input; its setting shell retired|V4
+T61|.|`lib.devShell` for consumers + test: shell entered on repo w/o `hk.pkl` installs no hooks|V22,V12
 
 ## §B BUGS
 
