@@ -18,6 +18,10 @@ sib|src/rule|companion rules: exists, mentions, changed, orphan; path templates
 sib|src/hook|read effective hk config via `pkl eval`: step → globs
 sib|src/legacy|3 legacy formats: read, `import`, compat entries
 
+## §C CONSTRAINTS
+
+- pure fn `(scan, registry, catalog, hook steps, rule results) → Coverage`. ⊥ I/O.
+
 ## §V INVARIANTS
 
 V1: gap = scanned type w/ ⊥ registry row | < `min` non-`*` checks → fail
