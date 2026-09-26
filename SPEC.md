@@ -15,6 +15,7 @@ FIRST BUILT: this repo's own guardrails (§T T1–T43), check by check, 1 commit
 ## §F FEDERATION
 
 dir|owns|⊥owns|tokens
+src|product code nodes — scan, detect, registry, catalog, rule, hook, legacy, cover, map, report, gen, lay, seed, confirm, migrate, protect, cli|guardrails of THIS repo, nix/hk wiring of this repo|-
 
 ## §N NAV
 
