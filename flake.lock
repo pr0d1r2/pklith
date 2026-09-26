@@ -158,6 +158,10 @@
     },
     "root": {
       "inputs": {
+        "itok": [
+          "microlith",
+          "itok"
+        ],
         "microlith": "microlith",
         "nix-hk": "nix-hk",
         "nixpkgs": [

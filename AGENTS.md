@@ -18,7 +18,7 @@ Notes for anyone, human or agent, changing this repository.
 ## The gate
 
 <!-- BEGIN steps: generated from hk.pkl by scripts/agents-table.sh; do not edit -->
-34 steps run on every commit and 35 on push and `hk check`; the commit-msg hook checks the message.
+35 steps run on every commit and 36 on push and `hk check`; the commit-msg hook checks the message.
 
 | step | runs on | files | fixes |
 |---|---|---|---|
@@ -54,6 +54,7 @@ Notes for anyone, human or agent, changing this repository.
 | `doctest` | commit | `**/*.rs` `Cargo.toml` | - |
 | `flake-lock-graph` | commit | `flake.lock` | - |
 | `deny` | commit | `Cargo.toml` `Cargo.lock` `deny.toml` | - |
+| `catalog-nix` | commit | `src/catalog/builtin.pklith` `flake.nix` `flake.lock` `scripts/catalog-nix.sh` | - |
 | `agents-table` | commit | `hk.pkl` `AGENTS.md` `scripts/agents-table.sh` | yes |
 | `hk-parity` | commit | `hk.pkl` `hk.pklith.pkl` `pkl/**` `scripts/hk-parity.sh` | - |
 | `coverage` | push | `**/*.rs` `Cargo.toml` `.coverage` | - |

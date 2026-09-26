@@ -140,6 +140,10 @@ steps: Mapping<String, Config.Step> = new {
     glob = List("Cargo.toml", "Cargo.lock", "deny.toml")
     check = "command -v cargo >/dev/null 2>&1 || { echo 'deny: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo deny check --disable-fetch licenses bans || { echo 'deny: a license or ban rule failed' >&2; exit 1; }"
   }
+  ["catalog-nix"] {
+    glob = List("src/catalog/builtin.pklith", "flake.nix", "flake.lock", "scripts/catalog-nix.sh")
+    check = "command -v scripts/catalog-nix.sh >/dev/null 2>&1 || { echo 'catalog-nix: scripts/catalog-nix.sh is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; scripts/catalog-nix.sh src/catalog/builtin.pklith || { echo 'catalog-nix: a built-in catalog row names a nix attribute that does not build, or whose binaries its command never calls' >&2; exit 1; }"
+  }
 }
 
 push: Mapping<String, Config.Step> = new {

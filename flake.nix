@@ -32,6 +32,9 @@
     sherd.url = "github:pr0d1r2/sherd/v0.5.1";
     sherd.inputs.nixpkgs-lock.follows = "nixpkgs-lock";
     sherd.inputs.nix-hk.follows = "nix-hk";
+    # itok, for the built-in catalog's `itok` row. microlith already locks
+    # one; following it adds no lock node and keeps a single itok.
+    itok.follows = "microlith/itok";
   };
 
   outputs =
@@ -40,6 +43,7 @@
       nix-hk,
       microlith,
       sherd,
+      itok,
       ...
     }:
     let
@@ -55,6 +59,23 @@
         f: nixpkgs.lib.genAttrs systems (s: f (nixpkgs.legacyPackages.${s}.extend nix-hk.overlays.default));
     in
     {
+      # The namespace the built-in catalog's `nix` column names
+      # (src/catalog/builtin.pklith): nixpkgs, plus the flake inputs for
+      # tools nixpkgs does not ship. scripts/catalog-nix.sh builds from it.
+      legacyPackages = forAll (
+        pkgs:
+        let
+          input = i: i.packages.${pkgs.stdenv.hostPlatform.system}.default;
+        in
+        {
+          catalog = pkgs // {
+            microlith = input microlith;
+            sherd = input sherd;
+            itok = input itok;
+          };
+        }
+      );
+
       devShells = forAll (pkgs: {
         default = pkgs.mkShell {
           packages = [
