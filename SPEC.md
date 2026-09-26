@@ -109,7 +109,7 @@ V21: ⊥ system literal (`x86_64-linux` …) in emitted files; system comes from
 V22: hooks installed only AFTER `hk.pkl` materialized ∴ ⊥ stub config ever gates a commit (complements V12)
 V23: exemption w/ reason & ⊥ ticket is valid & registers
 V24: `migrate`: check set before == check set after, else refuse w/ 0 writes
-V25: seed files repo-owned (written once, skip-if-exists); materialized files regenerated & gitignored
+V25: seed files repo-owned (written once, skip-if-exists). hk files (`hk.pkl`, `hk.pklith.pkl`) & `nix/pklith.nix` TRACKED ∴ fresh clone gates w/o running pkli; only shared tool configs (e.g. `.markdownlint.yml`) materialized & gitignored
 
 ## §T TASKS
 
