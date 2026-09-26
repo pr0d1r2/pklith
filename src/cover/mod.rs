@@ -3,7 +3,7 @@
 //! scanned paths and a parsed registry.
 
 use crate::registry::{Registry, TypeRow};
-use crate::scan::candidates;
+use crate::scan::{Globs, candidates};
 
 /// A type found on disk with no registry row (V1, V6): every file is
 /// judged, none silently dropped.
@@ -61,10 +61,11 @@ impl Coverage {
 #[must_use]
 pub fn judge(files: &[String], registry: &Registry) -> Coverage {
     let declared: Vec<&TypeRow> = registry.types.iter().filter(|t| t.key != "*").collect();
+    let classes = classes(&declared);
     let mut coverage = Coverage::default();
     let mut counts = vec![0usize; declared.len()];
     for file in files {
-        match resolve(file, &declared) {
+        match resolve(file, &declared, &classes) {
             Some(i) => counts.get_mut(i).into_iter().for_each(|n| *n += 1),
             None => gap(&mut coverage.gaps, file),
         }
@@ -75,12 +76,44 @@ pub fn judge(files: &[String], registry: &Registry) -> Coverage {
     coverage
 }
 
-/// Index of the declared type a file resolves to: its first candidate that
-/// is declared (scan V1).
-fn resolve(file: &str, declared: &[&TypeRow]) -> Option<usize> {
-    candidates(file)
+/// Index of the declared type a file resolves to (scan V1): the most specific
+/// path class that matches, else its first basename candidate that is
+/// declared.
+fn resolve(file: &str, declared: &[&TypeRow], classes: &[(usize, Globs)]) -> Option<usize> {
+    let class = classes
         .iter()
-        .find_map(|c| declared.iter().position(|t| t.key == c.key))
+        .find(|(_, globs)| globs.matches(file))
+        .map(|(i, _)| *i);
+    class.or_else(|| {
+        candidates(file)
+            .iter()
+            .find_map(|c| declared.iter().position(|t| t.key == c.key))
+    })
+}
+
+/// `path:<glob>` rows, most specific first: longest literal prefix, then
+/// declaration order. A glob that does not compile never matches; the
+/// registry already refused it with its line.
+fn classes(declared: &[&TypeRow]) -> Vec<(usize, Globs)> {
+    let compile = |(i, t): (usize, &&TypeRow)| {
+        let glob = t.key.strip_prefix("path:")?;
+        Some((
+            literal_prefix(glob),
+            i,
+            Globs::new(&[glob.to_owned()]).ok()?,
+        ))
+    };
+    let mut classes: Vec<(usize, usize, Globs)> =
+        declared.iter().enumerate().filter_map(compile).collect();
+    classes.sort_by(|a, b| b.0.cmp(&a.0).then(a.1.cmp(&b.1)));
+    classes
+        .into_iter()
+        .map(|(_, i, globs)| (i, globs))
+        .collect()
+}
+
+fn literal_prefix(glob: &str) -> usize {
+    glob.find(['*', '?', '[', '{']).unwrap_or(glob.len())
 }
 
 fn gap(gaps: &mut Vec<Gap>, file: &str) {
@@ -187,6 +220,43 @@ mod tests {
         assert!(!judge(&files(&["a.rs"]), &parse("format 1")?).ok());
         assert!(!judge(&[], &parse(REGISTRY)?).ok());
         assert!(Coverage::default().ok());
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod path_tests {
+    use super::judge;
+    use crate::registry::{Error, parse};
+
+    const CLASSES: &str = "format 1\n## types\ntype|checks|min|exempt\nmd|lint|-|-\npath:vendor/**|-|-|vendored verbatim\npath:vendor/keep/**|lint|-|-\npath:a/*.md|lint|-|-\npath:a/*|lint|-|-\npath:nothing/**|lint|-|-\n";
+
+    fn resolved(files: &[&str]) -> Result<Vec<String>, Error> {
+        let files: Vec<String> = files.iter().map(|f| (*f).to_owned()).collect();
+        let coverage = judge(&files, &parse(CLASSES)?);
+        let mut out: Vec<String> = coverage
+            .covered
+            .iter()
+            .map(|c| format!("{} {}", c.key, c.files))
+            .collect();
+        out.extend(coverage.stale.iter().map(|s| format!("stale {}", s.key)));
+        Ok(out)
+    }
+
+    /// scan V1: a path class beats any basename type; the longest literal
+    /// prefix wins whatever the order; a tie goes to the first declared.
+    #[test]
+    fn the_most_specific_path_class_wins() -> Result<(), Error> {
+        let got = resolved(&["README.md", "vendor/a.md", "vendor/keep/b.md", "a/x.md"])?;
+        let want = [
+            "md 1",
+            "path:vendor/** 1",
+            "path:vendor/keep/** 1",
+            "path:a/*.md 1",
+            "stale path:a/*",
+            "stale path:nothing/**",
+        ];
+        assert_eq!(got, want);
         Ok(())
     }
 }

@@ -240,6 +240,7 @@ fn type_row(row: Row) -> Result<TypeRow, Error> {
         exempt: (!exempt.is_empty()).then_some(exempt),
     };
     requirement(&parsed)?;
+    path_class(&parsed)?;
     Ok(parsed)
 }
 
@@ -259,6 +260,17 @@ fn minimum(line: usize, cell: &str) -> Result<usize, Error> {
     }
     cell.parse()
         .map_err(|_| error(line, format!("min `{cell}` is not a number")))
+}
+
+/// A `path:<glob>` type must compile, as hk would compile it (root R19).
+fn path_class(row: &TypeRow) -> Result<(), Error> {
+    let Some(glob) = row.key.strip_prefix("path:") else {
+        return Ok(());
+    };
+    let compiled = crate::scan::Globs::new(&[glob.to_owned()]);
+    compiled
+        .map(|_| ())
+        .map_err(|e| error(row.line, format!("`{}`: {e}", row.key)))
 }
 
 fn requirement(row: &TypeRow) -> Result<(), Error> {
@@ -458,5 +470,20 @@ mod tests {
     #[test]
     fn duplicates_name_both_lines() {
         assert_errors(&DUPLICATE_CASES);
+    }
+}
+
+#[cfg(test)]
+mod path_tests {
+    /// A `path:` class compiles as hk would compile it, or names its line.
+    #[test]
+    fn a_path_class_glob_must_compile() {
+        let err = super::parse("format 1\n## types\ntype|checks|min|exempt\npath:src/[bad|-|-|x\n")
+            .err()
+            .map(|e| e.to_string());
+        assert!(err.is_some_and(|e| e.starts_with(".pklith:4: `path:src/[bad`: ")));
+        assert!(
+            super::parse("format 1\n## types\ntype|checks|min|exempt\npath:src/**|-|-|x\n").is_ok()
+        );
     }
 }
