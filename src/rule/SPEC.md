@@ -29,3 +29,15 @@ V2: `mentions` pattern = LITERAL after render, ⊥ regex built from file text
 V3: `changed` runs only w/ explicit diff input (`--staged` | range); ⊥ guess base
 V4: unit-coverage `mirror`/`flat`/`strip`/`test_suffix`/`test_ext`/`normalize` ∀ expressible as `exists` rule (`.:R9`)
 V5: ⊥ rule result depends on file content except `mentions`
+
+## §T TASKS
+
+id|status|task|cites
+T1|.|template parser + filters + plural rules|V1
+T2|.|`exists` + `orphan`|V4
+T3|.|`mentions` (factory_bot `factory :{stem\|snake}` under `spec/factories/**`)|V2
+T4|.|`changed` over staged diff|V3
+
+## §B BUGS
+
+id|date|cause|fix
