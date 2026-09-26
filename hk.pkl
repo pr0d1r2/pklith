@@ -222,6 +222,14 @@ local fast = new Mapping<String, Step> {
       cargo nextest run --no-fail-fast --status-level fail --final-status-level fail
       """
   }
+  // Docs build with warnings denied: a broken intra-doc link is a doc that
+  // points nowhere. Private items included, since the binary's docs are
+  // all private.
+  ["rustdoc"] {
+    glob = List("**/*.rs", "Cargo.toml")
+    depends = List("clippy")
+    check = "RUSTDOCFLAGS='-D warnings' cargo doc --no-deps --document-private-items -q"
+  }
   // -- end of fast --
 }
 
