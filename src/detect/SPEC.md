@@ -14,6 +14,11 @@ sib|src/scan|enumerate files, basename → exactly 1 file type
 sib|src/registry|`.pklith` parse/fmt: types → check sets, rules, plural, exempt
 sib|src/catalog|check definitions: category, nix attr, runner glob, hk step, fix, failure msg
 
+## §C CONSTRAINTS
+
+- fragment triggers declared in catalog (file types, paths, globs), ⊥ prose-only triggers.
+- order = catalog fragment order, ⊥ discovery order.
+
 ## §V INVARIANTS
 
 V1: sole detector (`.:V16`); ⊥ other node re-derives fragments
