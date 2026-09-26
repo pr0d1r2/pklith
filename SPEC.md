@@ -25,7 +25,8 @@ self|.|-
 
 ## §C CONSTRAINTS
 
-- deterministic core. same tree + same `.pklith` → byte-identical output & identical commits. ⊥ LLM, ⊥ heuristic guess, ⊥ network, ⊥ clock | rng | hostname in output.
+- deterministic core. same tree + same `.pklith` → byte-identical output & identical commits. ⊥ LLM, ⊥ heuristic guess, ⊥ network (sole exception: `pkli protect`, opt-in), ⊥ clock | rng | hostname in output.
+- trust: `.pklith` `## checks` rows are commands, trusted exactly like `hk.pkl`; pkli ⊥ runs check commands itself — hk does (`lay`/`confirm` invoke hk).
 - lang: Rust **edition 2024**, stable, MSRV **1.95** = fleet pin (`nixpkgs-lock` → nixos-26.05). crate `pklith`, bin `pkli` (⊥ `pkl` — Pkl's own CLI; README states `pkli` ⊥ part of Pkl).
 - layout: **one crate**. module = **dir + `mod.rs`**. node = dir = Rust module = `SPEC.md` (sherd shape).
 - deps minimal. ∀ new crate dep ! justified in §R. `unsafe_code` FORBID.
