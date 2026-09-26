@@ -18,24 +18,25 @@ env {
 /// Run on every commit: cheap, file-scoped steps.
 ///
 /// The `hk util` family first: native to the runner, so they need no package
-/// in the shell. Read-only checks see every file; FIXERS exclude `pkl/`, a
-/// schema vendored verbatim that an edit would silently fork (V7).
+/// in the shell. Read-only checks see every file; FIXERS exclude what is
+/// vendored verbatim (`pkl/` from hk, `FORMAT*.md` from microlith), which
+/// an edit would silently fork (V7).
 local fast = new Mapping<String, Step> {
   ["trailing-whitespace"] {
     glob = List("**/*")
-    exclude = List("pkl/**")
+    exclude = List("pkl/**", "FORMAT.md", "FORMAT-EXTENSIONS.md")
     check_diff = "hk util trailing-whitespace --diff {{files}}"
     fix = "hk util trailing-whitespace --fix {{files}}"
   }
   ["final-newline"] {
     glob = List("**/*")
-    exclude = List("pkl/**")
+    exclude = List("pkl/**", "FORMAT.md", "FORMAT-EXTENSIONS.md")
     check_diff = "hk util end-of-file-fixer --diff {{files}}"
     fix = "hk util end-of-file-fixer --fix {{files}}"
   }
   ["line-endings"] {
     glob = List("**/*")
-    exclude = List("pkl/**")
+    exclude = List("pkl/**", "FORMAT.md", "FORMAT-EXTENSIONS.md")
     check_diff = "hk util mixed-line-ending --diff {{files}}"
     fix = "hk util mixed-line-ending --fix {{files}}"
   }

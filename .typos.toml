@@ -1,4 +1,5 @@
-# typos configuration. pkl/ holds hk's schema vendored verbatim; its
-# spelling is upstream's to fix, and an edit here would fork it (V7).
+# typos configuration. pkl/ (hk schema) and FORMAT*.md (microlith) are
+# vendored verbatim: their spelling is upstream's to fix, and an edit here
+# would fork them (V7).
 [files]
-extend-exclude = ["pkl/"]
+extend-exclude = ["pkl/", "FORMAT.md", "FORMAT-EXTENSIONS.md"]
