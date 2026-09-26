@@ -124,6 +124,7 @@ V31: `.pklith` carries a format version line; newer than pkli understands → ex
 V32: ∀ check commit body records its planted violation & the red verdict line it produced; the proof V2 demands survives in history, ⊥ only in a terminal
 V33: emitted bytes change for the same inputs → ≥ minor version & a `CHANGELOG.md` entry naming the files consumers will see change; golden diff w/o changelog touch → red
 V34: cutover (T44, T48, T60) only after a PARALLEL RUN: pkli & the tool it replaces judge the same repos, verdict diff = 0 or each diff explained in §B
+V35: hk evaluates hk.pkl w/ its own Pkl implementation (pklr) by default; the step set hk sees ! equal the set `pkl eval` sees, gated. a construct pklr mishandles ⊥ used
 
 ## §T TASKS
 
@@ -215,3 +216,4 @@ B8|2026-09-07|set-and-setting `B98`: hardcoded system literal ∴ darwin pre-pus
 B9|2026-09-25|set-and-setting `B25`: `lefthook install` wrote default stub before materialization ∴ fidelity failed|V22
 B10|2026-09-25|set-and-setting D1: ledger awk registers only `ticket:` entries ∴ reason-only exemption ignored|V23
 B11|2026-09-26|`itok check` & `sherd budget` both read `.context-limits`: itok per FILE (root `SPEC.md` 7,242 tok, whole file), sherd per CHAIN at rule depth (5,217). ceilings right for one are wrong for the other ∴ itok step ⊥ adopted|V9
+B12|2026-09-26|hk.pkl built its commit steps from hk.pklith.pkl w/ `for (…) { when (id != "coverage") { … } }`: `pkl eval` listed 34 steps, hk's default pklr evaluator 2 (the rest "no command defined") ∴ `hk check --all` exited 0 running almost nothing. caught by planting before commit. `toMap().remove()` fails in pklr too ∴ gen splits `steps` / `push`|V35,V2
