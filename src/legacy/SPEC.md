@@ -17,6 +17,12 @@ sib|src/catalog|check definitions: category, nix attr, runner glob, hk step, fix
 sib|src/rule|companion rules: exists, mentions, changed, orphan; path templates
 sib|src/hook|read effective hk config via `pkl eval`: step → globs
 
+## §C CONSTRAINTS
+
+- linter doc parse = `.:R3` exactly. col 2 read as check hint only on `import`.
+- `.unit-coverage.toml` = fixed schema (`.:R9`) → hand parser for that subset ?, ⊥ general TOML dep.
+- compat env: `LEFTHOOK_LINTER_COVERAGE_DOC` (base default `docs/linter-coverage.md`, full required), `LEFTHOOK_LINTER_COVERAGE_ROOT`, `LEFTHOOK_UNIT_COVERAGE_CONFIG` (default `.unit-coverage.toml`), `LEFTHOOK_UNIT_COVERAGE_ROOT`.
+
 ## §V INVARIANTS
 
 V1: token set == legacy awk token set ∀ fixture doc (golden, legacy bats ported)
