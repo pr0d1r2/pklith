@@ -22,6 +22,7 @@ sib|src/map|guard mode: changed paths → covering specs
 sib|src/report|render matrix & verdict: text, json, md
 sib|src/gen|emit `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block; `--check` drift
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
+sib|src/confirm|acceptance of a materialized repo: completeness, fidelity, coherence, executability, idempotence
 sib|src/protect|branch protection required contexts from CI job names via `gh api`
 
 ## §C CONSTRAINTS

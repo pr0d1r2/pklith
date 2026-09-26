@@ -20,6 +20,7 @@ report|render matrix & verdict: text, json, md|computing coverage|-
 gen|emit `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block; `--check` drift|running hk, running nix, committing|-
 lay|1 commit per missing check, hooks ON, rollback on red|deciding checks, rendering steps|-
 seed|repo-owned seed files & shared configs, skip-if-exists|generated hk/nix files|-
+confirm|acceptance of a materialized repo: completeness, fidelity, coherence, executability, idempotence|writing anything|-
 protect|branch protection required contexts from CI job names via `gh api`|local hooks|-
 
 ## §N NAV

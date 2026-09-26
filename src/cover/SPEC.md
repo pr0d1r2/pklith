@@ -22,6 +22,7 @@ sib|src/report|render matrix & verdict: text, json, md
 sib|src/gen|emit `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block; `--check` drift
 sib|src/lay|1 commit per missing check, hooks ON, rollback on red
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
+sib|src/confirm|acceptance of a materialized repo: completeness, fidelity, coherence, executability, idempotence
 sib|src/protect|branch protection required contexts from CI job names via `gh api`
 
 ## §C CONSTRAINTS
