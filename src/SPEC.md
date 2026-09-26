@@ -7,6 +7,7 @@ Product code hub. Pipeline: scan → detect; registry + catalog → rule, hook, 
 ## §F FEDERATION
 
 dir|owns|⊥owns|tokens
+scan|enumerate files, basename → exactly 1 file type|registry syntax, verdicts|-
 
 ## §N NAV
 
