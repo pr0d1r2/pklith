@@ -16,6 +16,11 @@ sib|src/registry|`.pklith` parse/fmt: types → check sets, rules, plural, exemp
 sib|src/catalog|check definitions: category, nix attr, runner glob, hk step, fix, failure msg
 sib|src/rule|companion rules: exists, mentions, changed, orphan; path templates
 
+## §C CONSTRAINTS
+
+- source = `pkl eval --format json hk.pkl` (pkl from devShell). ⊥ own pkl parser.
+- output: step id → globs, excludes, hook membership.
+
 ## §V INVARIANTS
 
 V1: `pkl` missing | eval fails → exit 2 naming cause (`.:V1`), ⊥ "0 steps"
