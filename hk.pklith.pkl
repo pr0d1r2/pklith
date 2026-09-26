@@ -4,144 +4,144 @@ import "pkl/Config.pkl"
 steps: Mapping<String, Config.Step> = new {
   ["trailing-whitespace"] {
     glob = List("**/*")
-    check = "hk util trailing-whitespace --diff {{files}}"
+    check = "hk util trailing-whitespace --diff {{files}} || { echo 'trailing-whitespace: trailing blanks; the pre-commit hook strips them' >&2; exit 1; }"
     fix = "hk util trailing-whitespace --fix {{files}}"
   }
   ["final-newline"] {
     glob = List("**/*")
-    check = "hk util end-of-file-fixer --diff {{files}}"
+    check = "hk util end-of-file-fixer --diff {{files}} || { echo 'final-newline: file must end with a newline' >&2; exit 1; }"
     fix = "hk util end-of-file-fixer --fix {{files}}"
   }
   ["line-endings"] {
     glob = List("**/*")
-    check = "hk util mixed-line-ending --diff {{files}}"
+    check = "hk util mixed-line-ending --diff {{files}} || { echo 'line-endings: file mixes CRLF and LF' >&2; exit 1; }"
     fix = "hk util mixed-line-ending --fix {{files}}"
   }
   ["no-bom"] {
     glob = List("**/*")
-    check = "hk util check-byte-order-marker {{files}}"
+    check = "hk util check-byte-order-marker {{files}} || { echo 'no-bom: file starts with a byte order marker' >&2; exit 1; }"
   }
   ["no-merge-conflict"] {
     glob = List("**/*")
-    check = "hk util check-merge-conflict --assume-in-merge {{files}}"
+    check = "hk util check-merge-conflict --assume-in-merge {{files}} || { echo 'no-merge-conflict: leftover merge conflict markers' >&2; exit 1; }"
   }
   ["no-case-conflict"] {
     glob = List("**/*")
-    check = "hk util check-case-conflict {{files}}"
+    check = "hk util check-case-conflict {{files}} || { echo 'no-case-conflict: two paths differ only by case' >&2; exit 1; }"
   }
   ["no-broken-symlinks"] {
-    check = "git ls-files -z | xargs -0 hk util check-symlinks"
+    check = "git ls-files -z | xargs -0 hk util check-symlinks || { echo 'no-broken-symlinks: a symlink points nowhere' >&2; exit 1; }"
   }
   ["no-large-files"] {
     glob = List("**/*")
-    check = "scripts/no-large-files.sh {{files}}"
+    check = #"scripts/no-large-files.sh {{files}} || { echo 'no-large-files: file over its type'\''s size limit' >&2; exit 1; }"#
   }
   ["no-private-key"] {
     glob = List("**/*")
-    check = "hk util detect-private-key {{files}}"
+    check = "hk util detect-private-key {{files}} || { echo 'no-private-key: a private key block is staged' >&2; exit 1; }"
   }
   ["ripsecrets"] {
     glob = List("**/*")
-    check = "ripsecrets {{files}}"
+    check = "ripsecrets {{files}} || { echo 'ripsecrets: a token or credential is staged; a false positive goes in .secretsignore' >&2; exit 1; }"
   }
   ["nixfmt"] {
     glob = List("**/*.nix")
-    check = "nixfmt --check {{files}}"
+    check = "nixfmt --check {{files}} || { echo 'nixfmt: nix file not formatted' >&2; exit 1; }"
     fix = "nixfmt {{files}}"
   }
   ["taplo"] {
     glob = List("**/*.toml")
-    check = "taplo fmt --check {{files}}"
+    check = "taplo fmt --check {{files}} || { echo 'taplo: TOML not formatted or not parseable' >&2; exit 1; }"
     fix = "taplo fmt {{files}}"
   }
   ["rustfmt"] {
     glob = List("**/*.rs")
-    check = "cargo fmt --check"
+    check = "cargo fmt --check || { echo 'rustfmt: Rust not formatted' >&2; exit 1; }"
     fix = "cargo fmt"
   }
   ["typos"] {
     glob = List("**/*")
-    check = "typos --force-exclude {{files}}"
+    check = "typos --force-exclude {{files}} || { echo 'typos: misspelling; fix it or teach .typos.toml' >&2; exit 1; }"
   }
   ["clippy"] {
     glob = List("**/*.rs", "Cargo.toml", "clippy.toml")
-    check = "cargo clippy --all-targets -q -- -D warnings"
+    check = "cargo clippy --all-targets -q -- -D warnings || { echo 'clippy: clippy finding or a §C code limit exceeded' >&2; exit 1; }"
   }
   ["rustdoc"] {
     glob = List("**/*.rs", "Cargo.toml")
-    check = "cargo doc --no-deps --document-private-items -q"
+    check = "cargo doc --no-deps --document-private-items -q || { echo 'rustdoc: docs do not build cleanly' >&2; exit 1; }"
     env {
       ["RUSTDOCFLAGS"] = "-D warnings"
     }
   }
   ["shellcheck"] {
     glob = List(".githooks/*", ".envrc", "**/*.sh")
-    check = "shellcheck --shell=bash {{files}}"
+    check = "shellcheck --shell=bash {{files}} || { echo 'shellcheck: shell script finding' >&2; exit 1; }"
   }
   ["actionlint"] {
     glob = List(".github/workflows/*.yml", ".github/workflows/*.yaml")
-    check = "actionlint {{files}}"
+    check = "actionlint {{files}} || { echo 'actionlint: workflow does not parse or type-check' >&2; exit 1; }"
   }
   ["zizmor"] {
     glob = List(".github/workflows/*.yml", ".github/workflows/*.yaml")
-    check = "zizmor --offline --no-progress {{files}}"
+    check = "zizmor --offline --no-progress {{files}} || { echo 'zizmor: workflow security finding' >&2; exit 1; }"
   }
   ["links"] {
     glob = List("**/*.md")
-    check = "git ls-files -z '*.md' | xargs -0 lychee --offline --no-progress --include-fragments"
+    check = "git ls-files -z '*.md' | xargs -0 lychee --offline --no-progress --include-fragments || { echo 'links: a relative link or anchor is broken' >&2; exit 1; }"
   }
   ["file-ceilings"] {
     glob = List("**/*.rs")
-    check = "scripts/file-ceilings.sh"
+    check = "scripts/file-ceilings.sh || { echo 'file-ceilings: a Rust file is over its token ceiling' >&2; exit 1; }"
   }
   ["mth-fmt"] {
     glob = List("**/SPEC.md")
-    check = #"for f in {{files}}; do mth fmt --check "$f" || exit 1; done"#
+    check = #"for f in {{files}}; do mth fmt --check "$f" || exit 1; done || { echo 'mth-fmt: SPEC.md is hard-wrapped or over the line cap' >&2; exit 1; }"#
     fix = #"for f in {{files}}; do mth fmt "$f" || exit 1; done"#
   }
   ["mth-check"] {
     glob = List("**/SPEC.md")
-    check = #"for f in {{files}}; do mth check "$f" || exit 1; done"#
+    check = #"for f in {{files}}; do mth check "$f" || exit 1; done || { echo 'mth-check: SPEC.md breaks a structural rule' >&2; exit 1; }"#
   }
   ["sherd-check"] {
     glob = List("**/SPEC.md", "**/*.rs")
-    check = "sherd check"
+    check = "sherd check || { echo 'sherd-check: a citation across spec nodes does not resolve' >&2; exit 1; }"
   }
   ["sherd-nav"] {
     glob = List("**/SPEC.md")
-    check = "sherd sync --check"
+    check = "sherd sync --check || { echo 'sherd-nav: a §N table is stale' >&2; exit 1; }"
     fix = "sherd sync"
   }
   ["sherd-budget"] {
     glob = List("**/SPEC.md", ".context-limits")
-    check = "sherd budget"
+    check = "sherd budget || { echo 'sherd-budget: a spec chain is over its ceiling' >&2; exit 1; }"
   }
   ["pkli-check"] {
-    check = "cargo run -q --bin pkli -- check"
+    check = "cargo run -q --bin pkli -- check || { echo 'pkli-check: a tracked file type has no row in .pklith, or a row matches nothing' >&2; exit 1; }"
   }
   ["gen-check"] {
     glob = List(".pklith", "hk.pklith.pkl")
-    check = "cargo run -q --bin pkli -- gen --check"
+    check = "cargo run -q --bin pkli -- gen --check || { echo 'gen-check: hk.pklith.pkl no longer matches .pklith; run `pkli gen`' >&2; exit 1; }"
     fix = "cargo run -q --bin pkli -- gen"
   }
   ["test"] {
     glob = List("**/*.rs", "Cargo.toml", "Cargo.lock")
-    check = "cargo nextest run --no-fail-fast --status-level fail --final-status-level fail"
+    check = "cargo nextest run --no-fail-fast --status-level fail --final-status-level fail || { echo 'test: a test failed, or the suite is empty' >&2; exit 1; }"
   }
   ["doctest"] {
     glob = List("**/*.rs", "Cargo.toml")
-    check = "cargo test --doc -q"
+    check = "cargo test --doc -q || { echo 'doctest: a doc example failed' >&2; exit 1; }"
   }
   ["coverage"] {
     glob = List("**/*.rs", "Cargo.toml", ".coverage")
-    check = "sherd coverage --check"
+    check = "sherd coverage --check || { echo 'coverage: line coverage fell below .coverage' >&2; exit 1; }"
   }
   ["flake-lock-graph"] {
     glob = List("flake.lock")
-    check = "scripts/flake-lock-graph.sh {{files}}"
+    check = "scripts/flake-lock-graph.sh {{files}} || { echo 'flake-lock-graph: flake.lock grew a second nixpkgs or too many nodes' >&2; exit 1; }"
   }
   ["deny"] {
     glob = List("Cargo.toml", "Cargo.lock", "deny.toml")
-    check = "cargo deny check --disable-fetch licenses bans"
+    check = "cargo deny check --disable-fetch licenses bans || { echo 'deny: a license or ban rule failed' >&2; exit 1; }"
   }
 }

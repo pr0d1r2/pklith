@@ -49,12 +49,24 @@ fn step(check: &Check) -> String {
         let globs: Vec<String> = check.globs.iter().map(|g| literal(g)).collect();
         let _ = writeln!(out, "    glob = List({})", globs.join(", "));
     }
-    let _ = writeln!(out, "    check = {}", literal(&check.check));
+    let _ = writeln!(out, "    check = {}", literal(&explained(check)));
     if let Some(fix) = &check.fix {
         let _ = writeln!(out, "    fix = {}", literal(fix));
     }
     out.push_str(&env(&check.env));
     out + "  }\n"
+}
+
+/// The check command, and on failure its message (catalog V1): what went
+/// wrong and what to do, prefixed with the check id.
+fn explained(check: &Check) -> String {
+    let message = shell_quote(&format!("{}: {}", check.id, check.msg));
+    format!("{} || {{ echo {message} >&2; exit 1; }}", check.check)
+}
+
+/// Single-quote `text` for sh.
+fn shell_quote(text: &str) -> String {
+    format!("'{}'", text.replace('\'', "'\\''"))
 }
 
 fn env(pairs: &[String]) -> String {
@@ -119,7 +131,7 @@ mod tests {
 id|category|nix|glob|check|fix|env|msg
 typos|lint|typos|**/*|typos {{files}}|-|-|m
 fmt|format|rustfmt|**/*.rs, build.rs|cargo fmt --check|cargo fmt|-|m
-links|lint|lychee|-|lychee "q"# x|-|A=1, B=x=y|m
+links|lint|lychee|-|lychee "q"# x|-|A=1, B=x=y|it's broken
 unused|lint|-|*|x|-|-|m
 ## types
 type|checks|min|exempt
@@ -134,15 +146,15 @@ import "pkl/Config.pkl"
 steps: Mapping<String, Config.Step> = new {
   ["fmt"] {
     glob = List("**/*.rs", "build.rs")
-    check = "cargo fmt --check"
+    check = "cargo fmt --check || { echo 'fmt: m' >&2; exit 1; }"
     fix = "cargo fmt"
   }
   ["typos"] {
     glob = List("**/*")
-    check = "typos {{files}}"
+    check = "typos {{files}} || { echo 'typos: m' >&2; exit 1; }"
   }
   ["links"] {
-    check = ##"lychee "q"# x"##
+    check = ##"lychee "q"# x || { echo 'links: it'\''s broken' >&2; exit 1; }"##
     env {
       ["A"] = "1"
       ["B"] = "x=y"
@@ -180,7 +192,12 @@ steps: Mapping<String, Config.Step> = new {
         let mut cmd = crate::proc::command("pkl", &dir);
         cmd.args(["eval", "--format", "json", "hk.pklith.pkl"]);
         let json = String::from_utf8(crate::proc::output(&mut cmd)?)?;
-        assert!(json.contains(r##""check": "lychee \"q\"# x""##), "{json}");
+        assert!(
+            json.contains(
+                r##""check": "lychee \"q\"# x || { echo 'links: it'\\''s broken' >&2; exit 1; }""##
+            ),
+            "{json}"
+        );
         Ok(std::fs::remove_dir_all(dir)?)
     }
 }
