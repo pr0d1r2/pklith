@@ -32,7 +32,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 - plan = checks registry requires − steps in `hk.pkl` (src/hook), ∧ ≥1 file covered (`.:V15`).
 - order FIXED: `*` universal first, then category order (src/catalog), then id. ⊥ LLM, ⊥ heuristic.
 - per check: gen fragment + config file + AGENTS row → `git add` exact paths → `git commit` w/ hooks ON.
-- subject `ci(<check>): <claim>` (claim from catalog `msg`); body names deliberately absent checks & why.
+- subject `ci(<check>): <claim>` (claim from catalog `msg`); body names deliberately absent checks & why, + planted-violation proof from the catalog fixture (`.:V32`).
 
 ## §V INVARIANTS
 
