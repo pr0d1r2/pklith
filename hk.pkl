@@ -49,6 +49,13 @@ local fast = new Mapping<String, Step> {
     glob = List("**/*")
     check = "hk util check-merge-conflict --assume-in-merge {{files}}"
   }
+  // Two paths differing only in case collide on case-insensitive
+  // filesystems, and the machine that notices is never the one that
+  // committed them.
+  ["no-case-conflict"] {
+    glob = List("**/*")
+    check = "hk util check-case-conflict {{files}}"
+  }
   // -- end of fast --
 }
 
