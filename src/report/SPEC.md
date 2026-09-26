@@ -31,3 +31,14 @@ sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
 V1: stable row & column order ∀ formats (`.:V3`)
 V2: json keys always present; empty = `[]`, ⊥ absent key
 V3: `check` success = silence; `report` always prints
+
+## §T TASKS
+
+id|status|task|cites
+T1|.|text renderer|V1,V3
+T2|.|json renderer + schema test|V1,V2
+T3|.|md matrix (drop-in for legacy `docs/linter-coverage.md`)|V1
+
+## §B BUGS
+
+id|date|cause|fix
