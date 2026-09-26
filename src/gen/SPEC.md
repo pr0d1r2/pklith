@@ -21,6 +21,7 @@ sib|src/cover|verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps
 sib|src/map|guard mode: changed paths → covering specs
 sib|src/report|render matrix & verdict: text, json, md
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
+sib|src/protect|branch protection required contexts from CI job names via `gh api`
 
 ## §C CONSTRAINTS
 

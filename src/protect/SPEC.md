@@ -2,14 +2,14 @@
 
 ## §G GOAL
 
-Write repo-owned seed files & shared configs once; never overwrite what the repo grew.
+Derive & apply branch protection required contexts from CI job names.
 
 ## §N NAV
 
 rel|path|lens
 up|.|-
 up|src|product code nodes — scan, detect, registry, catalog, rule, hook, legacy, cover, map, report, gen, lay, seed, confirm, migrate, protect, cli
-self|src/seed|repo-owned seed files & shared configs, skip-if-exists
+self|src/protect|branch protection required contexts from CI job names via `gh api`
 sib|src/scan|enumerate files, basename → exactly 1 file type
 sib|src/detect|active fragments from scanned files, fixed order
 sib|src/registry|`.pklith` parse/fmt: types → check sets, rules, plural, exempt
@@ -21,25 +21,4 @@ sib|src/cover|verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps
 sib|src/map|guard mode: changed paths → covering specs
 sib|src/report|render matrix & verdict: text, json, md
 sib|src/gen|emit `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block; `--check` drift
-sib|src/protect|branch protection required contexts from CI job names via `gh api`
-
-## §C CONSTRAINTS
-
-- seed set per fragment from catalog: `.editorconfig`, `.gitattributes`, `.gitignore` fragments, size limits, exemptions ledger, `.typos.toml`, LICENSE, README stub.
-- templates embedded in binary; ⊥ network.
-
-## §V INVARIANTS
-
-V1: `--init` skip-if-exists; existing file ⊥ touched (`.:V25`)
-V2: `.gitignore` fragments concatenated in fragment order
-V3: seeded exemptions ledger = empty list, valid (`.:V11`, `.:V23`)
-
-## §T TASKS
-
-id|status|task|cites
-T1|.|seed writer + skip-if-exists|V1,`.:T55`
-T2|.|`.gitignore` composition|V2
-
-## §B BUGS
-
-id|date|cause|fix
+sib|src/seed|repo-owned seed files & shared configs, skip-if-exists

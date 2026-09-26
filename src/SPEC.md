@@ -19,6 +19,7 @@ map|guard mode: changed paths → covering specs|running test runners|-
 report|render matrix & verdict: text, json, md|computing coverage|-
 gen|emit `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block; `--check` drift|running hk, running nix, committing|-
 seed|repo-owned seed files & shared configs, skip-if-exists|generated hk/nix files|-
+protect|branch protection required contexts from CI job names via `gh api`|local hooks|-
 
 ## §N NAV
 
