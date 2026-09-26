@@ -18,6 +18,7 @@ sib|src/rule|companion rules: exists, mentions, changed, orphan; path templates
 sib|src/hook|read effective hk config via `pkl eval`: step → globs
 sib|src/legacy|3 legacy formats: read, `import`, compat entries
 sib|src/cover|verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps
+sib|src/report|render matrix & verdict: text, json, md
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
 
 ## §C CONSTRAINTS

@@ -18,6 +18,7 @@ sib|src/rule|companion rules: exists, mentions, changed, orphan; path templates
 sib|src/legacy|3 legacy formats: read, `import`, compat entries
 sib|src/cover|verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps
 sib|src/map|guard mode: changed paths → covering specs
+sib|src/report|render matrix & verdict: text, json, md
 sib|src/seed|repo-owned seed files & shared configs, skip-if-exists
 
 ## §C CONSTRAINTS

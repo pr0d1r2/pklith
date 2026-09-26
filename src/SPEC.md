@@ -16,6 +16,7 @@ hook|read effective hk config via `pkl eval`: step → globs|writing hk config|-
 legacy|3 legacy formats: read, `import`, compat entries|native `.pklith` syntax|-
 cover|verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps|walking, rendering, exit codes|-
 map|guard mode: changed paths → covering specs|running test runners|-
+report|render matrix & verdict: text, json, md|computing coverage|-
 seed|repo-owned seed files & shared configs, skip-if-exists|generated hk/nix files|-
 
 ## §N NAV
