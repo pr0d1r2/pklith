@@ -36,3 +36,13 @@ sib|src/protect|branch protection required contexts from CI job names via `gh ap
 V1: check set before == after, else refuse w/ 0 writes (`.:V24`)
 V2: deterministic & idempotent: 2nd run → 0 changes
 V3: unmapped lefthook command → named in refusal, ⊥ dropped
+
+## §T TASKS
+
+id|status|task|cites
+T1|.|lefthook check-set reader|V3
+T2|.|equivalence gate + writer|V1,V2,`.:T57`
+
+## §B BUGS
+
+id|date|cause|fix
