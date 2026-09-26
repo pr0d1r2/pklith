@@ -6,6 +6,7 @@ use std::path::{Path, PathBuf};
 /// Printed on stderr for a usage error (V2).
 pub const USAGE: &str = "usage: pkli <command>\n
   check [--root DIR] [--registry FILE]  every tracked file has a type in .pklith with its checks
+  gen [--check]                         write hk.pklith.pkl from .pklith; --check: fail when it is stale
   import DOC                            a .pklith from a legacy linter coverage document, on stdout
 ";
 
@@ -32,6 +33,8 @@ fn exit(code: u8, stderr: impl Into<String>) -> Outcome {
 pub fn run(args: &[String], cwd: &Path) -> Outcome {
     match args.split_first() {
         Some((verb, rest)) if verb == "check" => check(rest, cwd),
+        Some((verb, [])) if verb == "gen" => generate(cwd, false),
+        Some((verb, [flag])) if verb == "gen" && flag == "--check" => generate(cwd, true),
         Some((verb, [doc])) if verb == "import" => import(Path::new(doc)),
         _ => exit(2, USAGE),
     }
@@ -88,9 +91,7 @@ fn check(args: &[String], cwd: &Path) -> Outcome {
 fn judge(opts: Options, cwd: &Path) -> Result<crate::cover::Coverage, String> {
     let walk = opts.root.is_some();
     let root = opts.root.map_or_else(|| toplevel(cwd), Ok)?;
-    let registry = load(&opts.registry.unwrap_or_else(|| root.join(".pklith")))?;
-    let catalog = crate::catalog::parse(&registry.checks).map_err(|e| e.to_string())?;
-    crate::catalog::known(&registry, &catalog).map_err(|e| e.to_string())?;
+    let (registry, _) = load(&opts.registry.unwrap_or_else(|| root.join(".pklith")))?;
     Ok(crate::cover::judge(&files(&root, walk)?, &registry))
 }
 
@@ -113,9 +114,53 @@ fn toplevel(cwd: &Path) -> Result<PathBuf, String> {
     Ok(PathBuf::from(String::from_utf8_lossy(&out).trim_end()))
 }
 
-/// Root V11: no `.pklith` is an error, never a pass.
-fn load(path: &Path) -> Result<crate::registry::Registry, String> {
+/// The registry and its typed checks, with every type row naming a known
+/// check (registry V2). Root V11: no `.pklith` is an error, never a pass.
+fn load(path: &Path) -> Result<(crate::registry::Registry, Vec<crate::catalog::Check>), String> {
     let text = std::fs::read_to_string(path)
         .map_err(|e| format!("cannot read {}: {e}", path.display()))?;
-    crate::registry::parse(&text).map_err(|e| e.to_string())
+    let registry = crate::registry::parse(&text).map_err(|e| e.to_string())?;
+    let catalog = crate::catalog::parse(&registry.checks).map_err(|e| e.to_string())?;
+    crate::catalog::known(&registry, &catalog).map_err(|e| e.to_string())?;
+    Ok((registry, catalog))
+}
+
+/// `gen [--check]`: the repository's `hk.pklith.pkl` from its `.pklith`.
+/// Writes only on change (gen V2); `--check` writes nothing and fails when
+/// the file is stale or missing (gen V3).
+fn generate(cwd: &Path, check: bool) -> Outcome {
+    let generated = toplevel(cwd).and_then(|root| Ok((pkl_for(&root)?, root)));
+    match (generated, check) {
+        (Err(message), _) => exit(2, format!("pkli gen: {message}\n")),
+        (Ok((text, root)), true) => freshness(&root, &text),
+        (Ok((text, root)), false) => written(&root, &text),
+    }
+}
+
+fn freshness(root: &Path, text: &str) -> Outcome {
+    if crate::r#gen::fresh(root, text) {
+        return exit(0, "");
+    }
+    exit(
+        1,
+        format!(
+            "pkli gen: {} is stale; run `pkli gen` and stage it\n",
+            crate::r#gen::FILE
+        ),
+    )
+}
+
+fn written(root: &Path, text: &str) -> Outcome {
+    match crate::r#gen::write(root, text) {
+        Ok(_) => exit(0, ""),
+        Err(e) => exit(
+            2,
+            format!("pkli gen: cannot write {}: {e}\n", crate::r#gen::FILE),
+        ),
+    }
+}
+
+fn pkl_for(root: &Path) -> Result<String, String> {
+    let (registry, catalog) = load(&root.join(".pklith"))?;
+    Ok(crate::r#gen::pkl(&crate::r#gen::used(&registry, &catalog)))
 }

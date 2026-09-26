@@ -84,6 +84,30 @@ fn literal(text: &str) -> String {
     format!("{hashes}\"{text}\"{hashes}")
 }
 
+/// Write `text` to `hk.pklith.pkl` under `root`, only when it differs from
+/// what is there (V2: a second run writes nothing). Returns whether it wrote.
+///
+/// # Errors
+///
+/// The I/O error, when the file cannot be written.
+pub fn write(root: &std::path::Path, text: &str) -> std::io::Result<bool> {
+    if current(root).as_deref() == Some(text) {
+        return Ok(false);
+    }
+    std::fs::write(root.join(FILE), text).map(|()| true)
+}
+
+/// V3: the file on disk is exactly what gen would write. A missing file is
+/// stale too.
+#[must_use]
+pub fn fresh(root: &std::path::Path, text: &str) -> bool {
+    current(root).as_deref() == Some(text)
+}
+
+fn current(root: &std::path::Path) -> Option<String> {
+    std::fs::read_to_string(root.join(FILE)).ok()
+}
+
 #[cfg(test)]
 mod tests {
     use super::{pkl, used};

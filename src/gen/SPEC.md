@@ -52,7 +52,7 @@ id|status|task|cites
 T1|x|pkl emitter + golden tests|V1,V4
 T2|.|nix emitter + golden tests|V1,V5
 T3|.|AGENTS.md block emitter|V1,`.:V14`
-T4|.|write-if-changed + `--check`|V2,V3,B1
+T4|x|write-if-changed + `--check`|V2,V3,B1
 T5|.|golden test: emitted files carry ⊥ system literal|`.:V21`
 T6|.|confirm hk schema has a step timeout field; emit it or wrap|V6
 T7|.|test: whole-tree steps emitted w/o glob|V7
