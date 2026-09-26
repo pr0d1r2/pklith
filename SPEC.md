@@ -122,6 +122,7 @@ V30: ∀ built-in catalog check proven in pklith's OWN test suite against a plan
 V31: `.pklith` carries a format version line; newer than pkli understands → exit 2 naming both versions, ⊥ best-effort parse
 V32: ∀ check commit body records its planted violation & the red verdict line it produced; the proof V2 demands survives in history, ⊥ only in a terminal
 V33: emitted bytes change for the same inputs → ≥ minor version & a `CHANGELOG.md` entry naming the files consumers will see change; golden diff w/o changelog touch → red
+V34: cutover (T44, T48, T60) only after a PARALLEL RUN: pkli & the tool it replaces judge the same repos, verdict diff = 0 or each diff explained in §B
 
 ## §T TASKS
 
@@ -169,7 +170,7 @@ T40|.|`deny-advisories`|V2
 T41|.|`semver` (cargo semver-checks)|V2
 T42|.|`package` / must-package|V2
 T43|.|README badges generated + `readme-badges` step|V6
-T44|.|dogfood swap: T33 legacy step → `pkli check` + `gen --check`; drop legacy input|V4,V6
+T44|.|dogfood swap: T33 legacy step → `pkli check` + `gen --check`; drop legacy input after parallel run|V4,V6,V34
 T45|.|re-lay reproduction: `pkli lay` into temp repo → ∀ laid file byte-identical to this tree|V3,V13
 T46|.|compat package + README migration guide|V4,V10
 T47|.|review `nix-lefthook-unit-coverage` PRs + SPEC → backprop|R9
@@ -195,6 +196,7 @@ T66|.|fixture per built-in catalog check: planted violation → step red, clean 
 T67|.|pre-publish audit: ∀ committed file & message ⊥ names an unpublished fleet repo (ashlar today); publish it or anonymize|R12,R14
 T68|.|`CHANGELOG.md` (keep-a-changelog) + `changelog-touched` step: golden or `src/` change w/o `[Unreleased]` entry → red|V33
 T69|.|release: version bump PR → tag → crates.io publish → cachix push of `pklith` for 3 tier-1 systems; `cargo semver-checks` gates the bump|V33,V10
+T70|.|fleet sweep: ∀ repo under `../` using a legacy coverage tool or set-and-setting setting → legacy verdict vs `pkli check` on imported `.pklith`; diffs → §B or fix|V34,V4
 
 ## §B BUGS
 
