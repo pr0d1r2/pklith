@@ -63,14 +63,22 @@ local fast = (generated.steps) {
   }
 }
 
-/// Run on push and in CI: everything in `fast`, plus the generated push steps
-/// and the re-lay reproduction (T45), which lays every check into a copy of
-/// HEAD through real hooks: about a minute, too slow for each commit.
+/// Run on push and in CI: everything in `fast`, plus the generated push steps,
+/// the re-lay reproduction (T45), which lays every check into a copy of HEAD
+/// through real hooks, and the nix package build (T62): minutes, too slow for
+/// each commit.
 local all = (fast) {
   ["coverage"] = (generated.push["coverage"]) { depends = List("test") }
   ["relay"] {
     check = "scripts/relay.sh"
     depends = List("gen-check", "pkli-check")
+  }
+  // T62 (V10): the flake's packages built by nix and run on a fixture, and
+  // no placeholder left in what was built.
+  ["package-nix"] {
+    glob = List("flake.nix", "flake.lock", "Cargo.toml", "Cargo.lock", "src/**", "pkl/**", "scripts/package-nix.sh")
+    check = "scripts/package-nix.sh"
+    depends = List("test")
   }
 }
 

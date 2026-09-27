@@ -191,7 +191,7 @@ T58|x|protect port: required contexts from CI job names|`src/protect:V2`
 T59|.|raise set-and-setting issues for D1, D2, D3|R15
 T60|.|set-and-setting consumes pklith via flake input; its setting shell retired|V4
 T61|.|`lib.devShell` for consumers + test: shell entered on repo w/o `hk.pkl` installs no hooks|V22,V12
-T62|.|`package-nix` step: `nix build` → run built `pkli` on fixture repo; grep built outputs for `@…@` \| `*_PATH` placeholders|V10
+T62|x|`package-nix` step: `nix build` → run built `pkli` on fixture repo; grep built outputs for `@…@` \| `*_PATH` placeholders|V10
 T63|x|one process-spawn helper scrubbing `GIT_DIR` `GIT_INDEX_FILE` `GIT_WORK_TREE` (done: `src/proc`); test: pkli run from inside a real hook on a 2nd repo leaves both intact (waits for a pkli verb)|V20
 T64|.|bench: fixture repos (small, 10k files, fleet-sized) × set-and-setting shell vs pkli → §R row; `bench` step w/ budgets from it|V27
 T65|.|`schema-pin` step: vendored `pkl/Config.pkl` matches pinned hk's schema|V28
