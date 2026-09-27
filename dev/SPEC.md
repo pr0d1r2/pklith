@@ -35,6 +35,7 @@ T2|x|`notices`: the third-party notices' crate table from `cargo tree -p pklith`
 T3|x|`agents`: the AGENTS.md step table from hk.pkl's hooks via `pkl -x`, replacing `scripts/agents-table.sh`|V1,V6
 T4|x|`catalog`: docs/CATALOG.md's check & fragment tables from `builtin.pklith`, through pklith's own registry & catalog parsers|V1,V6
 T5|x|`cli`: docs/CLI.md's usage block from `pklith::cli::USAGE`, the text pkli prints|V1,V6
+T6|x|`commit-msg` & `changelog`: the commit-msg hook's rules, replacing both scripts; the style rule cuts at git's scissors line, which the shell did not|V1
 
 ## §B BUGS
 

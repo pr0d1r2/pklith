@@ -150,18 +150,18 @@ hooks {
     steps = fast
   }
   // Subject `type(scope): claim`, at most 72 characters, and a body that
-  // says why (pklith §C, T4). The rule lives in scripts/commit-msg.sh, where
-  // shellcheck reads it, instead of in a string here.
+  // says why (pklith §C, T4). The rules live in pklith-dev (dev/), as tested
+  // Rust rather than a string here; the hook passes the file git gave it.
   ["commit-msg"] {
     steps {
       ["commit-msg"] {
-        check = "scripts/commit-msg.sh {{commit_msg_file}}"
+        check = "cargo run -q -p pklith-dev -- commit-msg {{commit_msg_file}}"
       }
       // V33 (T68): a feat, fix or perf commit changing src/ adds a CHANGELOG
       // entry. Here, not in pre-commit: only the message says which kind a
       // change is.
       ["changelog-touched"] {
-        check = "scripts/changelog-touched.sh {{commit_msg_file}}"
+        check = "cargo run -q -p pklith-dev -- changelog {{commit_msg_file}}"
       }
     }
   }

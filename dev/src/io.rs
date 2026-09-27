@@ -21,16 +21,21 @@ pub fn read(path: &str) -> Result<String, Failed> {
 ///
 /// A program that cannot start, or exits non-zero, with its stderr.
 pub fn run(program: &str, args: &[&str]) -> Result<String, Failed> {
-    let out = Command::new(program)
-        .args(args)
-        .output()
-        .map_err(|e| (2, format!("cannot run {program}: {e}")))?;
+    let out = spawn(program, args)?;
     if !out.status.success() {
         let err = String::from_utf8_lossy(&out.stderr);
         let why = format!("{program} {} failed: {}", args.join(" "), err.trim());
         return Err((2, why));
     }
     Ok(String::from_utf8_lossy(&out.stdout).into_owned())
+}
+
+/// Run `program` to completion; one that cannot start is exit 2.
+fn spawn(program: &str, args: &[&str]) -> Result<std::process::Output, Failed> {
+    Command::new(program)
+        .args(args)
+        .output()
+        .map_err(|e| (2, format!("cannot run {program}: {e}")))
 }
 
 /// Make `path` hold `wanted`: written, or with `check` compared, drift
@@ -72,4 +77,41 @@ pub fn steps(hook: &str) -> Result<usize, Failed> {
 /// As [`steps`].
 pub fn hooks() -> Result<(usize, usize), Failed> {
     Ok((steps("pre-commit")?, steps("pre-push")?))
+}
+
+/// The commit message: the file named, or git's `COMMIT_EDITMSG`. A
+/// missing file means nothing can be checked, which fails.
+///
+/// # Errors
+///
+/// No message file, or git failing to name one.
+pub fn message(file: Option<&str>) -> Result<String, Failed> {
+    let path = match file {
+        Some(f) => f.to_owned(),
+        None => run("git", &["rev-parse", "--git-path", "COMMIT_EDITMSG"])?
+            .trim()
+            .to_owned(),
+    };
+    std::fs::read_to_string(&path).map_err(|_| {
+        (
+            2,
+            format!("no message file at {path}, so nothing was checked"),
+        )
+    })
+}
+
+/// `git show REV:PATH`; a revision or path git does not have reads as
+/// empty (no HEAD yet, a file not staged).
+///
+/// # Errors
+///
+/// git failing to start.
+pub fn show(object: &str) -> Result<String, Failed> {
+    let out = spawn("git", &["show", object])?;
+    let text = String::from_utf8_lossy(&out.stdout).into_owned();
+    Ok(if out.status.success() {
+        text
+    } else {
+        String::new()
+    })
 }
