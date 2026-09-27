@@ -30,6 +30,31 @@ actionlint, zizmor, mth, sherd, itok); a `.pklith` row with the same id
 replaces one, a new id adds one.
 The design lives in [`SPEC.md`](SPEC.md) and the `SPEC.md` files under `src/`.
 
+## Migrating from the legacy coverage tools
+
+pklith replaces `lefthook-linter-coverage`, `lefthook-linter-coverage-full`
+and `lefthook-unit-coverage`. Move in two steps, each leaving the gate
+green.
+
+1. **Swap the package.** Replace the three legacy flake inputs with this
+   flake's `packages.<system>.compat`. It installs `pkli` under each legacy
+   name, and under those names it reads the same variables
+   (`LEFTHOOK_LINTER_COVERAGE_DOC`, `LEFTHOOK_LINTER_COVERAGE_ROOT`,
+   `LEFTHOOK_UNIT_COVERAGE_CONFIG`, `LEFTHOOK_UNIT_COVERAGE_ROOT`), prints
+   the same messages and exits with the same codes. Your hook config does
+   not change. There are two deliberate differences. A linter document with
+   table rows but no backtick token is an error (exit 2), not a report that
+   every extension is unlisted. An unreadable input is also exit 2, and the
+   message names its cause.
+2. **Move onto `pkli check`.** Run `pkli import docs/linter-coverage.md >
+   .pklith` (a set-and-setting fragment map, from `nix eval --json`, imports
+   the same way from a `.json` file). Every listed type becomes an exempt
+   row, so the verdict carries over unchanged. Then replace exemptions with
+   the checks that actually cover each type, run `pkli gen`, and drop the
+   compat package once `pkli check` gates the repository.
+   `pkli migrate` moves a repository whose hooks lefthook materialized
+   onto hk. It goes only when the check sets match.
+
 ## License
 
 MIT

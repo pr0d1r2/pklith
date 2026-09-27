@@ -175,7 +175,7 @@ T42|.|`package` / must-package|V2
 T43|.|README badges generated + `readme-badges` step|V6
 T44|x|dogfood swap: T33 legacy step → `pkli check` + `gen --check`; drop legacy input after parallel run. DONE: legacy step, input & doc dropped after T70 (R18); `pkli-check` gates. `gen-check` step keeps committed hk.pklith.pkl fresh. hk.pkl imports the generated steps; only repo-specific amendments stay hand-written|V4,V6,V34
 T45|x|re-lay reproduction: `pkli lay` into temp repo → ∀ laid file byte-identical to this tree|V3,V13
-T46|.|compat package + README migration guide|V4,V10
+T46|x|compat package + README migration guide|V4,V10
 T47|.|review `nix-lefthook-unit-coverage` PRs + SPEC → backprop|R9
 T48|.|deprecation notice + migration link in 3 legacy READMEs, after V4 parity proven|V4
 T49|.|raise ashlar issue: hooks-disabled commits & degrade-w/o-hk vs V12/V1; bundled courses vs V13|R12

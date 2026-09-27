@@ -76,7 +76,7 @@
         }
       );
 
-      packages = forAll (pkgs: {
+      packages = forAll (pkgs: rec {
         # pkli, built from the crate alone: the sources cargo reads and the
         # vendored hk schema it embeds. The suite runs in the gate; the
         # binary is tested as built by the package-nix step (V10).
@@ -96,6 +96,15 @@
           doCheck = false;
           meta.mainProgram = "pkli";
         };
+        # Drop-in for the three legacy coverage tools: pkli under each
+        # legacy name reads the legacy environment and speaks its messages
+        # and exit codes (src/legacy V2), so a consumer swaps the package.
+        compat = pkgs.runCommand "pklith-compat" { } ''
+          mkdir -p $out/bin
+          for name in lefthook-linter-coverage lefthook-linter-coverage-full lefthook-unit-coverage; do
+            ln -s ${default}/bin/pkli $out/bin/$name
+          done
+        '';
       });
 
       devShells = forAll (pkgs: {
