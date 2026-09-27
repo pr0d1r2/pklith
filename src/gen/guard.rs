@@ -67,8 +67,16 @@ fn program(clause: &[String]) -> Vec<String> {
         w if NOT_PROGRAMS.contains(&w) => Vec::new(),
         "xargs" => program(&without_flags(&rest)),
         "cargo" => cargo(&rest),
-        w => vec![w.to_owned()],
+        w if plain(w) => vec![w.to_owned()],
+        _ => Vec::new(),
     }
+}
+
+/// A word the shell runs as it stands: no variable, quote or glob to
+/// expand first, so `command -v` can look it up before the step runs.
+fn plain(word: &str) -> bool {
+    word.chars()
+        .all(|c| c.is_ascii_alphanumeric() || "_./+-".contains(c))
 }
 
 /// `KEY=value` before a command sets its environment.
@@ -100,7 +108,7 @@ fn cargo(rest: &[String]) -> Vec<String> {
 mod tests {
     use super::programs;
 
-    const CASES: [(&str, &[&str]); 8] = [
+    const CASES: [(&str, &[&str]); 9] = [
         ("typos --force-exclude {{files}}", &["typos"]),
         (
             "(for f in {{files}}; do mth fmt --check \"$f\" || exit 1; done)",
@@ -121,10 +129,12 @@ mod tests {
             "scripts/no-large-files.sh {{files}}",
             &["scripts/no-large-files.sh"],
         ),
+        ("\"$RUNNER\" check | xargs -0 'my tool'", &[]),
     ];
 
     /// Every program a command runs is found, past loops, pipes, `xargs`,
-    /// env assignments and cargo subcommands.
+    /// env assignments and cargo subcommands; a word the shell expands or
+    /// unquotes first cannot be named before it runs, so it is not guarded.
     #[test]
     fn programs_are_found_where_the_shell_runs_them() {
         for (command, want) in CASES {
