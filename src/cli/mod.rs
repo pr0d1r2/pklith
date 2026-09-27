@@ -165,18 +165,24 @@ fn load(path: &Path) -> Result<(crate::registry::Registry, Vec<crate::catalog::C
 
 /// `gen [--check]`: the repository's `hk.pklith.pkl` from its `.pklith`.
 /// Writes only on change (gen V2); `--check` writes nothing and fails when
-/// the file is stale or missing (gen V3).
+/// a step the file holds is stale, or the file is missing (gen V3).
 fn generate(cwd: &Path, check: bool) -> Outcome {
-    let generated = toplevel(cwd).and_then(|root| Ok((pkl_for(&root)?, root)));
-    match (generated, check) {
-        (Err(message), _) => exit(2, format!("pkli gen: {message}\n")),
-        (Ok((text, root)), true) => freshness(&root, &text),
-        (Ok((text, root)), false) => written(&root, &text),
+    let loaded = toplevel(cwd).and_then(|root| Ok((load(&root.join(".pklith"))?, root)));
+    let Ok(((registry, catalog), root)) = loaded else {
+        return exit(
+            2,
+            format!("pkli gen: {}\n", loaded.err().unwrap_or_default()),
+        );
+    };
+    let used = crate::r#gen::used(&registry, &catalog);
+    if check {
+        return freshness(&root, &used);
     }
+    written(&root, &crate::r#gen::pkl(&used))
 }
 
-fn freshness(root: &Path, text: &str) -> Outcome {
-    if crate::r#gen::fresh(root, text) {
+fn freshness(root: &Path, used: &[&crate::catalog::Check]) -> Outcome {
+    if crate::r#gen::fresh(root, used) {
         return exit(0, "");
     }
     exit(
@@ -196,11 +202,6 @@ fn written(root: &Path, text: &str) -> Outcome {
             format!("pkli gen: cannot write {}: {e}\n", crate::r#gen::FILE),
         ),
     }
-}
-
-fn pkl_for(root: &Path) -> Result<String, String> {
-    let (registry, catalog) = load(&root.join(".pklith"))?;
-    Ok(crate::r#gen::pkl(&crate::r#gen::used(&registry, &catalog)))
 }
 
 /// What both `lay` and `lay --dry-run` read.

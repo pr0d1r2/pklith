@@ -127,11 +127,19 @@ pub fn write(root: &std::path::Path, text: &str) -> std::io::Result<bool> {
     std::fs::write(root.join(FILE), text).map(|()| true)
 }
 
-/// V3: the file on disk is exactly what gen would write. A missing file is
-/// stale too.
+/// V3: the file on disk is exactly what gen would write for the checks it
+/// holds a step for. A used check with no step yet is not gen's finding but
+/// `pkli check`'s (unbacked), which is what lets `pkli lay` commit one step
+/// at a time while this runs as a hook. A missing file is stale.
 #[must_use]
-pub fn fresh(root: &std::path::Path, text: &str) -> bool {
-    current(root).as_deref() == Some(text)
+pub fn fresh(root: &std::path::Path, used: &[&Check]) -> bool {
+    current(root).is_some_and(|text| text == pkl(&held(&text, used)))
+}
+
+/// The checks among `used` whose step the generated `text` holds.
+fn held<'a>(text: &str, used: &[&'a Check]) -> Vec<&'a Check> {
+    let holds = |c: &&&Check| text.contains(&format!("\n  [{}] {{\n", literal(&c.id)));
+    used.iter().filter(holds).copied().collect()
 }
 
 fn current(root: &std::path::Path) -> Option<String> {

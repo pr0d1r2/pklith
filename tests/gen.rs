@@ -95,3 +95,28 @@ fn gen_renders_a_builtin_check_the_registry_never_defines() -> Result {
     assert!(text.contains("shellcheck {{files}}"), "{text}");
     Ok(std::fs::remove_dir_all(dir)?)
 }
+
+/// Two used checks, so a file can hold one of them the way `pkli lay`
+/// writes it partway through.
+const TWO: &str = "format 1\n## checks\nid|category|nix|glob|check|fix|env|msg\nlint|lint|-|*|true|-|-|m\nfmt|format|-|*|true|-|-|m\n## types\ntype|checks|min|exempt\nrs|lint,fmt|-|-\npklith|-|-|the registry itself\npkl|-|-|hk config\n";
+
+/// gen V3: `--check` judges the steps the file holds. A file with only
+/// some of the used checks, as `pkli lay` leaves it between commits, is
+/// fresh (the missing ones are `pkli check`'s gap); a held step that no
+/// longer matches its row is stale.
+#[test]
+fn gen_check_judges_only_the_steps_the_file_holds() -> Result {
+    let dir = repo("gen-partial", Some(TWO))?;
+    let registry = pklith::registry::parse(TWO)?;
+    let catalog = pklith::catalog::parse(&registry.checks)?;
+    let used = pklith::r#gen::used(&registry, &catalog);
+    let partial = pklith::r#gen::pkl(used.get(..1).unwrap_or_default());
+    std::fs::write(dir.join("hk.pklith.pkl"), &partial)?;
+    assert_eq!(pkli(&dir, &["gen", "--check"])?.0, Some(0));
+    std::fs::write(
+        dir.join("hk.pklith.pkl"),
+        partial.replace("true ||", "false ||"),
+    )?;
+    assert_eq!(pkli(&dir, &["gen", "--check"])?.0, Some(1));
+    Ok(std::fs::remove_dir_all(dir)?)
+}

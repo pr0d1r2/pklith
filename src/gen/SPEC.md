@@ -40,7 +40,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 V1: ∀ check used by registry → 1 hk step & 1 nix attr & 1 AGENTS row; unused catalog row ⊥ emitted
 V2: idempotent: 2nd run writes ⊥
-V3: `--check` exit 1 iff on-disk ≠ generated (`.:V6`)
+V3: `--check` exit 1 iff on-disk ≠ generated FOR THE CHECKS IT HOLDS | file missing (`.:V6`). used check w/o step = src/cover unbacked, ⊥ gen finding ∴ lay can commit 1 step at a time
 V4: emitted pkl evals under vendored `pkl/Config.pkl`
 V5: emitted nix parses & passes `nixfmt --check`
 V6: ∀ emitted step bounded by a timeout (hk field if schema has one ?, else wrapper) — runaway guard, ⊥ perf budget
@@ -61,3 +61,4 @@ T7|.|test: whole-tree steps emitted w/o glob|V7
 
 id|date|cause|fix
 B1|2026-08-11|set-and-setting `B57`: tracked `lefthook.yml` drifted from generated ∴ confirm diff red|V3
+B2|2026-09-27|`gen --check` compared the whole used set ∴ as a hook it failed every `pkli lay` commit after its own: a partial file is lay's normal state (found by root T45 re-lay)|V3 judges held steps only
