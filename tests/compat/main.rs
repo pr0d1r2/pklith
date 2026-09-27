@@ -1,8 +1,11 @@
 //! `pkli` installed under a legacy tool's name (legacy T5): the legacy
 //! environment, messages and exit codes. The legacy bats suites are
-//! ported case by case below the harness (legacy T1).
+//! ported in `linter.rs` and `unit.rs` (legacy T1), stderr compared whole.
 
+#[path = "../common/mod.rs"]
 mod common;
+mod linter;
+mod unit;
 
 use common::Result;
 use std::path::{Path, PathBuf};
