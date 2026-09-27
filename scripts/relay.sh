@@ -13,14 +13,17 @@ root="$(git rev-parse --show-toplevel)"
 # the real repository; left set, every git call below would commit the copy
 # into the developer's branch. Resolved root first, then dropped.
 unset GIT_DIR GIT_INDEX_FILE GIT_WORK_TREE GIT_PREFIX
-work="$(mktemp -d)"
-trap 'rm -rf "$work"' EXIT
+# The copy lives at a fixed path under the ignored target/, with a target
+# of its own: cargo keys its cache by package path, so a fresh temp dir
+# would rebuild pkli from nothing on every push, and a separate target
+# never races this tree's build. The copy itself is rebuilt each run.
+work="$root/target/relay"
 repo="$work/repo"
-mkdir "$repo"
-
-# The copy builds and runs its own pkli, in its own target, so it never
-# races this tree's build.
+rm -rf "$repo"
+trap 'rm -rf "$repo"' EXIT
+mkdir -p "$repo"
 export CARGO_TARGET_DIR="$work/target"
+
 git -C "$root" archive HEAD | tar -x -C "$repo"
 
 # A gate with nothing laid: hk.pkl runs whatever the generated module
