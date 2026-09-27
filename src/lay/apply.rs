@@ -35,9 +35,8 @@ pub enum Failure {
 pub fn lay(ctx: &Context, plan: &[&Check]) -> Result<String, Failure> {
     preconditions(ctx.root).map_err(Failure::NotReady)?;
     let start = git(ctx.root, &["rev-parse", "HEAD"]).map_err(Failure::NotReady)?;
-    let before = std::fs::read_to_string(ctx.root.join(crate::r#gen::FILE)).ok();
-    lay_all(ctx, plan)
-        .map_err(|e| Failure::RolledBack(rollback(ctx.root, &start, before.as_deref(), &e)))
+    let before = crate::r#gen::FILES.map(|p| std::fs::read_to_string(ctx.root.join(p)).ok());
+    lay_all(ctx, plan).map_err(|e| Failure::RolledBack(rollback(ctx.root, &start, &before, &e)))
 }
 
 fn lay_all(ctx: &Context, plan: &[&Check]) -> Result<String, String> {
@@ -50,7 +49,7 @@ fn lay_all(ctx: &Context, plan: &[&Check]) -> Result<String, String> {
     Ok(out)
 }
 
-/// V1: hk on PATH and hooks installed; V6: the generated file not staged.
+/// V1: hk on PATH and hooks installed; V6: no generated file staged.
 fn preconditions(root: &Path) -> Result<(), String> {
     output(command("hk", root).arg("--version"))
         .map_err(|e| format!("hk is not usable, so no hook would run: {e}"))?;
@@ -60,13 +59,12 @@ fn preconditions(root: &Path) -> Result<(), String> {
         return Err("no git hooks are installed, so nothing would check the commits".into());
     }
     let staged = git(root, &["diff", "--cached", "--name-only"])?;
-    if staged.lines().any(|l| l == crate::r#gen::FILE) {
-        return Err(format!(
-            "{} is already staged; commit or unstage it first",
-            crate::r#gen::FILE
-        ));
+    match staged.lines().find(|l| crate::r#gen::FILES.contains(l)) {
+        Some(file) => Err(format!(
+            "{file} is already staged; commit or unstage it first"
+        )),
+        None => Ok(()),
     }
-    Ok(())
 }
 
 /// Write the generated module with every check laid so far, prove hk now
@@ -80,29 +78,22 @@ fn lay_one(ctx: &Context, check: &Check, laid: &[String]) -> Result<String, Stri
 /// Commit only the generated file (V8), through the hooks (root V12).
 fn commit(root: &Path, check: &Check) -> Result<String, String> {
     let (subject, body) = (super::subject(check), body(check));
-    git(root, &commit_args(&subject, &body))?;
+    let files = crate::r#gen::FILES;
+    git(root, &[&["add", "--"][..], &files].concat())?;
+    let args = [
+        &["commit", "-q", "-m", &subject, "-m", &body, "--"][..],
+        &files,
+    ]
+    .concat();
+    git(root, &args)?;
     let sha = git(root, &["rev-parse", "--short", "HEAD"])?;
     Ok(format!("{sha} {subject}\n"))
-}
-
-fn commit_args<'a>(subject: &'a str, body: &'a str) -> [&'a str; 8] {
-    [
-        "commit",
-        "-q",
-        "-m",
-        subject,
-        "-m",
-        body,
-        "--",
-        crate::r#gen::FILE,
-    ]
 }
 
 fn write(ctx: &Context, laid: &[String]) -> Result<(), String> {
     let keep = |c: &&&Check| ctx.present.contains(&c.id) || laid.contains(&c.id);
     let steps: Vec<&Check> = ctx.used.iter().filter(keep).copied().collect();
-    std::fs::write(ctx.root.join(crate::r#gen::FILE), crate::r#gen::pkl(&steps))
-        .map_err(|e| e.to_string())
+    crate::r#gen::write(ctx.root, &steps).map(drop)
 }
 
 /// The laid step must reach hk: if hk.pkl does not import the generated
@@ -129,15 +120,13 @@ fn body(check: &Check) -> String {
 }
 
 /// V3: back to the HEAD the run started from, keeping the operator's work
-/// (`--mixed`, never `--hard`), and the generated file as it was.
-fn rollback(root: &Path, start: &str, before: Option<&str>, why: &str) -> String {
+/// (`--mixed`, never `--hard`), and each generated file as it was.
+fn rollback(root: &Path, start: &str, before: &[Option<String>], why: &str) -> String {
     let reset = git(root, &["reset", "-q", "--mixed", start]).err();
-    let file = root.join(crate::r#gen::FILE);
-    let restored = match before {
-        Some(text) => std::fs::write(&file, text),
-        None => std::fs::remove_file(&file),
-    };
-    let restored = restored.err().map(|e| e.to_string());
+    let restored = crate::r#gen::FILES
+        .iter()
+        .zip(before)
+        .filter_map(|(p, b)| restore(root, p, b.as_deref()));
     let trouble: Vec<String> = reset.into_iter().chain(restored).collect();
     let tail = if trouble.is_empty() {
         "rolled back to where it started".to_owned()
@@ -145,6 +134,18 @@ fn rollback(root: &Path, start: &str, before: Option<&str>, why: &str) -> String
         format!("rollback incomplete: {}", trouble.join("; "))
     };
     format!("{why}; {tail}")
+}
+
+/// Put one generated file back; one lay created is removed. The problem,
+/// if any.
+fn restore(root: &Path, path: &str, before: Option<&str>) -> Option<String> {
+    let file = root.join(path);
+    let done = match before {
+        Some(text) => std::fs::write(&file, text),
+        None if file.exists() => std::fs::remove_file(&file),
+        None => Ok(()),
+    };
+    done.err().map(|e| format!("{path}: {e}"))
 }
 
 fn git(root: &Path, args: &[&str]) -> Result<String, String> {

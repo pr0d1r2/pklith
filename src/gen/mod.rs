@@ -11,6 +11,9 @@ use crate::registry::Registry;
 use std::fmt::Write as _;
 
 mod guard;
+mod nix;
+
+pub use nix::{NIX, nix};
 
 /// The generated file, next to `hk.pkl`.
 pub const FILE: &str = "hk.pklith.pkl";
@@ -135,26 +138,51 @@ fn literal(text: &str) -> String {
     format!("{hashes}\"{text}\"{hashes}")
 }
 
-/// Write `text` to `hk.pklith.pkl` under `root`, only when it differs from
-/// what is there (V2: a second run writes nothing). Returns whether it wrote.
+/// Every file gen writes, from the repository root.
+pub const FILES: [&str; 2] = [FILE, NIX];
+
+/// Each generated file and its text for `checks`.
+#[must_use]
+pub fn outputs(checks: &[&Check]) -> [(&'static str, String); 2] {
+    [(FILE, pkl(checks)), (NIX, nix(checks))]
+}
+
+/// Write each generated file for `checks` under `root` that differs from
+/// what is there (V2: a second run writes nothing). Returns what it wrote.
 ///
 /// # Errors
 ///
-/// The I/O error, when the file cannot be written.
-pub fn write(root: &std::path::Path, text: &str) -> std::io::Result<bool> {
-    if current(root).as_deref() == Some(text) {
-        return Ok(false);
+/// The file that could not be written, with the I/O error.
+pub fn write(root: &std::path::Path, checks: &[&Check]) -> Result<Vec<&'static str>, String> {
+    let mut written = Vec::new();
+    for (path, text) in outputs(checks) {
+        if read(root, path).as_deref() == Some(text.as_str()) {
+            continue;
+        }
+        let full = root.join(path);
+        let dir = full.parent().map_or(Ok(()), std::fs::create_dir_all);
+        dir.and_then(|()| std::fs::write(&full, &text))
+            .map_err(|e| format!("cannot write {path}: {e}"))?;
+        written.push(path);
     }
-    std::fs::write(root.join(FILE), text).map(|()| true)
+    Ok(written)
 }
 
-/// V3: the file on disk is exactly what gen would write for the checks it
-/// holds a step for. A used check with no step yet is not gen's finding but
-/// `pkli check`'s (unbacked), which is what lets `pkli lay` commit one step
-/// at a time while this runs as a hook. A missing file is stale.
+/// V3: the first generated file that is not exactly what gen would write
+/// for the checks `hk.pklith.pkl` holds a step for. A used check with no
+/// step yet is not gen's finding but `pkli check`'s (unbacked), which is
+/// what lets `pkli lay` commit one step at a time while this runs as a
+/// hook. A missing file is stale.
 #[must_use]
-pub fn fresh(root: &std::path::Path, used: &[&Check]) -> bool {
-    current(root).is_some_and(|text| text == pkl(&held(&text, used)))
+pub fn stale(root: &std::path::Path, used: &[&Check]) -> Option<&'static str> {
+    let Some(module) = read(root, FILE) else {
+        return Some(FILE);
+    };
+    let held = held(&module, used);
+    outputs(&held)
+        .into_iter()
+        .find(|(path, text)| read(root, path).as_deref() != Some(text.as_str()))
+        .map(|(p, _)| p)
 }
 
 /// The checks among `used` whose step the generated `text` holds.
@@ -163,8 +191,8 @@ fn held<'a>(text: &str, used: &[&'a Check]) -> Vec<&'a Check> {
     used.iter().filter(holds).copied().collect()
 }
 
-fn current(root: &std::path::Path) -> Option<String> {
-    std::fs::read_to_string(root.join(FILE)).ok()
+fn read(root: &std::path::Path, path: &str) -> Option<String> {
+    std::fs::read_to_string(root.join(path)).ok()
 }
 
 #[cfg(test)]
@@ -254,5 +282,23 @@ push: Mapping<String, Config.Step> = new {
             "{json}"
         );
         Ok(std::fs::remove_dir_all(dir)?)
+    }
+    /// Root V21 (gen T5): neither generated file names a system, for the
+    /// whole built-in catalog.
+    #[test]
+    fn generated_files_name_no_system() -> Result<(), crate::registry::Error> {
+        let catalog = crate::catalog::builtin()?;
+        let all: Vec<&Check> = catalog.iter().collect();
+        for (path, text) in super::outputs(&all) {
+            for system in [
+                "x86_64-linux",
+                "aarch64-linux",
+                "aarch64-darwin",
+                "x86_64-darwin",
+            ] {
+                assert!(!text.contains(system), "{path} names {system}");
+            }
+        }
+        Ok(())
     }
 }

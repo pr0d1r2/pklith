@@ -100,7 +100,7 @@ fn gen_renders_a_builtin_check_the_registry_never_defines() -> Result {
 /// writes it partway through.
 const TWO: &str = "format 1\n## checks\nid|category|nix|glob|check|fix|env|msg\nlint|lint|-|*|true|-|-|m\nfmt|format|-|*|true|-|-|m\n## types\ntype|checks|min|exempt\nrs|lint,fmt|-|-\npklith|-|-|the registry itself\npkl|-|-|hk config\n";
 
-/// gen V3: `--check` judges the steps the file holds. A file with only
+/// gen V3: `--check` judges the steps the module holds. Files with only
 /// some of the used checks, as `pkli lay` leaves it between commits, is
 /// fresh (the missing ones are `pkli check`'s gap); a held step that no
 /// longer matches its row is stale.
@@ -110,8 +110,8 @@ fn gen_check_judges_only_the_steps_the_file_holds() -> Result {
     let registry = pklith::registry::parse(TWO)?;
     let catalog = pklith::catalog::parse(&registry.checks)?;
     let used = pklith::r#gen::used(&registry, &catalog);
-    let partial = pklith::r#gen::pkl(used.get(..1).unwrap_or_default());
-    std::fs::write(dir.join("hk.pklith.pkl"), &partial)?;
+    pklith::r#gen::write(&dir, used.get(..1).unwrap_or_default())?;
+    let partial = std::fs::read_to_string(dir.join("hk.pklith.pkl"))?;
     assert_eq!(pkli(&dir, &["gen", "--check"])?.0, Some(0));
     std::fs::write(
         dir.join("hk.pklith.pkl"),
@@ -136,5 +136,25 @@ fn gen_refuses_a_bad_local_fragment() -> Result {
         )
     );
     assert!(!dir.join("hk.pklith.pkl").exists());
+    Ok(std::fs::remove_dir_all(dir)?)
+}
+
+/// Gen T2: gen writes nix/pklith.nix beside the module, and `--check`
+/// names it when it drifts.
+#[test]
+fn gen_writes_and_checks_the_nix_list() -> Result {
+    let dir = repo("gen-nix", Some(TWO))?;
+    assert_eq!(pkli(&dir, &["gen"])?.0, Some(0));
+    let nix = std::fs::read_to_string(dir.join("nix/pklith.nix"))?;
+    assert!(nix.ends_with("catalog: [ ]\n"), "{nix}");
+    std::fs::write(dir.join("nix/pklith.nix"), "edited\n")?;
+    let (code, _, stderr) = pkli(&dir, &["gen", "--check"])?;
+    assert_eq!(
+        (code, stderr.as_str()),
+        (
+            Some(1),
+            "pkli gen: nix/pklith.nix is stale; run `pkli gen` and stage it\n"
+        )
+    );
     Ok(std::fs::remove_dir_all(dir)?)
 }

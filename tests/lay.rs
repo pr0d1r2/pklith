@@ -245,7 +245,7 @@ fn the_operators_staged_change_stays_out_of_laid_commits() -> Result {
     assert_eq!(pkli_as(&dir, &["lay"])?.0, Some(0));
     assert_eq!(
         git(&dir, &["show", "--name-only", "--format=", "HEAD"])?,
-        "hk.pklith.pkl"
+        "hk.pklith.pkl\nnix/pklith.nix"
     );
     assert_eq!(git(&dir, &["diff", "--cached", "--name-only"])?, "a.rs");
     Ok(std::fs::remove_dir_all(dir)?)

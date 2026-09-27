@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Re-lay reproduction (pklith root T45, V3, V13): `pkli lay` run on a copy of
 # HEAD whose gate holds no steps must commit its way, through the real
-# hooks, back to the very hk.pklith.pkl HEAD tracks, byte for byte. It
+# hooks, back to the very generated files HEAD tracks, byte for byte. It
 # proves that every check this repository runs can be laid one commit at a
 # time and that lay's output is what gen writes.
 #
@@ -51,6 +51,7 @@ steps: Mapping<String, Config.Step> = new {}
 
 push: Mapping<String, Config.Step> = new {}
 EOF
+rm -f "$repo/nix/pklith.nix"
 
 git -C "$repo" init -q
 git -C "$repo" config user.name relay
@@ -62,9 +63,11 @@ git -C "$repo" config core.hooksPath .githooks
 cargo build -q --manifest-path "$repo/Cargo.toml" --bin pkli
 (cd "$repo" && "$CARGO_TARGET_DIR/debug/pkli" lay >"$work/laid")
 
-if ! git -C "$root" show HEAD:hk.pklith.pkl | cmp -s - "$repo/hk.pklith.pkl"; then
-  echo 'relay: pkli lay did not reproduce hk.pklith.pkl:' >&2
-  git -C "$root" show HEAD:hk.pklith.pkl | diff - "$repo/hk.pklith.pkl" >&2 || true
-  exit 1
-fi
-echo "relay: $(wc -l <"$work/laid" | tr -d ' ') checks laid, one commit each; hk.pklith.pkl reproduced byte for byte"
+for generated in hk.pklith.pkl nix/pklith.nix; do
+  if ! git -C "$root" show "HEAD:$generated" | cmp -s - "$repo/$generated"; then
+    echo "relay: pkli lay did not reproduce $generated:" >&2
+    git -C "$root" show "HEAD:$generated" | diff - "$repo/$generated" >&2 || true
+    exit 1
+  fi
+done
+echo "relay: $(wc -l <"$work/laid" | tr -d ' ') checks laid, one commit each; hk.pklith.pkl and nix/pklith.nix reproduced byte for byte"
