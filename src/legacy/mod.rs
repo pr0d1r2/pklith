@@ -6,6 +6,8 @@ use std::fmt::Write as _;
 
 pub mod fragment_map;
 pub mod json;
+pub mod toml;
+pub mod unit_coverage;
 
 /// One backtick token from a legacy table, with the rest of its row.
 #[derive(Debug, Clone, PartialEq, Eq)]
