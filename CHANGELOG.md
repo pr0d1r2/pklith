@@ -33,3 +33,5 @@ the bytes pkli emits for the same inputs is at least a minor version
   in the caller's git environment (`GIT_DIR`, `GIT_WORK_TREE`,
   `GIT_INDEX_FILE`), symlinks and submodules included; a git that fails
   or is missing is exit 2 instead of an empty list that passed.
+- With a `*_ROOT` variable the compat entries walk as `find . -type f`
+  did: regular files only, and only the top-level `.git/` skipped.

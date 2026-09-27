@@ -249,3 +249,31 @@ fn a_failing_git_exits_2() -> Result {
     );
     Ok(std::fs::remove_dir_all(dir)?)
 }
+
+/// A symlink to a file, a broken one and a FIFO under `dir`.
+fn not_regular(dir: &Path) -> Result {
+    std::os::unix::fs::symlink("d.md", dir.join("alias.lnk"))?;
+    std::os::unix::fs::symlink("gone", dir.join("broken.brk"))?;
+    let mut fifo = std::process::Command::new("mkfifo");
+    assert!(fifo.arg(dir.join("pipe.fifo")).status()?.success());
+    Ok(())
+}
+
+/// Walking is `find . -type f ! -path './.git/*'`: symlinks and FIFOs are
+/// not regular files, and only the top-level `.git/` is skipped.
+#[test]
+fn walking_finds_regular_files_as_find_did() -> Result {
+    let dir = scratch("find", FULL)?;
+    let repo = dir.join("repo");
+    let files = [
+        ("d.md", "| `.md` |\n"),
+        (".git/config", ""),
+        ("nested/.git/HEAD", ""),
+    ];
+    write(&repo, &files)?;
+    not_regular(&repo)?;
+    let (code, stderr) = run(&dir, FULL, &dir, &WALKED)?;
+    let want = "check-linter-coverage: 1 extension(s) not listed in d.md:\n  .HEAD\n";
+    assert!(code == Some(1) && stderr.starts_with(want), "{stderr}");
+    Ok(std::fs::remove_dir_all(dir)?)
+}

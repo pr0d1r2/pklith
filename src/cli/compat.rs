@@ -50,7 +50,10 @@ fn root(cwd: &Path, walk: Option<&String>) -> Root {
 /// included, and nothing outside a repository.
 fn listed(root: &Root) -> Result<Vec<String>, String> {
     if root.walk {
-        return crate::scan::walked(&root.dir).map_err(|e| e.to_string());
+        let mut found = Vec::new();
+        find(&root.dir, "", &mut found)?;
+        found.sort();
+        return Ok(found);
     }
     let text = git(&root.dir, &["ls-files", "-z"])?.unwrap_or_default();
     Ok(text
@@ -58,6 +61,26 @@ fn listed(root: &Root) -> Result<Vec<String>, String> {
         .filter(|p| !p.is_empty())
         .map(str::to_owned)
         .collect())
+}
+
+/// `find . -type f ! -path './.git/*'` under `dir`, paths relative to the
+/// root as `prefix`: regular files only (not symlinks, sockets or FIFOs),
+/// symlinked directories not entered, and only the top-level `.git/`
+/// skipped. A directory that cannot be read is an error, where find
+/// carried on with a partial list (root V1).
+fn find(dir: &Path, prefix: &str, found: &mut Vec<String>) -> Result<(), String> {
+    let failed = |e: std::io::Error| format!("cannot read {}: {e}", dir.display());
+    for entry in std::fs::read_dir(dir).map_err(failed)? {
+        let entry = entry.map_err(failed)?;
+        let path = format!("{prefix}{}", entry.file_name().to_string_lossy());
+        let kind = entry.file_type().map_err(failed)?;
+        if kind.is_file() {
+            found.push(path);
+        } else if kind.is_dir() && path != ".git" {
+            find(&entry.path(), &format!("{path}/"), found)?;
+        }
+    }
+    Ok(())
 }
 
 /// Run git as the legacy tools did: in the caller's git environment, so
