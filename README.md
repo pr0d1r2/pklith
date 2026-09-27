@@ -7,7 +7,7 @@
 [![MSRV 1.95](https://img.shields.io/badge/MSRV-1.95-000000?logo=rust&logoColor=white)](Cargo.toml)
 [![direct dependencies 1](https://img.shields.io/badge/direct_dependencies-1-brightgreen)](docs/THIRD-PARTY-NOTICES.md)
 [![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-brightgreen)](Cargo.toml)
-[![network pkli protect only](https://img.shields.io/badge/network-pkli_protect_only-brightgreen)](SECURITY.md)
+[![network pkli protect only](https://img.shields.io/badge/network-pkli_protect_only-brightgreen)](docs/SECURITY.md)
 
 [![gate hk](https://img.shields.io/badge/gate-hk-6E4AFF)](hk.pkl)
 [![gate steps 38 commit / 45 push](https://img.shields.io/badge/gate_steps-38_commit_%2F_45_push-6E4AFF)](hk.pkl)

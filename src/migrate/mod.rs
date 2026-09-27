@@ -18,7 +18,7 @@ pub struct Refusal {
 }
 
 /// The `.pklith` for a lefthook check set: every command mapped to its
-/// pklith check (renamed per PORT.md), less the ones `drop` names, each
+/// pklith check (renamed per docs/PORT.md), less the ones `drop` names, each
 /// claimed for the files its runner reaches.
 ///
 /// # Errors

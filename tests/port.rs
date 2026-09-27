@@ -2,7 +2,7 @@
 //! `assemble-lefthook.sh` merged them, against pklith's fragments. The
 //! assembler's bats cases that describe a step set (one fragment's
 //! commands, merged once, split by hook) become one golden here: every
-//! legacy command lands in the same pklith fragment, renamed as PORT.md
+//! legacy command lands in the same pklith fragment, renamed as docs/PORT.md
 //! says, or PORT.md names it as dropped. Nothing leaves silently. The cases
 //! about lefthook itself (`extends`, the migration overlay, `remotes`, YAML
 //! markers) have no hk counterpart and are not ported.
@@ -34,7 +34,7 @@ xml xmllint
 yaml yamllint
 ";
 
-const PORT: &str = include_str!("../PORT.md");
+const PORT: &str = include_str!("../docs/PORT.md");
 
 /// The rows of the Markdown table under `heading` (up to the next blank
 /// line after it starts), cells trimmed, header and rule skipped.

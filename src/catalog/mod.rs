@@ -186,7 +186,7 @@ fn list(cell: &str) -> Vec<String> {
         .collect()
 }
 
-/// set-and-setting check names pklith ships under another name (PORT.md).
+/// set-and-setting check names pklith ships under another name (docs/PORT.md).
 const RENAMED: [(&str, &str); 5] = [
     ("gitleaks", "ripsecrets"),
     ("git-conflict-markers", "no-merge-conflict"),

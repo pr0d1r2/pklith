@@ -106,5 +106,5 @@ including the parts a model wrote and the parts nobody caught. "The LLM
 wrote it" explains provenance; it never transfers responsibility.
 
 Unflattering bug reports are the most useful kind. See
-[`SECURITY.md`](../SECURITY.md) for the ones that should not be public and
-[`CONTRIBUTING.md`](../CONTRIBUTING.md) for everything else.
+[`SECURITY.md`](SECURITY.md) for the ones that should not be public and
+[`CONTRIBUTING.md`](CONTRIBUTING.md) for everything else.

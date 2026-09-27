@@ -6,7 +6,7 @@ use super::json::{self, Value};
 use crate::catalog::Check;
 
 /// The `.pklith` text for a fragment map: one row per file class, its
-/// checks renamed to pklith's (PORT.md). A class whose checks pklith does
+/// checks renamed to pklith's (docs/PORT.md). A class whose checks pklith does
 /// not ship is exempt with reason `legacy: <checks>` rather than dropped
 /// (legacy V3), and an unlinted class keeps its own reason.
 ///
