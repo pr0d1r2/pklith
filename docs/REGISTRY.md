@@ -149,4 +149,5 @@ coverage document into a registry, every listed type exempt with its reason,
 so the verdict carries over unchanged; a set-and-setting fragment map (the
 JSON `nix eval --json` prints) imports the same way. Then replace the
 exemptions with the checks that actually cover each type. See
-[PORT.md](PORT.md) for what moved from set-and-setting.
+[INTEGRATION.md](INTEGRATION.md) for the whole path, and [PORT.md](PORT.md)
+for what moved from set-and-setting.

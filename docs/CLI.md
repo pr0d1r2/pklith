@@ -1,7 +1,8 @@
 # The `pkli` command line
 
 `pkli` is one binary with a verb per job. This page is its reference;
-[REGISTRY.md](REGISTRY.md) describes the `.pklith` file most verbs read.
+[REGISTRY.md](REGISTRY.md) describes the `.pklith` file most verbs read,
+and [INTEGRATION.md](INTEGRATION.md) the order to use them in.
 
 ## Usage
 
