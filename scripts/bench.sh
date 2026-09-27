@@ -6,8 +6,8 @@
 #   scripts/bench.sh                   time pkli, fail over a budget
 #   scripts/bench.sh --compare DIR     also time the legacy tools, for §R
 #
-# The budgets below are about five times the measurement recorded as §R R20,
-# headroom for a slower machine; a regression past one fails the step.
+# Budgets are CPU milliseconds, about three times the measurement recorded
+# as §R R20: headroom for a slower machine; a regression past one fails.
 # --compare DIR takes the directory holding the sibling legacy checkouts
 # (set-and-setting, nix-lefthook-*), which the gate does not need.
 set -euo pipefail
@@ -19,9 +19,9 @@ compare="${2:-}"
 
 # Budgets in milliseconds: fixture:command.
 declare -A budget=(
-  [small:detect]=150 [small:check]=3500 [small:compat]=50
-  [fleet:detect]=150 [fleet:check]=3500 [fleet:compat]=50
-  [large:detect]=200 [large:check]=8000 [large:compat]=150
+  [small:detect]=150 [small:check]=7000 [small:compat]=50
+  [fleet:detect]=150 [fleet:check]=8000 [fleet:compat]=50
+  [large:detect]=200 [large:check]=13000 [large:compat]=150
 )
 
 export CARGO_TARGET_DIR="$root/target"
@@ -65,18 +65,19 @@ fixture() {
   touch "$work/.done-$1-$n-$stamp"
 }
 
-# best DIR CMD...: best-of-three wall time in ms. Every run must pass: a
-# run that fails fast (a missing doc, an unset variable) measures nothing.
+# best DIR CMD...: best-of-three CPU time in ms, user plus system, the
+# command's children (pkl, git) included. CPU time, not wall time: a busy
+# machine stretches the wall clock several times over and would fail the
+# step for someone else's load. Every run must pass: a run that fails fast
+# (a missing doc, an unset variable) measures nothing.
 best() {
-  local dir="$1" min='' t0 t1 ms rc
+  local dir="$1" min='' ms rc cpu
   shift
   for _ in 1 2 3; do
-    t0="$(date +%s%N)"
     rc=0
-    (cd "$dir" && "$@" >/dev/null 2>&1) || rc=$?
-    t1="$(date +%s%N)"
+    cpu="$( { TIMEFORMAT='%3U %3S'; time (cd "$dir" && "$@" >/dev/null 2>&1); } 2>&1)" || rc=$?
     [ "$rc" -eq 0 ] || { echo "bench: '$*' in $dir exited $rc" >&2; exit 1; }
-    ms=$(((t1 - t0) / 1000000))
+    ms="$(awk '{ printf "%d", ($1 + $2) * 1000 }' <<<"$cpu")"
     [ -z "$min" ] || [ "$ms" -lt "$min" ] && min="$ms"
   done
   echo "$min"
