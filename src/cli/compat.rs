@@ -1,4 +1,4 @@
-//! `pkli` run as `lefthook-linter-coverage`, `lefthook-linter-coverage-full`
+//! `pklith` run as `lefthook-linter-coverage`, `lefthook-linter-coverage-full`
 //! or `lefthook-unit-coverage` (legacy T5): the legacy tool's environment,
 //! messages and exit codes (legacy V2, §C), so a consumer swaps the
 //! package and nothing else. Arguments are ignored, as they were.
@@ -99,7 +99,7 @@ fn find(dir: &Path, prefix: &str, found: &mut Vec<String>) -> Result<(), String>
 
 /// Run git as the legacy tools did: in the caller's git environment, so
 /// `GIT_DIR`, `GIT_WORK_TREE` and a commit's `GIT_INDEX_FILE` are honoured
-/// (pkli's own verbs scrub them; a drop-in must not). `None` outside a
+/// (pklith's own verbs scrub them; a drop-in must not). `None` outside a
 /// repository; any other failure, git missing included, is an error, never
 /// an empty list that passes (root V1).
 fn git(dir: &Path, args: &[&str]) -> Result<Option<String>, String> {

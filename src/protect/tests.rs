@@ -40,7 +40,7 @@ const UNNAMABLE: [(&str, &str); 3] = [
     ),
     (
         "on: push\njobs:\n  t:\n    uses: org/repo/.github/workflows/x.yml@v1\n",
-        "job `t` calls org/repo/.github/workflows/x.yml@v1, which pkli cannot read",
+        "job `t` calls org/repo/.github/workflows/x.yml@v1, which pklith cannot read",
     ),
     (
         "on: push\njobs:\n  t:\n    uses: ./.github/workflows/nope.yml\n",

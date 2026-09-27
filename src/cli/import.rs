@@ -1,4 +1,4 @@
-//! `pkli import DOC`: a `.pklith` from a legacy document, chosen by its
+//! `pklith import DOC`: a `.pklith` from a legacy document, chosen by its
 //! extension: a set-and-setting fragment map (`.json`, what `nix eval
 //! --json` prints), else a linter coverage document.
 
@@ -12,7 +12,7 @@ pub(super) fn run(doc: &Path) -> Outcome {
         .and_then(|text| convert(doc, &text));
     match imported {
         Ok(text) => data(text),
-        Err(message) => exit(2, format!("pkli import: {message}\n")),
+        Err(message) => exit(2, format!("pklith import: {message}\n")),
     }
 }
 

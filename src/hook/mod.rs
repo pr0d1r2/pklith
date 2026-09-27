@@ -134,7 +134,7 @@ hooks {
         Ok(std::fs::remove_dir_all(dir)?)
     }
 
-    /// A generated module as `pkli gen` writes one: commit steps and push
+    /// A generated module as `pklith gen` writes one: commit steps and push
     /// steps apart.
     const GENERATED: &str = r#"import "pkl/Config.pkl"
 steps: Mapping<String, Config.Step> = new {

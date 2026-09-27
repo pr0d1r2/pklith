@@ -1,5 +1,5 @@
 //! `pklith-dev catalog [--check]`: the tables in docs/CATALOG.md, from the
-//! built-in catalog pkli compiles in, read through pklith's own parsers.
+//! built-in catalog pklith compiles in, read through pklith's own parsers.
 
 use crate::io::{Failed, read};
 use pklith::catalog::Check;

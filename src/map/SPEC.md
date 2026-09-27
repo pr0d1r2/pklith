@@ -32,7 +32,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 - input: `--staged` | explicit paths. output: spec paths, 1 per line, sorted.
 - mapping = `exists` rules forward (impl → spec) + changed spec maps to itself.
-- runs ⊥ test runner; hk step pipes: `pkli map --staged | xargs -r rspec`.
+- runs ⊥ test runner; hk step pipes: `pklith map --staged | xargs -r rspec`.
 
 ## §V INVARIANTS
 

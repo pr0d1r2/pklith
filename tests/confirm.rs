@@ -1,24 +1,24 @@
-//! `pkli confirm`, one planted failure per sub-check (confirm T1),
+//! `pklith confirm`, one planted failure per sub-check (confirm T1),
 //! against the built binary.
 
 mod common;
 
-use common::{OK, Result, pkli, repo};
+use common::{OK, Result, pklith, repo};
 use std::path::Path;
 
 /// An hk.pkl whose check hook runs the generated steps.
 const HK: &str = "amends \"pkl/Config.pkl\"\nimport \"hk.pklith.pkl\" as generated\nhooks {\n  [\"check\"] { steps = generated.steps }\n}\n";
 
-/// The common fixture with that hk.pkl and a fresh `pkli gen`.
+/// The common fixture with that hk.pkl and a fresh `pklith gen`.
 fn gated(name: &str, registry: &str) -> Result<std::path::PathBuf> {
     let dir = repo(name, Some(registry))?;
     std::fs::write(dir.join("hk.pkl"), HK)?;
-    assert_eq!(pkli(&dir, &["gen"])?.0, Some(0));
+    assert_eq!(pklith(&dir, &["gen"])?.0, Some(0));
     Ok(dir)
 }
 
 fn confirm(dir: &Path) -> Result<(Option<i32>, String)> {
-    let (code, _, stderr) = pkli(dir, &["confirm"])?;
+    let (code, _, stderr) = pklith(dir, &["confirm"])?;
     Ok((code, stderr))
 }
 
@@ -42,7 +42,7 @@ fn a_claimed_check_without_a_step_is_incomplete() -> Result {
         dir.join(".pklith"),
         more.replace("rs|lint|-|-", "rs|lint, other|-|-"),
     )?;
-    let want = "confirm: completeness: hk.pklith.pkl: `other` is claimed but hk runs no step for it; run `pkli lay`\n";
+    let want = "confirm: completeness: hk.pklith.pkl: `other` is claimed but hk runs no step for it; run `pklith lay`\n";
     assert_eq!(confirm(&dir)?, (Some(1), want.to_owned()));
     Ok(std::fs::remove_dir_all(dir)?)
 }
@@ -59,7 +59,8 @@ fn a_hand_edited_step_is_unfaithful() -> Result {
     let (code, stderr) = confirm(&dir)?;
     assert_eq!(code, Some(1));
     assert!(
-        stderr.starts_with("confirm: fidelity: hk.pklith.pkl: differs from what `pkli gen` writes"),
+        stderr
+            .starts_with("confirm: fidelity: hk.pklith.pkl: differs from what `pklith gen` writes"),
         "{stderr}"
     );
     Ok(std::fs::remove_dir_all(dir)?)
@@ -110,7 +111,7 @@ fn a_missing_script_is_incoherent() -> Result {
 #[test]
 fn confirm_outside_a_repository_exits_2() -> Result {
     let outside = common::temp("confirm-outside")?;
-    let want = "pkli confirm: not inside a git repository; pass --root DIR\n";
+    let want = "pklith confirm: not inside a git repository; pass --root DIR\n";
     assert_eq!(confirm(&outside)?, (Some(2), want.to_owned()));
     Ok(std::fs::remove_dir_all(outside)?)
 }
@@ -153,7 +154,7 @@ fn without_hk(dir: &Path) -> Result<std::path::PathBuf> {
 #[test]
 fn a_missing_hk_fails_executability() -> Result {
     let dir = gated("confirm-no-hk", OK)?;
-    let mut cmd = std::process::Command::new(env!("CARGO_BIN_EXE_pkli"));
+    let mut cmd = std::process::Command::new(env!("CARGO_BIN_EXE_pklith"));
     let out = cmd
         .arg("confirm")
         .current_dir(&dir)

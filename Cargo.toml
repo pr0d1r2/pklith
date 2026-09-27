@@ -13,7 +13,7 @@ categories = ["development-tools", "command-line-utilities"]
 publish = false
 
 [[bin]]
-name = "pkli"
+name = "pklith"
 path = "src/main.rs"
 
 [dependencies]

@@ -1,4 +1,4 @@
-//! `pkli migrate [--drop ID,…]`: a lefthook repository onto hk
+//! `pklith migrate [--drop ID,…]`: a lefthook repository onto hk
 //! (src/migrate), writing nothing unless the check set survives.
 
 use super::{Outcome, USAGE, data, exit, files, parsed, toplevel};
@@ -17,7 +17,7 @@ pub(super) fn run(args: &[String], cwd: &Path) -> Outcome {
     match migrated(&drop, cwd) {
         Ok(Ok(paths)) => data(paths.into_iter().map(|p| p.to_owned() + "\n").collect()),
         Ok(Err(refusal)) => exit(1, refused(&refusal)),
-        Err(message) => exit(2, format!("pkli migrate: {message}\n")),
+        Err(message) => exit(2, format!("pklith migrate: {message}\n")),
     }
 }
 

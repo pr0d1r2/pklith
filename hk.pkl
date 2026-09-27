@@ -6,7 +6,7 @@
 /// violation first (V2), with the proof in that commit's body (V32).
 amends "pkl/Config.pkl"
 
-// The steps pklith materializes from `.pklith` (root T44): `pkli gen` writes
+// The steps pklith materializes from `.pklith` (root T44): `pklith gen` writes
 // them to hk.pklith.pkl, and gen-check keeps that file equal to what
 // `.pklith` says. Only what belongs to this repository, not to a file type,
 // is added here. Plain amends only: hk's own evaluator mishandles filtering
@@ -44,7 +44,7 @@ local fast = (generated.steps) {
   ["test"] { depends = List("clippy") }
   ["doctest"] { depends = List("test") }
   ["rustdoc"] { depends = List("clippy") }
-  ["pkli-check"] { depends = List("clippy") }
+  ["pklith-check"] { depends = List("clippy") }
   ["gen-check"] { depends = List("clippy") }
   ["zizmor"] { depends = List("actionlint") }
   // Not file-type checks, so not in .pklith. The AGENTS.md step table is
@@ -71,13 +71,13 @@ local fast = (generated.steps) {
     check = "cargo run -q -p pklith-dev -- notices --check"
     fix = "cargo run -q -p pklith-dev -- notices"
   }
-  // docs/CATALOG.md's tables are the built-in catalog pkli compiles in.
+  // docs/CATALOG.md's tables are the built-in catalog pklith compiles in.
   ["catalog-doc"] {
     glob = List("src/catalog/builtin.pklith", "docs/CATALOG.md", "dev/**")
     check = "cargo run -q -p pklith-dev -- catalog --check"
     fix = "cargo run -q -p pklith-dev -- catalog"
   }
-  // docs/CLI.md's usage block is the text pkli prints.
+  // docs/CLI.md's usage block is the text pklith prints.
   ["cli-doc"] {
     glob = List("src/cli/mod.rs", "docs/CLI.md", "dev/**")
     check = "cargo run -q -p pklith-dev -- cli --check"
@@ -102,7 +102,7 @@ local all = (fast) {
   ["coverage"] = (generated.push["coverage"]) { depends = List("test") }
   ["relay"] {
     check = "scripts/relay.sh"
-    depends = List("gen-check", "pkli-check")
+    depends = List("gen-check", "pklith-check")
   }
   // T40: no dependency with a published advisory. It fetches the advisory
   // database, so it runs at push, which needs the network anyway; the
@@ -125,7 +125,7 @@ local all = (fast) {
     glob = List("Cargo.toml", "src/**", "scripts/semver.sh")
     check = "scripts/semver.sh"
   }
-  // T64 (V27): pkli timed on 50, 1,000 and 10,000-file fixtures against
+  // T64 (V27): pklith timed on 50, 1,000 and 10,000-file fixtures against
   // budgets set from §R R20. Proven red on a budget below the measurement.
   ["bench"] {
     glob = List("Cargo.toml", "Cargo.lock", "src/**", "scripts/bench.sh")

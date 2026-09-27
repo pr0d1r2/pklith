@@ -13,7 +13,7 @@ use workflow::Job;
 ///
 /// # Errors
 ///
-/// A job calling a workflow outside the repository, or a matrix pkli
+/// A job calling a workflow outside the repository, or a matrix pklith
 /// cannot name exactly: a wrong required context would stay pending.
 pub fn contexts(workflows: &[(String, String)]) -> Result<Vec<String>, String> {
     let mut found = Vec::new();
@@ -46,7 +46,7 @@ fn job_contexts(job: &Job, workflows: &[(String, String)]) -> Result<Vec<String>
 /// repository.
 fn callee(job: &str, uses: &str, workflows: &[(String, String)]) -> Result<Vec<String>, String> {
     let unreadable =
-        || format!("job `{job}` calls {uses}, which pkli cannot read; name its contexts by hand");
+        || format!("job `{job}` calls {uses}, which pklith cannot read; name its contexts by hand");
     let path = uses.strip_prefix("./").ok_or_else(unreadable)?;
     let untracked = || format!("job `{job}` calls {path}, which is not tracked");
     let (file, text) = workflows

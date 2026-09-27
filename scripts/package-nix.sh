@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # pklith root T62 (V10): the package consumers get is tested as built, not
 # only the source tree. It builds lib.devShell's check (T61) and the flake's
-# pkli and compat packages, runs the built binaries on a fixture repository,
+# pklith and compat packages, runs the built binaries on a fixture repository,
 # and refuses a build that still carries an unsubstituted `@name@` or
 # `*_PATH` placeholder (the legacy -full B2 failure: a placeholder left in,
 # every type "uncovered").
@@ -22,7 +22,7 @@ system="$(nix eval --raw --impure --expr builtins.currentSystem)"
 nix build "$root#checks.$system.devshell" --no-link
 mapfile -t outs < <(nix build "$root#default" "$root#compat" --no-link --print-out-paths)
 [ "${#outs[@]}" -eq 2 ] || fail "nix build printed ${#outs[@]} outputs, expected 2"
-pkli="${outs[0]}/bin/pkli"
+pklith="${outs[0]}/bin/pklith"
 compat="${outs[1]}/bin"
 
 # Placeholders: anywhere in a text file, or as a whole string in a binary.
@@ -55,10 +55,10 @@ expect() {
 }
 
 version="$(sed -n 's/^version = "\(.*\)"/\1/p' "$root/Cargo.toml")"
-expect "pkli --version" "pkli $version" "$("$pkli" --version | cut -d' ' -f1-2)"
-expect "pkli detect" "$(printf 'base\nshell\nmarkdown')" "$(cd "$fixture" && "$pkli" detect)"
-expect "pkli import" "$(printf 'format 1\n\n## types\ntype|checks|min|exempt\nsh|-|-|legacy: shellcheck\nmd|-|-|docs')" \
-  "$(cd "$fixture" && "$pkli" import docs/linter-coverage.md)"
+expect "pklith --version" "pklith $version" "$("$pklith" --version | cut -d' ' -f1-2)"
+expect "pklith detect" "$(printf 'base\nshell\nmarkdown')" "$(cd "$fixture" && "$pklith" detect)"
+expect "pklith import" "$(printf 'format 1\n\n## types\ntype|checks|min|exempt\nsh|-|-|legacy: shellcheck\nmd|-|-|docs')" \
+  "$(cd "$fixture" && "$pklith" import docs/linter-coverage.md)"
 (cd "$fixture" && "$compat/lefthook-linter-coverage") || fail "compat entry: a listed repository failed"
 printf '{}\n' >"$fixture/x.json"
 git -C "$fixture" add x.json

@@ -2,7 +2,7 @@
 
 ## §G GOAL
 
-`pklith` (cmd `pkli`) — hk guardrails MATERIALIZER: from a repo's tracked files & a declared setting, derive which checks ∀ file needs — MULTIPLE linters & checks per file type, 1-to-1 unit test per impl, companion files (e.g. model → factory) — then GENERATE hk steps (Pkl) + nix packages, LAY them 1 check per commit, and CHECK, REPORT & ENFORCE coverage. purely mechanical: ⊥ LLM, ⊥ inference, ⊥ network.
+`pklith` (cmd `pklith`) — hk guardrails MATERIALIZER: from a repo's tracked files & a declared setting, derive which checks ∀ file needs — MULTIPLE linters & checks per file type, 1-to-1 unit test per impl, companion files (e.g. model → factory) — then GENERATE hk steps (Pkl) + nix packages, LAY them 1 check per commit, and CHECK, REPORT & ENFORCE coverage. purely mechanical: ⊥ LLM, ⊥ inference, ⊥ network.
 
 PORT: the SETTING half of `set-and-setting` (nix + ~30 bash scripts, lefthook) → Rust on hk, for speed (R15). set half (skills, `mkSet`) stays there.
 
@@ -26,9 +26,9 @@ self|.|-
 
 ## §C CONSTRAINTS
 
-- deterministic core. same tree + same `.pklith` → byte-identical output & identical commits. ⊥ LLM, ⊥ heuristic guess, ⊥ network (sole exception: `pkli protect`, opt-in), ⊥ clock | rng | hostname in output.
-- trust: `.pklith` `## checks` rows are commands, trusted exactly like `hk.pkl`; pkli ⊥ runs check commands itself — hk does (`lay`/`confirm` invoke hk).
-- lang: Rust **edition 2024**, stable, MSRV **1.95** = fleet pin (`nixpkgs-lock` → nixos-26.05). crate `pklith`, bin `pkli` (⊥ `pkl` — Pkl's own CLI; README states `pkli` ⊥ part of Pkl).
+- deterministic core. same tree + same `.pklith` → byte-identical output & identical commits. ⊥ LLM, ⊥ heuristic guess, ⊥ network (sole exception: `pklith protect`, opt-in), ⊥ clock | rng | hostname in output.
+- trust: `.pklith` `## checks` rows are commands, trusted exactly like `hk.pkl`; pklith ⊥ runs check commands itself — hk does (`lay`/`confirm` invoke hk).
+- lang: Rust **edition 2024**, stable, MSRV **1.95** = fleet pin (`nixpkgs-lock` → nixos-26.05). crate `pklith`, bin `pklith`: ONE name ∴ `cargo install pklith` gives the command it names, & ⊥ a 2nd crates.io name. ⊥ `pkl` (Pkl's own CLI) & ⊥ `pkli` (1 key from it; the pre-release name). README states pklith ⊥ part of Pkl.
 - layout: **one published crate**; `dev/` = `pklith-dev`, a `publish = false` workspace member for repo tooling (sherd shape). module = **dir + `mod.rs`**. node = dir = Rust module = `SPEC.md` (sherd shape).
 - deps minimal. ∀ new crate dep ! justified in §R. `unsafe_code` FORBID.
 - CODE limits (Sandi Metz adapted, `clippy.toml` + `[lints.clippy]`): fn ≤15 lines · cognitive ≤7 · nesting ≤4 · args ≤4 · `unwrap`/`expect`/`panic`/`indexing_slicing`/`todo`/`dbg_macro` DENY.
@@ -49,23 +49,23 @@ self|.|-
 
 ## §I INTERFACES
 
-- cmd: `pkli check [--root DIR] [--registry FILE] [--staged|--range A..B]` → gate verdict; `--registry` judges a repo w/o writing into it; `--staged` judges only what the commit changes (cover V8); any diff feeds `changed` rules: type gaps, stale, claim ⊥ backed by runner, rule gaps. 0 ok / 1 finding / 2 usage | unreadable
-- cmd: `pkli report [--root DIR] [--registry FILE] [--format text|json|md]` → matrix file type × check w/ file counts + findings (json versioned, md = legacy linter-coverage table). exit 0 unless usage
-- cmd: `pkli gen [--check]` → write `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md step table block, & shared tool configs of active fragments (gitignored, V25). `--check` writes ⊥, exit 1 if stale
-- cmd: `pkli lay [--only ID,…] [--dry-run]` → 1 commit per missing check, fixed order, hooks ON, red → rollback (src/lay)
-- cmd: `pkli map [--staged|FILE…]` → specs covering changed paths, 1 per line (guard mode); FILE paths from repo root; changed impl w/ 0 mapped specs → exit 1
-- cmd: `pkli import <linter-doc.md|.unit-coverage.toml|fragment-map.json>` → `.pklith` rows on stdout. fragment map = `nix eval --json --file lib/check-fragment-map.nix` output; pkli ⊥ evaluates nix
-- cmd: `pkli detect [--root DIR] [--registry FILE]` → ordered active fragment list from tracked files, 1 per line; ⊥ `.pklith` = built-in fragments (src/detect)
-- cmd: `pkli seed [--init]` → repo-owned seed files of active fragments, ⊥ over an existing file; `--init` + first `.pklith`; paths written on stdout (src/seed)
-- cmd: `pkli confirm` → acceptance: completeness, fidelity, coherence, executability, idempotence; read-only; silent + 0 when accepted (src/confirm)
-- cmd: `pkli migrate [--drop ID,…]` → lefthook-materialized repo → hk, gated on check-set equivalence; refusal names each lost check (src/migrate)
-- cmd: `pkli protect [--dry-run]` → branch protection required contexts from CI job names (src/protect)
+- cmd: `pklith check [--root DIR] [--registry FILE] [--staged|--range A..B]` → gate verdict; `--registry` judges a repo w/o writing into it; `--staged` judges only what the commit changes (cover V8); any diff feeds `changed` rules: type gaps, stale, claim ⊥ backed by runner, rule gaps. 0 ok / 1 finding / 2 usage | unreadable
+- cmd: `pklith report [--root DIR] [--registry FILE] [--format text|json|md]` → matrix file type × check w/ file counts + findings (json versioned, md = legacy linter-coverage table). exit 0 unless usage
+- cmd: `pklith gen [--check]` → write `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md step table block, & shared tool configs of active fragments (gitignored, V25). `--check` writes ⊥, exit 1 if stale
+- cmd: `pklith lay [--only ID,…] [--dry-run]` → 1 commit per missing check, fixed order, hooks ON, red → rollback (src/lay)
+- cmd: `pklith map [--staged|FILE…]` → specs covering changed paths, 1 per line (guard mode); FILE paths from repo root; changed impl w/ 0 mapped specs → exit 1
+- cmd: `pklith import <linter-doc.md|.unit-coverage.toml|fragment-map.json>` → `.pklith` rows on stdout. fragment map = `nix eval --json --file lib/check-fragment-map.nix` output; pklith ⊥ evaluates nix
+- cmd: `pklith detect [--root DIR] [--registry FILE]` → ordered active fragment list from tracked files, 1 per line; ⊥ `.pklith` = built-in fragments (src/detect)
+- cmd: `pklith seed [--init]` → repo-owned seed files of active fragments, ⊥ over an existing file; `--init` + first `.pklith`; paths written on stdout (src/seed)
+- cmd: `pklith confirm` → acceptance: completeness, fidelity, coherence, executability, idempotence; read-only; silent + 0 when accepted (src/confirm)
+- cmd: `pklith migrate [--drop ID,…]` → lefthook-materialized repo → hk, gated on check-set equivalence; refusal names each lost check (src/migrate)
+- cmd: `pklith protect [--dry-run]` → branch protection required contexts from CI job names (src/protect)
 - cmd: `lefthook-linter-coverage`, `lefthook-linter-coverage-full`, `lefthook-unit-coverage` → compat entries, legacy env & exit codes (V4)
 - file: `.pklith` → registry: types, checks, rules, plural, exempt (src/registry)
 - file: `hk.pkl`, `pkl/Config.pkl`, `.githooks/*`, `.context-limits`, `.typos.toml`, `flake.nix`, `AGENTS.md` → this repo's guardrails
 - env: `LEFTHOOK_LINTER_COVERAGE_DOC`, `LEFTHOOK_LINTER_COVERAGE_ROOT`, `LEFTHOOK_UNIT_COVERAGE_CONFIG`, `LEFTHOOK_UNIT_COVERAGE_ROOT` → compat entries only
-- nix: `lib.devShell { pkgs, src, packages ? [] }` → devShell w/ hk, pkl, git, pkli & packages from `nix/pklith.nix`, all from pklith's catalog; shellHook points `core.hooksPath` at seeded `.githooks/` only when `hk.pkl` exists (V22). replaces set-and-setting `mkDevShells`
-- nix: `packages.<system>.default` = `pklith` (bin `pkli`); `packages.<system>.compat` = legacy entry names
+- nix: `lib.devShell { pkgs, src, packages ? [] }` → devShell w/ hk, pkl, git, pklith & packages from `nix/pklith.nix`, all from pklith's catalog; shellHook points `core.hooksPath` at seeded `.githooks/` only when `hk.pkl` exists (V22). replaces set-and-setting `mkDevShells`
+- nix: `packages.<system>.default` = `pklith` (bin `pklith`); `packages.<system>.compat` = legacy entry names
 
 ## §R RESEARCH
 
@@ -87,16 +87,16 @@ R14|totality|∀ file → exactly 1 bucket; unassigned file = never linted & rea
 R15|setting survey|set-and-setting setting half: `flake/default.nix` 4248 lines + ~30 bash scripts; ~340 bats + ~85 nix checks. runner-agnostic: `check-fragment-map.nix` (20 fragments, `checksPerFragment`, `coveragePerFileClass`, canon units, required contexts), `detect-fragments.sh`, 24 `mk*Check`, seed/canon, drift/graph checks, branch protection. lefthook-bound: `assemble-lefthook.sh`, fragment YAMLs, migration overlay, `confirm.sh` fidelity, `lefthook install`, `migrate.sh` (1129 lines). read-only defects: D1 ledger awk registers only `ticket:` entries; D2 `all` class w/ checks marks ∀ file covered ∴ vacuous; D3 `wrappersForFragment` lacks `just xml tcl awk`|../set-and-setting (survey 2026-09-25)
 R16|name clash|`lydite` free on 11 registries yet GitHub org `lydite` + lydite.org = active Go code-quality CLI, same space ∴ registries alone ⊥ prove a name free|gh, DNS 2026-09-25
 R17|commit style|recent subjects: xenolith/microlith/itok = `type(scope): claim` hybrid; ashlar/sherd = prose `<topic>: <claim>`. hybrid keeps claim & stays machine-readable|`git log` 5 repos 2026-09-26
-R18|fleet sweep (T70)|9 repos w/ a legacy doc, legacy checker vs `pkli check --registry` on `pkli import`: GAPS IDENTICAL in 9/9 (leadgen `packwerk`; set-and-setting 23 types, where the doc is ⊥ its real coverage source). import token sets = legacy awk in 9/9 (170 tokens). only diff = STALE rows legacy cannot see (`R4`): nix-config lists `.json` w/ ⊥ json file (legacy 0, pkli 1); leadgen lists 10 linter NAMES (`typos`, `gitleaks` …) as types. ∴ root V4 holds for gaps; stale is a stricter verdict, ⊥ a regression|sweep 2026-09-26
+R18|fleet sweep (T70)|9 repos w/ a legacy doc, legacy checker vs `pklith check --registry` on `pklith import`: GAPS IDENTICAL in 9/9 (leadgen `packwerk`; set-and-setting 23 types, where the doc is ⊥ its real coverage source). import token sets = legacy awk in 9/9 (170 tokens). only diff = STALE rows legacy cannot see (`R4`): nix-config lists `.json` w/ ⊥ json file (legacy 0, pklith 1); leadgen lists 10 linter NAMES (`typos`, `gitleaks` …) as types. ∴ root V4 holds for gaps; stale is a stricter verdict, ⊥ a regression|sweep 2026-09-26
 R19|glob engine (src T2)|hk 1.58.1 matches step globs w/ `globset` 0.4 (`src/glob.rs`): `GlobBuilder::empty_alternates(true)`, `literal_separator` OFF ∴ `*.rs` matches `src/a.rs` (`*` crosses `/`); `dir` steps turn it ON. pklith uses the same crate & options ∴ a claim is judged exactly as the runner matches (`src:V1`, cover V3). hand-rolled = a 2nd reading of one rule. licenses: globset and its deps are MIT or dual-licensed incl. MIT, inside deny.toml allow|hk source `src/glob.rs`, `Cargo.toml`
-R20|bench (T64)|best of 3, release build, aarch64-darwin, fixtures of 50 / 1,000 / 10,000 files over 6 types (`scripts/bench.sh --compare`), CPU ms (user+sys, children incl.) under load avg 14-21. `pkli detect` 14 / 26 / 31 vs legacy `detect-fragments.sh` 79 / 120 / 152. compat `-full` 4 / 5 / 15 vs legacy 30 / 54 / 87. `pkli check` on a green fixture (`pkl eval` of hk.pkl is multi-threaded, most of it) 1,883 / 2,656 / 4,067, ⊥ legacy equivalent (legacy checked listing only). wall time swung 2-5× w/ load on this shared machine ∴ budgets on CPU, ≈ 3×. history: first run found `check` 39.5 s wall @ 10k (quadratic row suggestion, fixed 08de36a); a later run timed fixtures seeded before their files were tracked, ∴ a red early-out `check` (fixed 02e3a33). setting shell entry ⊥ measured: a nix eval, ⊥ per-commit work|scripts/bench.sh 2026-09-27
+R20|bench (T64)|best of 3, release build, aarch64-darwin, fixtures of 50 / 1,000 / 10,000 files over 6 types (`scripts/bench.sh --compare`), CPU ms (user+sys, children incl.) under load avg 14-21. `pklith detect` 14 / 26 / 31 vs legacy `detect-fragments.sh` 79 / 120 / 152. compat `-full` 4 / 5 / 15 vs legacy 30 / 54 / 87. `pklith check` on a green fixture (`pkl eval` of hk.pkl is multi-threaded, most of it) 1,883 / 2,656 / 4,067, ⊥ legacy equivalent (legacy checked listing only). wall time swung 2-5× w/ load on this shared machine ∴ budgets on CPU, ≈ 3×. history: first run found `check` 39.5 s wall @ 10k (quadratic row suggestion, fixed 08de36a); a later run timed fixtures seeded before their files were tracked, ∴ a red early-out `check` (fixed 02e3a33). setting shell entry ⊥ measured: a nix eval, ⊥ per-commit work|scripts/bench.sh 2026-09-27
 
 ## §V INVARIANTS
 
 V1: gate that cannot run has ⊥ passed. missing tool → exit ≠ 0, ⊥ silent skip
 V2: ∀ hk step adopted → proven to reject a PLANTED violation first. finds-nothing ≠ can-find-nothing
 V3: output sorted bytewise, ⊥ timestamps, ⊥ abs paths ∴ reproducible
-V4: ∀ repo green under a legacy tool → green under `pkli check` on `import`ed `.pklith` (superset, ⊥ regression)
+V4: ∀ repo green under a legacy tool → green under `pklith check` on `import`ed `.pklith` (superset, ⊥ regression)
 V5: ∀ tracked file ! resolve to exactly 1 type & type ! have ≥1 check beyond UNIVERSAL `*` checks | exempt+reason. ⊥ silent default
 V6: generated files (`hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md block, `§N`) ⊥ hand-edited; stale → gate fails
 V7: `pkl/` & vendored files ⊥ touched by fixers
@@ -117,16 +117,16 @@ V21: ⊥ system literal (`x86_64-linux` …) in emitted files; system comes from
 V22: hooks installed only AFTER `hk.pkl` materialized ∴ ⊥ stub config ever gates a commit (complements V12)
 V23: exemption w/ reason & ⊥ ticket is valid & registers
 V24: `migrate`: check set before == check set after, else refuse w/ 0 writes
-V25: seed files repo-owned (written once, skip-if-exists). hk files (`hk.pkl`, `hk.pklith.pkl`) & `nix/pklith.nix` TRACKED ∴ fresh clone gates w/o running pkli; only shared tool configs (e.g. `.markdownlint.yml`) materialized & gitignored
+V25: seed files repo-owned (written once, skip-if-exists). hk files (`hk.pkl`, `hk.pklith.pkl`) & `nix/pklith.nix` TRACKED ∴ fresh clone gates w/o running pklith; only shared tool configs (e.g. `.markdownlint.yml`) materialized & gitignored
 V26: pre-commit hot path (`check --staged`, `map --staged`) costs O(changed files): each changed file resolves to a type & its rules. full totality scan runs at pre-push & CI
-V27: speed is the port's reason ∴ measured: `pkli check` & `gen` wall time vs set-and-setting shell on same fixture repos, recorded in §R; budgets set from that measurement, ⊥ guessed, & a regression fails a bench step
+V27: speed is the port's reason ∴ measured: `pklith check` & `gen` wall time vs set-and-setting shell on same fixture repos, recorded in §R; budgets set from that measurement, ⊥ guessed, & a regression fails a bench step
 V28: vendored `pkl/Config.pkl` == schema of the pinned hk version; hk bump & schema re-vendor land in ONE commit
 V29: ∀ step tool from a nix-pinned package; ⊥ fetched at run time (⊥ remotes, ⊥ `npx`/`pipx run`, ⊥ `curl | sh`)
 V30: ∀ built-in catalog check proven in pklith's OWN test suite against a planted violation fixture, even for file types this repo lacks
-V31: `.pklith` carries a format version line; newer than pkli understands → exit 2 naming both versions, ⊥ best-effort parse
+V31: `.pklith` carries a format version line; newer than pklith understands → exit 2 naming both versions, ⊥ best-effort parse
 V32: ∀ check commit body records its planted violation & the red verdict line it produced; the proof V2 demands survives in history, ⊥ only in a terminal
 V33: emitted bytes change for the same inputs → ≥ minor version & a `CHANGELOG.md` entry naming the files consumers will see change; golden diff w/o changelog touch → red
-V34: cutover (T44, T48, T60) only after a PARALLEL RUN: pkli & the tool it replaces judge the same repos, verdict diff = 0 or each diff explained in §B
+V34: cutover (T44, T48, T60) only after a PARALLEL RUN: pklith & the tool it replaces judge the same repos, verdict diff = 0 or each diff explained in §B
 V35: hk evaluates hk.pkl w/ its own Pkl implementation (pklr) by default; the step set hk sees ! equal the set `pkl eval` sees, gated. a construct pklr mishandles ⊥ used
 
 ## §T TASKS
@@ -135,7 +135,7 @@ id|status|task|cites
 T1|x|seed in ashlar C1 shape, BY HAND: LICENSE, `.gitignore`, `Cargo.toml` (lints, `unsafe_code = "forbid"`), `src/main.rs`, README stub. `alr apply` has ⊥ `--only` yet & lays C1-C4 as bundles w/ hooks off (⊥ V12, V13)|R12,V12,V13
 T2|x|toolchain in ashlar C2 shape, by hand: flake on `nixpkgs-lock`, Rust toolchain devShell; `.envrc`. `nix-hk` + `nixConfig` substituter land w/ hk (T3); itok/microlith/sherd inputs w/ their steps (T21-T26)|R5,R12,V15
 T3|x|hk commit: `nix-hk` input + cachix `nixConfig`, hk & pkl in devShell, vendored `pkl/Config.pkl`, empty-step `hk.pkl` (pre-commit fix+stash, commit-msg, pre-push, check, fix), hooks installed; REFUSE w/o hk|V1,V7,V12
-T4|x|`commit-msg` step: subject `type(scope): claim`, ≤72 chars, body non-empty. a regex in `hk.pkl` (pkli ⊥ exists yet), moved into catalog once it does|V12,V13
+T4|x|`commit-msg` step: subject `type(scope): claim`, ≤72 chars, body non-empty. a regex in `hk.pkl` (pklith ⊥ exists yet), moved into catalog once it does|V12,V13
 T5|x|`trailing-whitespace` (fixer excludes `pkl/`)|V2,V7
 T6|x|`final-newline`|V2,V7
 T7|x|`line-endings`|V2,V7
@@ -175,8 +175,8 @@ T40|x|`deny-advisories`|V2
 T41|x|`semver` (cargo semver-checks)|V2
 T42|x|`package` / must-package|V2
 T43|x|README badges generated + `readme-badges` step|V6
-T44|x|dogfood swap: T33 legacy step → `pkli check` + `gen --check`; drop legacy input after parallel run. DONE: legacy step, input & doc dropped after T70 (R18); `pkli-check` gates. `gen-check` step keeps committed hk.pklith.pkl fresh. hk.pkl imports the generated steps; only repo-specific amendments stay hand-written|V4,V6,V34
-T45|x|re-lay reproduction: `pkli lay` into temp repo → ∀ laid file byte-identical to this tree|V3,V13
+T44|x|dogfood swap: T33 legacy step → `pklith check` + `gen --check`; drop legacy input after parallel run. DONE: legacy step, input & doc dropped after T70 (R18); `pklith-check` gates. `gen-check` step keeps committed hk.pklith.pkl fresh. hk.pkl imports the generated steps; only repo-specific amendments stay hand-written|V4,V6,V34
+T45|x|re-lay reproduction: `pklith lay` into temp repo → ∀ laid file byte-identical to this tree|V3,V13
 T46|x|compat package + README migration guide|V4,V10
 T47|.|review `nix-lefthook-unit-coverage` PRs + SPEC → backprop|R9
 T48|.|deprecation notice + migration link in 3 legacy READMEs, after V4 parity proven|V4
@@ -193,15 +193,15 @@ T58|x|protect port: required contexts from CI job names|`src/protect:V2`
 T59|.|raise set-and-setting issues for D1, D2, D3|R15
 T60|.|set-and-setting consumes pklith via flake input; its setting shell retired|V4
 T61|x|`lib.devShell` for consumers + test: shell entered on repo w/o `hk.pkl` installs no hooks|V22,V12
-T62|x|`package-nix` step: `nix build` → run built `pkli` on fixture repo; grep built outputs for `@…@` \| `*_PATH` placeholders|V10
-T63|x|one process-spawn helper scrubbing `GIT_DIR` `GIT_INDEX_FILE` `GIT_WORK_TREE` (done: `src/proc`); test: pkli run from inside a real hook on a 2nd repo leaves both intact (waits for a pkli verb)|V20
-T64|x|bench: fixture repos (small, 10k files, fleet-sized) × set-and-setting shell vs pkli → §R row; `bench` step w/ budgets from it|V27
+T62|x|`package-nix` step: `nix build` → run built `pklith` on fixture repo; grep built outputs for `@…@` \| `*_PATH` placeholders|V10
+T63|x|one process-spawn helper scrubbing `GIT_DIR` `GIT_INDEX_FILE` `GIT_WORK_TREE` (done: `src/proc`); test: pklith run from inside a real hook on a 2nd repo leaves both intact (waits for a pklith verb)|V20
+T64|x|bench: fixture repos (small, 10k files, fleet-sized) × set-and-setting shell vs pklith → §R row; `bench` step w/ budgets from it|V27
 T65|x|`schema-pin` step: vendored `pkl/Config.pkl` matches pinned hk's schema|V28
 T66|x|fixture per built-in catalog check: planted violation → step red, clean twin → green|V30,V2
 T67|x|pre-publish audit: ∀ committed file & message ⊥ names an unpublished fleet repo (ashlar today); publish it or anonymize. DONE 2026-09-27: history ⊥ secrets (ripsecrets over full `git log -p`), tree ⊥ home paths; names ashlar, leadgen, nix-config, xenolith KEPT by owner decision|R12,R14
 T68|x|`CHANGELOG.md` (keep-a-changelog) + `changelog-touched` step: golden or `src/` change w/o `[Unreleased]` entry → red|V33
 T69|.|release: version bump PR → tag → crates.io publish → cachix push of `pklith` for 3 tier-1 systems; `cargo semver-checks` gates the bump|V33,V10
-T70|x|fleet sweep: ∀ repo under `../` using a legacy coverage tool or set-and-setting setting → legacy verdict vs `pkli check` on imported `.pklith`; diffs → §B or fix|V34,V4
+T70|x|fleet sweep: ∀ repo under `../` using a legacy coverage tool or set-and-setting setting → legacy verdict vs `pklith check` on imported `.pklith`; diffs → §B or fix|V34,V4
 T71|.|OPTIONAL: raise itok issue: `itok check` takes a limits path; ⊥ needed while `file-ceilings` holds (T26)|B11
 T72|x|`shellcheck` on `.githooks/*` & `.envrc` (shell w/o `.sh` name ∴ glob by path)|V2,V5
 

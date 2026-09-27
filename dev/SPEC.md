@@ -13,9 +13,9 @@ sib|src|product code nodes — scan, detect, registry, catalog, rule, hook, lega
 
 ## §C CONSTRAINTS
 
-- ⊥ published. a consumer of `pkli` ! ever receive these verbs; a 2nd `[[bin]]` in the main crate would land on their PATH (sherd dev §C).
+- ⊥ published. a consumer of `pklith` ! ever receive these verbs; a 2nd `[[bin]]` in the main crate would land on their PATH (sherd dev §C).
 - pure fn over `&str` ∀ parser & renderer; `main.rs` alone reads the repo, runs `git`/`pkl` & writes ∴ ∀ rule testable w/ ⊥ a repository.
-- exit codes = pkli's: 0 clean · 1 drift · 2 usage | I/O.
+- exit codes = pklith's: 0 clean · 1 drift · 2 usage | I/O.
 - same lint limits & coverage floor as the product crate (`[workspace.lints]`, `sherd coverage --workspace`).
 
 ## §V INVARIANTS
@@ -34,7 +34,7 @@ T1|x|`readme`: README badge block + disclaimer numbers, replacing `scripts/readm
 T2|x|`notices`: the third-party notices' crate table from `cargo tree -p pklith`, its prose counts & all-MIT claim, replacing `scripts/notices.sh`|V1,V5,V6
 T3|x|`agents`: the AGENTS.md step table from hk.pkl's hooks via `pkl -x`, replacing `scripts/agents-table.sh`|V1,V6
 T4|x|`catalog`: docs/CATALOG.md's check & fragment tables from `builtin.pklith`, through pklith's own registry & catalog parsers|V1,V6
-T5|x|`cli`: docs/CLI.md's usage block from `pklith::cli::USAGE`, the text pkli prints|V1,V6
+T5|x|`cli`: docs/CLI.md's usage block from `pklith::cli::USAGE`, the text pklith prints|V1,V6
 T6|x|`commit-msg` & `changelog`: the commit-msg hook's rules, replacing both scripts; the style rule cuts at git's scissors line, which the shell did not|V1
 
 ## §B BUGS

@@ -17,8 +17,8 @@ pub struct Verdict<'a> {
     pub universal: &'a [String],
 }
 
-/// `pkli report`'s text: the matrix of declared types, their file counts
-/// and checks, always printed (V3), then the findings `pkli check` would
+/// `pklith report`'s text: the matrix of declared types, their file counts
+/// and checks, always printed (V3), then the findings `pklith check` would
 /// print.
 #[must_use]
 pub fn matrix(v: &Verdict<'_>) -> String {

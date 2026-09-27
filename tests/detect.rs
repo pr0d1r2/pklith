@@ -1,8 +1,8 @@
-//! `pkli detect`, run against the built binary.
+//! `pklith detect`, run against the built binary.
 
 mod common;
 
-use common::{Result, pkli, repo, temp};
+use common::{Result, pklith, repo, temp};
 
 /// A repository holding the common fixture (a.rs, sub/b.rs, hk.pkl,
 /// pkl/Config.pkl) plus a shell script and a flake, all tracked.
@@ -24,7 +24,7 @@ const FOUND: &str = "base\nnix\nshell\nrust\n";
 fn detect_lists_the_fragments_the_files_switch_on() -> Result {
     let dir = scripted("detect", None)?;
     assert_eq!(
-        pkli(&dir, &["detect"])?,
+        pklith(&dir, &["detect"])?,
         (Some(0), FOUND.to_owned(), String::new())
     );
     Ok(std::fs::remove_dir_all(dir)?)
@@ -36,7 +36,7 @@ fn detect_lists_the_fragments_the_files_switch_on() -> Result {
 fn git_and_a_root_walk_agree() -> Result {
     let dir = scripted("detect-walk", None)?;
     let root = dir.to_string_lossy().into_owned();
-    assert_eq!(pkli(&dir, &["detect", "--root", &root])?.1, FOUND);
+    assert_eq!(pklith(&dir, &["detect", "--root", &root])?.1, FOUND);
     Ok(std::fs::remove_dir_all(dir)?)
 }
 
@@ -48,7 +48,7 @@ const LOCAL: &str =
 #[test]
 fn a_local_fragment_replaces_the_builtin_one() -> Result {
     let dir = scripted("detect-local", Some(LOCAL))?;
-    assert_eq!(pkli(&dir, &["detect"])?.1, "base\nnix\nrust\n");
+    assert_eq!(pklith(&dir, &["detect"])?.1, "base\nnix\nrust\n");
     Ok(std::fs::remove_dir_all(dir)?)
 }
 
@@ -56,9 +56,9 @@ fn a_local_fragment_replaces_the_builtin_one() -> Result {
 #[test]
 fn detect_outside_a_repository_exits_2() -> Result {
     let outside = temp("detect-outside")?;
-    let want = "pkli detect: not inside a git repository; pass --root DIR\n";
+    let want = "pklith detect: not inside a git repository; pass --root DIR\n";
     assert_eq!(
-        pkli(&outside, &["detect"])?,
+        pklith(&outside, &["detect"])?,
         (Some(2), String::new(), want.to_owned())
     );
     Ok(std::fs::remove_dir_all(outside)?)
@@ -70,15 +70,15 @@ fn detect_outside_a_repository_exits_2() -> Result {
 fn detect_with_a_bad_or_missing_registry_exits_2() -> Result {
     let bad = LOCAL.replace("|shellcheck|", "|nope|");
     let dir = scripted("detect-bad", Some(&bad))?;
-    let (_, _, stderr) = pkli(&dir, &["detect"])?;
+    let (_, _, stderr) = pklith(&dir, &["detect"])?;
     assert_eq!(
         stderr,
-        "pkli detect: .pklith:4: fragment `shell` names unknown check `nope`\n"
+        "pklith detect: .pklith:4: fragment `shell` names unknown check `nope`\n"
     );
-    let (code, _, stderr) = pkli(&dir, &["detect", "--registry", "absent"])?;
+    let (code, _, stderr) = pklith(&dir, &["detect", "--registry", "absent"])?;
     assert_eq!(code, Some(2));
     assert!(
-        stderr.starts_with("pkli detect: cannot read absent: "),
+        stderr.starts_with("pklith detect: cannot read absent: "),
         "{stderr}"
     );
     Ok(std::fs::remove_dir_all(dir)?)
@@ -88,8 +88,8 @@ fn detect_with_a_bad_or_missing_registry_exits_2() -> Result {
 #[test]
 fn detect_with_an_unknown_flag_is_a_usage_error() -> Result {
     let dir = scripted("detect-usage", None)?;
-    let (code, _, stderr) = pkli(&dir, &["detect", "--bogus"])?;
+    let (code, _, stderr) = pklith(&dir, &["detect", "--bogus"])?;
     assert_eq!(code, Some(2));
-    assert!(stderr.starts_with("usage: pkli"), "{stderr}");
+    assert!(stderr.starts_with("usage: pklith"), "{stderr}");
     Ok(std::fs::remove_dir_all(dir)?)
 }

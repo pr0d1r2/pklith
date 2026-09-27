@@ -1,4 +1,4 @@
-//! `pkli seed [--init]`: repo-owned seed files from the active fragments
+//! `pklith seed [--init]`: repo-owned seed files from the active fragments
 //! (src/seed).
 
 use super::{Loaded, Outcome, data, detecting, exit, files, toplevel};
@@ -10,7 +10,7 @@ use std::path::Path;
 pub(super) fn run(cwd: &Path, init: bool) -> Outcome {
     match seeded(cwd, init) {
         Ok(paths) => data(paths.into_iter().map(|p| p + "\n").collect()),
-        Err(message) => exit(2, format!("pkli seed: {message}\n")),
+        Err(message) => exit(2, format!("pklith seed: {message}\n")),
     }
 }
 
@@ -31,9 +31,9 @@ fn seeded(cwd: &Path, init: bool) -> Result<Vec<String>, String> {
 }
 
 /// The first `.pklith`, for the tree as it will be once seeded and
-/// generated: the seed files and what `pkli gen` writes are files the
+/// generated: the seed files and what `pklith gen` writes are files the
 /// registry must type too, and they switch fragments on (a README is
-/// markdown). Types only pkli's own files have are exempt, so `seed
+/// markdown). Types only pklith's own files have are exempt, so `seed
 /// --init`, `gen`, `check` is green on a fresh repository.
 fn first_registry(
     root: &Path,
@@ -42,7 +42,7 @@ fn first_registry(
     (fragments, catalog): (&[crate::catalog::Fragment], &[crate::catalog::Check]),
 ) -> String {
     // A seed the repository already has is skipped, so the file is its
-    // own, not pkli's.
+    // own, not pklith's.
     let written = seeds.iter().filter(|s| !root.join(s.path).exists());
     let mut own: Vec<&str> = written.map(|s| s.path).collect();
     own.extend(crate::r#gen::files(root));

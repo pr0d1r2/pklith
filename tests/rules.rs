@@ -1,4 +1,4 @@
-//! Companion rules through `pkli check` (cover V7), against the built
+//! Companion rules through `pklith check` (cover V7), against the built
 //! binary.
 
 mod common;
@@ -94,7 +94,7 @@ fn a_bad_local_fragment_exits_2() -> Result {
         (code, stderr.as_str()),
         (
             Some(2),
-            "pkli check: .pklith:12: fragment `x` names unknown check `nope`\n"
+            "pklith check: .pklith:12: fragment `x` names unknown check `nope`\n"
         )
     );
     Ok(std::fs::remove_dir_all(dir)?)

@@ -54,7 +54,7 @@ Notes for anyone, human or agent, changing this repository.
 | `deny` | commit | `Cargo.toml` `Cargo.lock` `deny.toml` | - |
 | `catalog-nix` | commit | `src/catalog/builtin.pklith` `flake.nix` `flake.lock` `scripts/catalog-nix.sh` | - |
 | `gen-check` | commit | whole tree | - |
-| `pkli-check` | commit | whole tree | - |
+| `pklith-check` | commit | whole tree | - |
 | `agents-table` | commit | `hk.pkl` `hk.pklith.pkl` `AGENTS.md` `dev/**` | yes |
 | `readme-badges` | commit | `README.md` `Cargo.toml` `.coverage` `hk.pkl` `hk.pklith.pkl` `flake.lock` `**/SPEC.md` `docs/LLM-DISCLAIMER.md` `.github/workflows/ci.yml` `dev/**` | yes |
 | `notices` | commit | `Cargo.toml` `Cargo.lock` `docs/THIRD-PARTY-NOTICES.md` `dev/**` | yes |

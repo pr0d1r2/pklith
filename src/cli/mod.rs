@@ -18,7 +18,7 @@ mod report;
 mod seed;
 
 /// Printed on stderr for a usage error (V2).
-pub const USAGE: &str = "usage: pkli <command> | --version\n
+pub const USAGE: &str = "usage: pklith <command> | --version\n
   check [--root DIR] [--registry FILE] [--staged | --range A..B]
                                          every tracked file has a type in .pklith with its checks;
                                          --staged: only what the commit changes; a diff feeds `changed` rules
@@ -63,14 +63,14 @@ fn data(stdout: String) -> Outcome {
 }
 
 /// Run as `program`: a legacy tool's name runs its compat entry with
-/// the process environment (`src/legacy` T5), anything else is `pkli`.
+/// the process environment (`src/legacy` T5), anything else is `pklith`.
 #[must_use]
 pub fn run_as(program: &str, args: &[String], cwd: &Path) -> Outcome {
     let env = |k: &str| std::env::var(k).ok();
     compat::run(program, cwd, &env).unwrap_or_else(|| run(args, cwd))
 }
 
-/// Run `pkli` with `args` (without the program name) from `cwd`.
+/// Run `pklith` with `args` (without the program name) from `cwd`.
 #[must_use]
 pub fn run(args: &[String], cwd: &Path) -> Outcome {
     let Some((verb, rest)) = args.split_first() else {
@@ -101,7 +101,7 @@ fn with_arguments(verb: &str, rest: &[String], cwd: &Path) -> Outcome {
 /// cli V6: the crate version and the built-in catalog's fingerprint.
 fn version() -> String {
     let catalog = crate::catalog::fingerprint();
-    format!("pkli {} (catalog {catalog})\n", env!("CARGO_PKG_VERSION"))
+    format!("pklith {} (catalog {catalog})\n", env!("CARGO_PKG_VERSION"))
 }
 
 /// `gen`, `lay` and `seed`, each with its one optional flag: `--check`,

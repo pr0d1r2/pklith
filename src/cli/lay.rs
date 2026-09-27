@@ -1,4 +1,4 @@
-//! `pkli lay [--dry-run]`: one commit per missing check.
+//! `pklith lay [--dry-run]`: one commit per missing check.
 
 use super::{Loaded, Outcome, data, exit, files, load, toplevel};
 use std::path::{Path, PathBuf};
@@ -61,7 +61,7 @@ pub(super) fn plan(cwd: &Path) -> Outcome {
     });
     match subjects {
         Ok(stdout) => data(stdout),
-        Err(message) => exit(2, format!("pkli lay: {message}\n")),
+        Err(message) => exit(2, format!("pklith lay: {message}\n")),
     }
 }
 
@@ -87,11 +87,11 @@ fn laying(inputs: &Inputs) -> Result<String, crate::lay::Failure> {
 pub(super) fn run(cwd: &Path) -> Outcome {
     let inputs = match inputs(cwd) {
         Ok(inputs) => inputs,
-        Err(message) => return exit(2, format!("pkli lay: {message}\n")),
+        Err(message) => return exit(2, format!("pklith lay: {message}\n")),
     };
     match laying(&inputs) {
         Ok(stdout) => data(stdout),
-        Err(crate::lay::Failure::NotReady(m)) => exit(2, format!("pkli lay: {m}\n")),
-        Err(crate::lay::Failure::RolledBack(m)) => exit(1, format!("pkli lay: {m}\n")),
+        Err(crate::lay::Failure::NotReady(m)) => exit(2, format!("pklith lay: {m}\n")),
+        Err(crate::lay::Failure::RolledBack(m)) => exit(1, format!("pklith lay: {m}\n")),
     }
 }

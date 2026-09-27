@@ -29,7 +29,7 @@ pub enum Category {
     Coverage,
     /// Dependencies and licenses.
     Supply,
-    /// Checks on the gate itself (`pkli check`, `gen --check`): they judge
+    /// Checks on the gate itself (`pklith check`, `gen --check`): they judge
     /// every other step, so they pass only once the others are laid.
     Gate,
 }
@@ -192,7 +192,7 @@ const RENAMED: [(&str, &str); 5] = [
     ("git-conflict-markers", "no-merge-conflict"),
     ("missing-final-newline", "final-newline"),
     ("git-no-local-paths", "no-local-paths"),
-    ("linter-coverage", "pkli-check"),
+    ("linter-coverage", "pklith-check"),
 ];
 
 /// The pklith check id a set-and-setting check name stands for: its
@@ -205,10 +205,10 @@ pub fn renamed(name: &str) -> &str {
         .map_or(name, |(_, to)| to)
 }
 
-/// The built-in catalog (T2), compiled into `pkli`.
+/// The built-in catalog (T2), compiled into `pklith`.
 const BUILTIN: &str = include_str!("builtin.pklith");
 
-/// The built-in catalog's version for `pkli --version` (cli V6): an
+/// The built-in catalog's version for `pklith --version` (cli V6): an
 /// FNV-1a digest of its text, so it changes exactly when the catalog does.
 #[must_use]
 pub fn fingerprint() -> String {

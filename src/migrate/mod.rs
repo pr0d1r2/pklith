@@ -95,7 +95,7 @@ fn render(star: &[String], rows: &[String], drop: &[String]) -> String {
         format!("*|{}|-|-\n", star.join(", "))
     };
     format!(
-        "format 1\n\n# Migrated from lefthook.yml by `pkli migrate`: the same checks, now hk\n# steps. It is yours now: pkli never rewrites it.\n{dropped}\n## types\ntype|checks|min|exempt\n{star}{}\n",
+        "format 1\n\n# Migrated from lefthook.yml by `pklith migrate`: the same checks, now hk\n# steps. It is yours now: pklith never rewrites it.\n{dropped}\n## types\ntype|checks|min|exempt\n{star}{}\n",
         rows.join("\n")
     )
 }

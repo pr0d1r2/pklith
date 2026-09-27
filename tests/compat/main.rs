@@ -1,4 +1,4 @@
-//! `pkli` installed under a legacy tool's name (legacy T5): the legacy
+//! `pklith` installed under a legacy tool's name (legacy T5): the legacy
 //! environment, messages and exit codes. The legacy bats suites are
 //! ported in `linter.rs` and `unit.rs` (legacy T1), stderr compared whole.
 
@@ -22,7 +22,7 @@ const VARS: [&str; 7] = [
     "GIT_WORK_TREE",
 ];
 
-/// A scratch directory with `bin/<tool>` linked to the built `pkli`.
+/// A scratch directory with `bin/<tool>` linked to the built `pklith`.
 fn scratch(name: &str, tool: &str) -> Result<PathBuf> {
     // Unique per call: `cargo test` runs every case in one process, and two
     // cases may share a name across files.
@@ -33,7 +33,7 @@ fn scratch(name: &str, tool: &str) -> Result<PathBuf> {
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(dir.join("bin"))?;
     std::fs::create_dir_all(dir.join("repo"))?;
-    std::os::unix::fs::symlink(env!("CARGO_BIN_EXE_pkli"), dir.join("bin").join(tool))?;
+    std::os::unix::fs::symlink(env!("CARGO_BIN_EXE_pklith"), dir.join("bin").join(tool))?;
     Ok(dir)
 }
 
@@ -75,14 +75,14 @@ fn tracked(dir: &Path) -> Result {
     Ok(())
 }
 
-/// A name that is not a legacy tool's runs `pkli` itself.
+/// A name that is not a legacy tool's runs `pklith` itself.
 #[test]
-fn another_name_is_pkli() -> Result {
-    let dir = scratch("other", "pkli-renamed")?;
-    let out = std::process::Command::new(dir.join("bin/pkli-renamed"))
+fn another_name_is_pklith() -> Result {
+    let dir = scratch("other", "pklith-renamed")?;
+    let out = std::process::Command::new(dir.join("bin/pklith-renamed"))
         .arg("--version")
         .output()?;
-    assert!(String::from_utf8(out.stdout)?.starts_with("pkli "));
+    assert!(String::from_utf8(out.stdout)?.starts_with("pklith "));
     Ok(std::fs::remove_dir_all(dir)?)
 }
 
@@ -102,7 +102,7 @@ fn a_doc_parsing_to_nothing_exits_2() -> Result {
 }
 
 /// Outside a repository with no root: git listed nothing, so the base
-/// tool passed; pkli run as it passes too.
+/// tool passed; pklith run as it passes too.
 #[test]
 fn outside_a_repository_nothing_is_listed() -> Result {
     let dir = scratch("outside", "lefthook-linter-coverage")?;

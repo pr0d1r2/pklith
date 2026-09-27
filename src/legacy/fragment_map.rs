@@ -1,4 +1,4 @@
-//! `pkli import fragment-map.json` (root T51): set-and-setting's
+//! `pklith import fragment-map.json` (root T51): set-and-setting's
 //! `coveragePerFileClass`, as `nix eval --json` prints it, turned into
 //! `.pklith` type rows. pklith never evaluates nix (legacy §C).
 
@@ -23,7 +23,7 @@ pub fn import(text: &str, catalog: &[Check]) -> Result<String, String> {
         .map(|(class, checks)| row(class, checks, catalog))
         .collect();
     rows.extend(unlinted(&map));
-    let header = "# Imported from set-and-setting's check-fragment-map.nix by `pkli import`.";
+    let header = "# Imported from set-and-setting's check-fragment-map.nix by `pklith import`.";
     Ok(format!(
         "format 1\n\n{header}\n\n## types\ntype|checks|min|exempt\n{}\n",
         rows.join("\n")
@@ -96,7 +96,7 @@ mod tests {
 
     const MAP: &str = r#"{"checksPerFragment":{"nix":["nixfmt"]},"coveragePerFileClass":{"all":["gitleaks","typos","commit-msg-lint"],"nix":["nixfmt","statix","flake-manifest"],".github/workflows":["actionlint"],"spec/":["rspec"],"set/**/*.md":["rekall-check"],".rubocop.yml":["rubocop"]},"unlintedFileClasses":{"lock":"generated"}}"#;
 
-    const WANT: &str = "format 1\n\n# Imported from set-and-setting's check-fragment-map.nix by `pkli import`.\n\n## types\ntype|checks|min|exempt\n*|ripsecrets, typos|-|-\nnix|nixfmt, statix|-|-\npath:.github/workflows/**|actionlint|-|-\npath:spec/**|-|-|legacy: rspec\npath:set/**/*.md|-|-|legacy: rekall-check\nrubocop.yml|rubocop|-|-\nlock|-|-|generated\n";
+    const WANT: &str = "format 1\n\n# Imported from set-and-setting's check-fragment-map.nix by `pklith import`.\n\n## types\ntype|checks|min|exempt\n*|ripsecrets, typos|-|-\nnix|nixfmt, statix|-|-\npath:.github/workflows/**|actionlint|-|-\npath:spec/**|-|-|legacy: rspec\npath:set/**/*.md|-|-|legacy: rekall-check\nrubocop.yml|rubocop|-|-\nlock|-|-|generated\n";
 
     /// T51: classes become type rows, renamed; what pklith lacks is an
     /// exempt row naming it; the result is a registry pklith reads.

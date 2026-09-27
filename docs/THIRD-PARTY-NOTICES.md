@@ -41,11 +41,11 @@ The table is a readable copy of what `Cargo.lock` resolves, rendered by
 ## Not dependencies: the tools in the gate
 
 These appear in the dev shell and the gate, and are **not** linked into
-`pkli`. A consumer building the crate never sees them.
+`pklith`. A consumer building the crate never sees them.
 
 - [`hk`](https://github.com/jdx/hk): the gate runner, and the one whose
   steps pklith generates.
-- [`pkl`](https://github.com/apple/pkl): evaluates `hk.pkl`; `pkli` calls
+- [`pkl`](https://github.com/apple/pkl): evaluates `hk.pkl`; `pklith` calls
   it to read the effective hk configuration.
 - [`microlith`](https://github.com/pr0d1r2/microlith) (`mth`): owns the
   `SPEC.md` format and checks it.
@@ -63,7 +63,7 @@ Nominative use only; no affiliation or endorsement is implied.
 - **NixOS** and **Nix** are trademarks of the NixOS Foundation.
 - **GitHub** is a trademark of GitHub, Inc.
 - **Claude** and **Anthropic** are trademarks of Anthropic PBC.
-- **Pkl** is a project of Apple Inc. `pkli` is not part of it; the name
+- **Pkl** is a project of Apple Inc. pklith is not part of it; the name
   borrows only the letters.
 
 ## pklith itself

@@ -1,25 +1,25 @@
-//! The `pkli check` exit-code contract (`src/cli` V1-V5), run against the
+//! The `pklith check` exit-code contract (`src/cli` V1-V5), run against the
 //! built binary in throwaway repositories.
 
 mod common;
 
-use common::{HK, OK, Result, check_in, pkli, repo, temp};
+use common::{HK, OK, Result, check_in, pklith, repo, temp};
 use std::path::Path;
 use std::process::Command;
 
 #[test]
 fn no_command_is_a_usage_error() -> Result {
-    let (code, stdout, stderr) = pkli(Path::new("."), &[])?;
+    let (code, stdout, stderr) = pklith(Path::new("."), &[])?;
     assert_eq!((code, stdout.as_str()), (Some(2), ""));
-    assert!(stderr.starts_with("usage: pkli"));
+    assert!(stderr.starts_with("usage: pklith"));
     Ok(())
 }
 
 #[test]
 fn an_unknown_flag_is_a_usage_error() -> Result {
-    let (code, _, stderr) = pkli(Path::new("."), &["check", "--bogus"])?;
+    let (code, _, stderr) = pklith(Path::new("."), &["check", "--bogus"])?;
     assert_eq!(code, Some(2));
-    assert!(stderr.starts_with("usage: pkli"));
+    assert!(stderr.starts_with("usage: pklith"));
     Ok(())
 }
 
@@ -53,7 +53,7 @@ fn a_missing_registry_is_an_error() -> Result {
     let (code, stderr) = check_in(&dir)?;
     assert_eq!(code, Some(2));
     assert!(
-        stderr.starts_with("pkli check: cannot read ") && stderr.contains(".pklith"),
+        stderr.starts_with("pklith check: cannot read ") && stderr.contains(".pklith"),
         "{stderr}"
     );
     Ok(std::fs::remove_dir_all(dir)?)
@@ -62,19 +62,19 @@ fn a_missing_registry_is_an_error() -> Result {
 const BAD: [(&str, &str); 4] = [
     (
         "version 1\n",
-        "pkli check: .pklith:1: expected `format 1`, got `version 1`\n",
+        "pklith check: .pklith:1: expected `format 1`, got `version 1`\n",
     ),
     (
         "format 1\n## checks\nid|category|nix|glob|check|fix|env|msg\nx|style|-|*|x|-|-|m\n",
-        "pkli check: .pklith:4: `x`: unknown category `style`\n",
+        "pklith check: .pklith:4: `x`: unknown category `style`\n",
     ),
     (
         "format 1\n## types\ntype|checks|min|exempt\nrs|clippy-nightly|-|-\n",
-        "pkli check: .pklith:4: `rs` names unknown check `clippy-nightly`\n",
+        "pklith check: .pklith:4: `rs` names unknown check `clippy-nightly`\n",
     ),
     (
         "format 1\n## checks\nid|category|nix|glob|check|fix|env|msg\nx|lint|-|*|x|-|-|m\nx|lint|-|*|y|-|-|m\n",
-        "pkli check: .pklith:5: check `x` is already defined on line 4\n",
+        "pklith check: .pklith:5: check `x` is already defined on line 4\n",
     ),
 ];
 
@@ -89,7 +89,7 @@ fn a_broken_registry_is_an_error_naming_its_line() -> Result {
     Ok(())
 }
 
-const OUTSIDE: &str = "pkli check: not inside a git repository; pass --root DIR\n";
+const OUTSIDE: &str = "pklith check: not inside a git repository; pass --root DIR\n";
 
 /// V5: outside a repository, `--root` is required; with it, the tree is
 /// walked instead of read from git.
@@ -100,7 +100,7 @@ fn outside_a_repository_root_is_walked_on_request() -> Result {
     assert_eq!(check_in(&dir)?, (Some(2), OUTSIDE.to_owned()));
     let root = dir.to_string_lossy().into_owned();
     assert_eq!(
-        pkli(Path::new("/"), &["check", "--root", &root])?,
+        pklith(Path::new("/"), &["check", "--root", &root])?,
         (Some(0), String::new(), String::new())
     );
     Ok(std::fs::remove_dir_all(dir)?)
@@ -114,11 +114,11 @@ fn an_unreadable_directory_is_an_error() -> Result {
     let dir = temp("unreadable")?;
     std::fs::write(dir.join(".pklith"), OK)?;
     std::fs::set_permissions(dir.join("sub"), std::fs::Permissions::from_mode(0o000))?;
-    let (code, _, stderr) = pkli(&dir, &["check", "--root", "."])?;
+    let (code, _, stderr) = pklith(&dir, &["check", "--root", "."])?;
     std::fs::set_permissions(dir.join("sub"), std::fs::Permissions::from_mode(0o755))?;
     assert_eq!(code, Some(2));
     assert!(
-        stderr.starts_with("pkli check: ./sub: ") && stderr.contains("ermission denied"),
+        stderr.starts_with("pklith check: ./sub: ") && stderr.contains("ermission denied"),
         "{stderr}"
     );
     Ok(std::fs::remove_dir_all(dir)?)
@@ -126,7 +126,7 @@ fn an_unreadable_directory_is_an_error() -> Result {
 
 /// Root T63, V20 (set-and-setting B97): with a hook's git variables
 /// pointing at another repository, as git sets them for hooks in worktrees
-/// and during a rebase, pkli still judges its own repository. Without the
+/// and during a rebase, pklith still judges its own repository. Without the
 /// scrub, `git ls-files` would read the other repository's index.
 #[test]
 fn hook_variables_from_another_repository_do_not_leak() -> Result {
@@ -136,18 +136,18 @@ fn hook_variables_from_another_repository_do_not_leak() -> Result {
         .args(["add", "only-in-b.py"])
         .output()?;
     let a = repo("leak-a", None)?;
-    let (code, _, stderr) = pkli_with_hook_env(&b, &a)?;
+    let (code, _, stderr) = pklith_with_hook_env(&b, &a)?;
     let want = "gap: `py` has no row in .pklith (1 file: only-in-b.py); add its checks, or an exemption reason\n";
     assert_eq!((code, stderr.as_str()), (Some(1), want));
     std::fs::remove_dir_all(a)?;
     Ok(std::fs::remove_dir_all(b)?)
 }
 
-/// `pkli check` in `dir` with `GIT_DIR`, `GIT_INDEX_FILE` and
+/// `pklith check` in `dir` with `GIT_DIR`, `GIT_INDEX_FILE` and
 /// `GIT_WORK_TREE` all pointing at `other`.
-fn pkli_with_hook_env(dir: &Path, other: &Path) -> Result<(Option<i32>, String, String)> {
+fn pklith_with_hook_env(dir: &Path, other: &Path) -> Result<(Option<i32>, String, String)> {
     let git = other.join(".git");
-    let mut cmd = Command::new(env!("CARGO_BIN_EXE_pkli"));
+    let mut cmd = Command::new(env!("CARGO_BIN_EXE_pklith"));
     cmd.arg("check").current_dir(dir);
     cmd.env("GIT_DIR", &git)
         .env("GIT_INDEX_FILE", git.join("index"))
@@ -179,7 +179,7 @@ fn claims_without_an_hk_config_are_an_error() -> Result {
     let (code, stderr) = check_in(&dir)?;
     assert_eq!(code, Some(2));
     assert!(
-        stderr.starts_with("pkli check: cannot read hk's steps: `pkl eval -x "),
+        stderr.starts_with("pklith check: cannot read hk's steps: `pkl eval -x "),
         "{stderr}"
     );
     Ok(std::fs::remove_dir_all(dir)?)
@@ -190,9 +190,9 @@ fn claims_without_an_hk_config_are_an_error() -> Result {
 #[test]
 fn version_names_the_crate_and_the_catalog() -> Result {
     let outside = common::temp("version")?;
-    let (code, stdout, _) = pkli(&outside, &["--version"])?;
+    let (code, stdout, _) = pklith(&outside, &["--version"])?;
     let want = format!(
-        "pkli {} (catalog {})\n",
+        "pklith {} (catalog {})\n",
         env!("CARGO_PKG_VERSION"),
         pklith::catalog::fingerprint()
     );

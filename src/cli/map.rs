@@ -1,4 +1,4 @@
-//! `pkli map [--staged | FILE…]`: guard mode (src/map).
+//! `pklith map [--staged | FILE…]`: guard mode (src/map).
 
 use super::{Outcome, exit, files, load, toplevel};
 use crate::map::Mapped;
@@ -10,7 +10,7 @@ use std::path::Path;
 pub(super) fn run(args: &[String], cwd: &Path) -> Outcome {
     match mapped(args, cwd) {
         Ok(found) => outcome(&found),
-        Err(message) => exit(2, format!("pkli map: {message}\n")),
+        Err(message) => exit(2, format!("pklith map: {message}\n")),
     }
 }
 

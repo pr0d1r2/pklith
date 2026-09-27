@@ -7,7 +7,7 @@
 [![MSRV 1.95](https://img.shields.io/badge/MSRV-1.95-000000?logo=rust&logoColor=white)](Cargo.toml)
 [![direct dependencies 1](https://img.shields.io/badge/direct_dependencies-1-brightgreen)](docs/THIRD-PARTY-NOTICES.md)
 [![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-brightgreen)](Cargo.toml)
-[![network pkli protect only](https://img.shields.io/badge/network-pkli_protect_only-brightgreen)](docs/SECURITY.md)
+[![network pklith protect only](https://img.shields.io/badge/network-pklith_protect_only-brightgreen)](docs/SECURITY.md)
 
 [![gate hk](https://img.shields.io/badge/gate-hk-6E4AFF)](hk.pkl)
 [![gate steps 40 commit / 47 push](https://img.shields.io/badge/gate_steps-40_commit_%2F_47_push-6E4AFF)](hk.pkl)
@@ -39,22 +39,23 @@ test"), and turns that into hk steps and the nix packages that run them. It
 can lay those checks into a repository one commit per check, and it reports
 and enforces that no file goes unchecked.
 
-The command is `pkli`. It is not part of [Pkl](https://pkl-lang.org), the
-configuration language hk uses; the name only borrows it.
+The command is `pklith`, the same as the crate. It is not part of
+[Pkl](https://pkl-lang.org), the configuration language hk uses; the name
+only borrows it.
 
 Status: early, but the core loop works, and pklith's own gate is built with
 it:
 
-- `pkli check`: every tracked file type has a row in `.pklith`, no row is
+- `pklith check`: every tracked file type has a row in `.pklith`, no row is
   stale, and every check a row claims is an hk step that actually reaches
   those files.
-- `pkli gen [--check]`: renders `.pklith` into `hk.pklith.pkl`, the hk steps
+- `pklith gen [--check]`: renders `.pklith` into `hk.pklith.pkl`, the hk steps
   your `hk.pkl` imports.
-- `pkli lay [--dry-run]`: adds each missing check as its own commit, through
+- `pklith lay [--dry-run]`: adds each missing check as its own commit, through
   your git hooks, and rolls everything back if one is refused.
-- `pkli import DOC`: turns a legacy linter-coverage document into `.pklith`.
+- `pklith import DOC`: turns a legacy linter-coverage document into `.pklith`.
 
-`pkli` ships a built-in catalog of checks (hk util hygiene, ripsecrets,
+`pklith` ships a built-in catalog of checks (hk util hygiene, ripsecrets,
 typos, nixfmt, shfmt, shellcheck, taplo, rustfmt, clippy, rubocop,
 actionlint, zizmor, mth, sherd, itok); a `.pklith` row with the same id
 replaces one, a new id adds one.
@@ -64,9 +65,9 @@ replaces one, a new id adds one.
 - [Integration](docs/INTEGRATION.md): from no gate to a gate CI shares,
   step by step, and what pklith will not do to your repository.
 - [The `.pklith` registry](docs/REGISTRY.md): the one file you write.
-- [The built-in catalog](docs/CATALOG.md): every check and fragment pkli
+- [The built-in catalog](docs/CATALOG.md): every check and fragment pklith
   ships, generated from the catalog itself.
-- [The command line](docs/CLI.md): every verb and flag, from pkli's own
+- [The command line](docs/CLI.md): every verb and flag, from pklith's own
   usage text.
 - [A measured example](docs/EXAMPLE.md): pklith put into a real public
   repository, with the numbers it produced.
@@ -83,7 +84,7 @@ and `lefthook-unit-coverage`. Move in two steps, each leaving the gate
 green.
 
 1. **Swap the package.** Replace the three legacy flake inputs with this
-   flake's `packages.<system>.compat`. It installs `pkli` under each legacy
+   flake's `packages.<system>.compat`. It installs `pklith` under each legacy
    name, and under those names it reads the same variables
    (`LEFTHOOK_LINTER_COVERAGE_DOC`, `LEFTHOOK_LINTER_COVERAGE_ROOT`,
    `LEFTHOOK_UNIT_COVERAGE_CONFIG`, `LEFTHOOK_UNIT_COVERAGE_ROOT`), prints
@@ -92,13 +93,13 @@ green.
    with table rows but no backtick token, an unreadable input, git
    failing), the compat entry exits 2 and names the cause; the full list
    of deliberate differences is in [`src/legacy/SPEC.md`](src/legacy/SPEC.md).
-2. **Move onto `pkli check`.** Run `pkli import docs/linter-coverage.md >
+2. **Move onto `pklith check`.** Run `pklith import docs/linter-coverage.md >
    .pklith` (a set-and-setting fragment map, from `nix eval --json`, imports
    the same way from a `.json` file). Every listed type becomes an exempt
    row, so the verdict carries over unchanged. Then replace exemptions with
-   the checks that actually cover each type, run `pkli gen`, and drop the
-   compat package once `pkli check` gates the repository.
-   `pkli migrate` moves a repository whose hooks lefthook materialized
+   the checks that actually cover each type, run `pklith gen`, and drop the
+   compat package once `pklith check` gates the repository.
+   `pklith migrate` moves a repository whose hooks lefthook materialized
    onto hk. It goes only when the check sets match.
 
 ## License

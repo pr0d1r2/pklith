@@ -1,9 +1,9 @@
-//! `pkli check --staged` and `--range` (cover V8, rule V3), against the
+//! `pklith check --staged` and `--range` (cover V8, rule V3), against the
 //! built binary.
 
 mod common;
 
-use common::{OK, Result, check_in, pkli, repo};
+use common::{OK, Result, check_in, pklith, repo};
 use std::path::Path;
 
 fn git(dir: &Path, args: &[&str]) -> Result {
@@ -26,7 +26,7 @@ fn committed(name: &str, pklith: &str) -> Result<std::path::PathBuf> {
 }
 
 fn staged(dir: &Path) -> Result<(Option<i32>, String, String)> {
-    pkli(dir, &["check", "--staged"])
+    pklith(dir, &["check", "--staged"])
 }
 
 /// T4: staging the deletion of the last `.rs` files flags `rs` stale; the
@@ -78,7 +78,7 @@ fn a_range_feeds_changed_rules() -> Result {
     let dir = committed("staged-range", &format!("{OK}{RANGE}"))?;
     docs_then_code(&dir)?;
     assert_eq!(check_in(&dir)?, (Some(0), String::new()));
-    let (code, _, stderr) = pkli(&dir, &["check", "--range", "HEAD~1..HEAD"])?;
+    let (code, _, stderr) = pklith(&dir, &["check", "--range", "HEAD~1..HEAD"])?;
     assert_eq!(code, Some(1), "{stderr}");
     assert!(
         stderr.contains("rule: `doc` wants docs/b.md for sub/b.rs"),
@@ -96,11 +96,11 @@ fn diff_flags_are_one_and_well_formed() -> Result {
         &["check", "--staged", "--range", "a..b"][..],
         &["check", "--range"],
     ] {
-        let (code, _, stderr) = pkli(&dir, args)?;
+        let (code, _, stderr) = pklith(&dir, args)?;
         assert_eq!(code, Some(2));
-        assert!(stderr.starts_with("usage: pkli"), "{stderr}");
+        assert!(stderr.starts_with("usage: pklith"), "{stderr}");
     }
-    let (code, _, stderr) = pkli(&dir, &["check", "--range", "--output=x"])?;
+    let (code, _, stderr) = pklith(&dir, &["check", "--range", "--output=x"])?;
     assert_eq!(code, Some(2));
     assert!(stderr.contains("is not A..B"), "{stderr}");
     Ok(std::fs::remove_dir_all(dir)?)
