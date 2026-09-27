@@ -60,7 +60,7 @@ fn a_missing_registry_is_an_error() -> Result {
     Ok(std::fs::remove_dir_all(dir)?)
 }
 
-const BAD: [(&str, &str); 3] = [
+const BAD: [(&str, &str); 4] = [
     (
         "version 1\n",
         "pkli check: .pklith:1: expected `format 1`, got `version 1`\n",
@@ -72,6 +72,10 @@ const BAD: [(&str, &str); 3] = [
     (
         "format 1\n## types\ntype|checks|min|exempt\nrs|clippy-nightly|-|-\n",
         "pkli check: .pklith:4: `rs` names unknown check `clippy-nightly`\n",
+    ),
+    (
+        "format 1\n## checks\nid|category|nix|glob|check|fix|env|msg\nx|lint|-|*|x|-|-|m\nx|lint|-|*|y|-|-|m\n",
+        "pkli check: .pklith:5: check `x` is already defined on line 4\n",
     ),
 ];
 
