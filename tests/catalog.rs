@@ -34,7 +34,7 @@ fn file(path: &'static str, text: &str) -> Entry {
 fn fixture(name: &str, entries: &[Entry]) -> Result<std::path::PathBuf> {
     let dir = std::env::temp_dir().join(format!("pklith-catalog-{}-{name}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
-    std::fs::create_dir_all(dir.join("home"))?;
+    std::fs::create_dir_all(&dir)?;
     for entry in entries {
         let path = dir.join(entry.path());
         std::fs::create_dir_all(path.parent().unwrap_or(&dir))?;
@@ -54,8 +54,10 @@ fn git(dir: &Path, args: &[&str]) -> Result {
 }
 
 /// The check's command with `{{files}}` naming every fixture path, run by
-/// `sh` with only PATH, the check's own env and a private HOME: nothing the
-/// developer's home holds (gems, cargo config) reaches the tool.
+/// `sh` with only PATH, HOME and the check's own env. The real HOME stays,
+/// as it does under hk: what a developer's home holds (user gems, cargo
+/// config) is exactly what a step must survive. Build output goes to the
+/// fixture, not the developer's cargo target.
 fn command(check: &pklith::catalog::Check, dir: &Path, entries: &[Entry]) -> Command {
     let files: Vec<&str> = entries.iter().map(Entry::path).collect();
     let mut cmd = Command::new("sh");
@@ -64,8 +66,8 @@ fn command(check: &pklith::catalog::Check, dir: &Path, entries: &[Entry]) -> Com
         .current_dir(dir)
         .env_clear()
         .env("PATH", std::env::var_os("PATH").unwrap_or_default())
-        .env("HOME", dir.join("home"))
-        .env("CARGO_TARGET_DIR", dir.join("home/target"));
+        .env("HOME", std::env::var_os("HOME").unwrap_or_default())
+        .env("CARGO_TARGET_DIR", dir.join("target"));
     for pair in &check.env {
         let (key, value) = pair.split_once('=').unwrap_or((pair, ""));
         cmd.env(key, value);

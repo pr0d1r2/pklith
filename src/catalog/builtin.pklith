@@ -8,6 +8,10 @@ format 1
 # `nix` is a nixpkgs attribute, or the name of a flake input for tools
 # nixpkgs does not ship (microlith, sherd, itok). `-` means hk runs the check
 # itself (`hk util`).
+#
+# rubocop sets GEM_HOME: with none set, RubyGems falls back to the user gem
+# dir because the nix store is read-only, and loads whatever native gems a
+# different Ruby built there. /nonexistent is only read, never installed to.
 
 ## checks
 id|category|nix|glob|check|fix|env|msg
@@ -27,7 +31,7 @@ rustfmt|format|rustfmt|**/*.rs|cargo fmt --check|cargo fmt|-|Rust not formatted
 typos|lint|typos|**/*|typos --force-exclude {{files}}|-|-|misspelling; fix it or teach .typos.toml
 shellcheck|lint|shellcheck|**/*.sh, **/*.bash, .envrc|shellcheck {{files}}|-|-|shell script finding
 clippy|lint|clippy|**/*.rs, Cargo.toml, clippy.toml|cargo clippy --all-targets -q -- -D warnings|-|-|clippy finding
-rubocop|lint|rubocop|**/*.rb, **/*.rake, **/*.gemspec, Gemfile, Rakefile|rubocop --force-exclusion {{files}}|rubocop --autocorrect --force-exclusion {{files}}|-|Ruby style or lint offense
+rubocop|lint|rubocop|**/*.rb, **/*.rake, **/*.gemspec, Gemfile, Rakefile|rubocop --force-exclusion {{files}}|rubocop --autocorrect --force-exclusion {{files}}|GEM_HOME=/nonexistent|Ruby style or lint offense
 actionlint|lint|actionlint|.github/workflows/*.yml, .github/workflows/*.yaml|actionlint {{files}}|-|-|workflow does not parse or type-check
 zizmor|lint|zizmor|.github/workflows/*.yml, .github/workflows/*.yaml|zizmor --offline --no-progress {{files}}|-|-|workflow security finding
 mth-fmt|spec|microlith|**/SPEC.md|for f in {{files}}; do mth fmt --check "$f" \|\| exit 1; done|for f in {{files}}; do mth fmt "$f" \|\| exit 1; done|-|SPEC.md is hard-wrapped or over the line cap

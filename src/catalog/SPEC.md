@@ -54,3 +54,4 @@ T5|x|test: ∀ built-in `check` resolves to a binary of its `nix` attr; `npx`/`p
 ## §B BUGS
 
 id|date|cause|fix
+B1|2026-09-27|built-in `rubocop` w/o `GEM_HOME`: RubyGems falls back to user gem dir (nix store read-only) ∴ loads native gems of another Ruby → crash|row sets `GEM_HOME=/nonexistent`; fixture harness keeps real HOME so the host env is what gets proven
