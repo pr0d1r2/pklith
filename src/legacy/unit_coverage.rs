@@ -79,7 +79,7 @@ fn rule(t: &Table) -> Option<Rule> {
 /// A scalar as `taplo get -o value` printed it.
 fn text_of(t: &Table, key: &str) -> Option<String> {
     match toml::get(t, key)? {
-        Val::Str(s) => Some(s.clone()),
+        Val::Str(s) | Val::Other(s) => Some(s.clone()),
         Val::Bool(b) => Some(b.to_string()),
         Val::List(_) => None,
     }

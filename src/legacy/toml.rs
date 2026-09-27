@@ -1,7 +1,9 @@
-//! The TOML subset `.unit-coverage.toml` uses (legacy §C, root R9): top
-//! level `key = value` pairs, `[[name]]` array tables, and values that are
-//! strings, booleans or arrays of strings. Anything else is refused by
-//! line, never guessed at; pklith takes no general TOML dependency.
+//! The TOML `.unit-coverage.toml` files are written in (legacy §C, root
+//! R9), read by hand: pklith takes no general TOML dependency. Top-level
+//! pairs, `[[name]]` array tables, `[name]` tables (read and set aside),
+//! dotted keys, and values that are strings, booleans, numbers, dates or
+//! arrays of those. Multi-line strings and inline tables are refused by
+//! line, never guessed at: no rule key the legacy tool read takes one.
 
 /// A value the subset holds.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -10,20 +12,26 @@ pub enum Val {
     Str(String),
     /// `true` or `false`.
     Bool(bool),
-    /// An array of strings; it may span lines and end with a comma.
+    /// A number or a date, as written.
+    Other(String),
+    /// An array, each item as `taplo get` printed it; it may span lines
+    /// and end with a comma.
     List(Vec<String>),
 }
 
 /// The pairs of one table, in document order.
 pub type Table = Vec<(String, Val)>;
 
-/// A parsed document: the top-level pairs and each `[[name]]` entry.
+/// A parsed document: the top-level pairs, each `[[name]]` entry, and each
+/// `[name]` table.
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Doc {
-    /// Pairs before the first array table.
+    /// Pairs before the first table.
     pub top: Table,
     /// Every `[[name]]` entry with its pairs, in document order.
     pub tables: Vec<(String, Table)>,
+    /// Every `[name]` table with its pairs; no rule is read from one.
+    pub plain: Vec<(String, Table)>,
 }
 
 /// The value `key` holds in `table`, first wins.
@@ -41,6 +49,7 @@ pub fn parse(text: &str) -> Result<Doc, String> {
     let mut p = Parser {
         chars: text.chars().peekable(),
         line: 1,
+        plain: false,
     };
     let mut doc = Doc::default();
     while p.skip_blank() {
@@ -51,9 +60,32 @@ pub fn parse(text: &str) -> Result<Doc, String> {
     Ok(doc)
 }
 
+/// Escapes that stand for one fixed character.
+const SIMPLE: [(char, char); 7] = [
+    ('n', '\n'),
+    ('t', '\t'),
+    ('r', '\r'),
+    ('b', '\u{8}'),
+    ('f', '\u{c}'),
+    ('"', '"'),
+    ('\\', '\\'),
+];
+
+/// The array tables, or the plain ones.
+fn tables(doc: &mut Doc, array: bool) -> &mut Vec<(String, Table)> {
+    if array {
+        &mut doc.tables
+    } else {
+        &mut doc.plain
+    }
+}
+
 struct Parser<'a> {
     chars: std::iter::Peekable<std::str::Chars<'a>>,
     line: usize,
+    /// Whether pairs go to the last `[name]` table rather than the last
+    /// `[[name]]` entry.
+    plain: bool,
 }
 
 impl Parser<'_> {
@@ -95,11 +127,12 @@ impl Parser<'_> {
 
     fn statement(&mut self, doc: &mut Doc) -> Result<(), String> {
         if self.eat('[') {
-            let name = self.header()?;
-            doc.tables.push((name, Table::new()));
+            let (name, array) = self.header()?;
+            self.plain = !array;
+            tables(doc, array).push((name, Table::new()));
         } else {
             let pair = self.pair()?;
-            match doc.tables.last_mut() {
+            match tables(doc, !self.plain).last_mut() {
                 Some((_, table)) => table.push(pair),
                 None => doc.top.push(pair),
             }
@@ -107,25 +140,24 @@ impl Parser<'_> {
         self.line_end()
     }
 
-    /// `[[name]]`, the first `[` already read.
-    fn header(&mut self) -> Result<String, String> {
-        if !self.eat('[') {
-            return Err("only `[[array]]` tables are in the subset".into());
-        }
+    /// `[[name]]` or `[name]`, the first `[` already read; whether it is
+    /// an array table.
+    fn header(&mut self) -> Result<(String, bool), String> {
+        let array = self.eat('[');
         let name = self.key();
-        if self.eat(']') && self.eat(']') && !name.is_empty() {
-            return Ok(name);
+        let closed = self.eat(']') && (!array || self.eat(']'));
+        if closed && !name.is_empty() {
+            return Ok((name, array));
         }
-        Err("a table header is `[[name]]`".into())
+        Err("a table header is `[name]` or `[[name]]`".into())
     }
 
+    /// A bare key, dots joining its parts.
     fn key(&mut self) -> String {
         self.spaces();
         let mut key = String::new();
-        while let Some(c) = self
-            .chars
-            .next_if(|c| c.is_ascii_alphanumeric() || *c == '_' || *c == '-')
-        {
+        let bare = |c: &char| c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.');
+        while let Some(c) = self.chars.next_if(bare) {
             key.push(c);
         }
         self.spaces();
@@ -145,19 +177,25 @@ impl Parser<'_> {
         match self.chars.peek() {
             Some('"' | '\'') => self.string().map(Val::Str),
             Some('[') => self.list().map(Val::List),
-            _ => self.boolean(),
+            Some('{') => Err("inline tables are outside the subset".into()),
+            _ => self.scalar(),
         }
     }
 
-    fn boolean(&mut self) -> Result<Val, String> {
+    /// A boolean, or a number or date kept as written.
+    fn scalar(&mut self) -> Result<Val, String> {
         let mut word = String::new();
-        while let Some(c) = self.chars.next_if(char::is_ascii_alphanumeric) {
+        let part = |c: &char| c.is_ascii_alphanumeric() || matches!(c, '+' | '-' | '.' | '_' | ':');
+        while let Some(c) = self.chars.next_if(part) {
             word.push(c);
         }
+        let numeric = word.starts_with(|c: char| c.is_ascii_digit() || c == '+' || c == '-');
         match word.as_str() {
             "true" => Ok(Val::Bool(true)),
             "false" => Ok(Val::Bool(false)),
-            _ => Err("a value is a string, a boolean or an array of strings".into()),
+            "inf" | "nan" => Ok(Val::Other(word)),
+            _ if numeric => Ok(Val::Other(word)),
+            _ => Err("a value is a string, a number, a boolean, a date or an array".into()),
         }
     }
 
@@ -169,7 +207,7 @@ impl Parser<'_> {
             if self.eat(']') {
                 return Ok(items);
             }
-            items.push(self.string()?);
+            items.push(self.item()?);
             self.skip_blank();
             if !self.eat(',') && self.chars.peek() != Some(&']') {
                 return Err("array items are separated by `,`".into());
@@ -177,10 +215,20 @@ impl Parser<'_> {
         }
     }
 
+    /// One array item, as text.
+    fn item(&mut self) -> Result<String, String> {
+        match self.value()? {
+            Val::Str(s) | Val::Other(s) => Ok(s),
+            Val::Bool(b) => Ok(b.to_string()),
+            Val::List(_) => Err("nested arrays are outside the subset".into()),
+        }
+    }
+
     fn string(&mut self) -> Result<String, String> {
-        let Some(quote) = self.next().filter(|q| *q == '"' || *q == '\'') else {
-            return Err("an array holds strings only".into());
-        };
+        let quote = self.next().unwrap_or('"');
+        if self.eat(quote) {
+            return self.empty(quote);
+        }
         let mut out = String::new();
         loop {
             match self.next() {
@@ -192,13 +240,32 @@ impl Parser<'_> {
         }
     }
 
+    /// Two quotes read: an empty string, or the start of a multi-line one.
+    fn empty(&mut self, quote: char) -> Result<String, String> {
+        if self.chars.peek() == Some(&quote) {
+            return Err("multi-line strings are outside the subset".into());
+        }
+        Ok(String::new())
+    }
+
     fn escaped(&mut self) -> Result<char, String> {
         match self.next() {
-            Some('n') => Ok('\n'),
-            Some('t') => Ok('\t'),
-            Some(c @ ('"' | '\\')) => Ok(c),
-            other => Err(format!("unknown escape `\\{}`", other.unwrap_or(' '))),
+            Some('u') => self.unicode(4),
+            Some('U') => self.unicode(8),
+            other => SIMPLE
+                .iter()
+                .find(|(e, _)| Some(*e) == other)
+                .map(|(_, c)| *c)
+                .ok_or(format!("unknown escape `\\{}`", other.unwrap_or(' '))),
         }
+    }
+
+    fn unicode(&mut self, digits: usize) -> Result<char, String> {
+        let hex: String = (0..digits).filter_map(|_| self.next()).collect();
+        u32::from_str_radix(&hex, 16)
+            .ok()
+            .and_then(char::from_u32)
+            .ok_or(format!("bad escape `{hex}`"))
     }
 
     /// Only a comment may follow a statement on its line.
@@ -212,65 +279,4 @@ impl Parser<'_> {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::{Doc, Val, get, parse};
-
-    const TEXT: &str = "# config\nallowlist = '.mine' # why\n\n[[rules]]\nglob = \"*.sh\"\ndirs = [\n  \"a\", # first\n  'b',\n]\nnormalize = true\n\n[[ rules ]]\nstrip = \"x\\\"\\\\\\n\\t\"\nexclude = []\nflag = false\n";
-
-    /// Top-level pairs, array tables, strings of both quotes with escapes,
-    /// multi-line arrays with comments and a trailing comma, booleans.
-    #[test]
-    fn the_subset_parses() -> Result<(), String> {
-        let doc = parse(TEXT)?;
-        assert_eq!(doc, want());
-        assert_eq!(get(&doc.top, "allowlist"), Some(&text(".mine")));
-        assert_eq!(get(&doc.top, "none"), None);
-        assert_eq!(parse("")?, Doc::default());
-        Ok(())
-    }
-
-    fn text(s: &str) -> Val {
-        Val::Str(s.to_owned())
-    }
-
-    /// What `TEXT` holds.
-    fn want() -> Doc {
-        let first = vec![
-            ("glob".into(), text("*.sh")),
-            ("dirs".into(), Val::List(vec!["a".into(), "b".into()])),
-            ("normalize".into(), Val::Bool(true)),
-        ];
-        let second = vec![
-            ("strip".into(), text("x\"\\\n\t")),
-            ("exclude".into(), Val::List(Vec::new())),
-            ("flag".into(), Val::Bool(false)),
-        ];
-        Doc {
-            top: vec![("allowlist".into(), text(".mine"))],
-            tables: vec![("rules".into(), first), ("rules".into(), second)],
-        }
-    }
-
-    const REFUSED: [(&str, &str); 11] = [
-        ("[rules]", "line 1: only `[[array]]` tables"),
-        ("[[rules]", "line 1: a table header is `[[name]]`"),
-        ("[[]]", "line 1: a table header"),
-        ("\n= 1", "line 2: expected `key = value`"),
-        ("a 1", "line 1: expected `key = value`"),
-        ("a = 1", "line 1: a value is a string, a boolean"),
-        ("a = [1]", "line 1: an array holds strings only"),
-        ("a = [\"x\" \"y\"]", "line 1: array items are separated"),
-        ("a = \"x", "line 1: a string is not closed on its line"),
-        ("a = \"\\q\"", "line 1: unknown escape `\\q`"),
-        ("a = true b", "line 1: unexpected `b` after the statement"),
-    ];
-
-    /// What leaves the subset is named by line, never guessed around.
-    #[test]
-    fn outside_the_subset_is_refused() {
-        for (text, want) in REFUSED {
-            let err = parse(text).err().unwrap_or_default();
-            assert!(err.starts_with(want), "{text}: {err}");
-        }
-    }
-}
+mod tests;

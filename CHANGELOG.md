@@ -37,3 +37,6 @@ the bytes pkli emits for the same inputs is at least a minor version
   did: regular files only, and only the top-level `.git/` skipped.
 - A linter document is read as the legacy awk read it: a row whose first
   cell has no closing `|` lists nothing, and backtick pairs match leftmost.
+- `lefthook-unit-coverage` reads configs with numbers, dates, `[table]`s,
+  dotted keys and every string escape, as the legacy tool did; only
+  multi-line strings and inline tables are refused, by line.

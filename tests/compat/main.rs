@@ -154,10 +154,13 @@ const UNIT: &str = "lefthook-unit-coverage";
 #[test]
 fn a_config_outside_the_subset_exits_2() -> Result {
     let dir = scratch("broken", UNIT)?;
-    write(&dir.join("repo"), &[(".unit-coverage.toml", "[rules]\n")])?;
+    write(
+        &dir.join("repo"),
+        &[(".unit-coverage.toml", "x = {a = 1}\n")],
+    )?;
     let env = [("LEFTHOOK_UNIT_COVERAGE_ROOT", "repo")];
     let (code, stderr) = run(&dir, UNIT, &dir, &env)?;
-    let want = "lefthook-unit-coverage: .unit-coverage.toml: line 1: only `[[array]]` tables are in the subset\n";
+    let want = "lefthook-unit-coverage: .unit-coverage.toml: line 1: inline tables are outside the subset\n";
     assert_eq!((code, stderr.as_str()), (Some(2), want));
     Ok(std::fs::remove_dir_all(dir)?)
 }

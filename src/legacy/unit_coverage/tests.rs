@@ -47,7 +47,7 @@ fn an_empty_config_has_no_rules() -> Result<(), String> {
         rules: Vec::new(),
     };
     assert_eq!(config("")?, bare);
-    assert!(config("[x]").is_err());
+    assert!(config("a = {b = 1}").is_err());
     Ok(())
 }
 
