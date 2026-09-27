@@ -21,8 +21,10 @@ badges() {
   msrv="$(sed -n 's/^rust-version = "\(.*\)"/\1/p' Cargo.toml)"
   deps="$(awk 'f && /^[[]/ {exit} /^[[]dependencies[]]/ {f=1; next} f && /^[a-zA-Z0-9_.-]+ *=/ {n++} END {print n+0}' Cargo.toml)"
   cov="$(sed -n 's/^lines \([0-9.]*\)$/\1/p' .coverage | sed 's/\.00$//')"
-  inv="$(git ls-files '*SPEC.md' | xargs grep -ho '^V[0-9]*' | sort -u | wc -l | tr -d ' ')"
-  bug="$(git ls-files '*SPEC.md' | xargs grep -ho '^B[0-9]*' | sort -u | wc -l | tr -d ' ')"
+  # Rows, not distinct ids: every node numbers its own from V1 and B1, so
+  # distinct ids would count one per number, not one per invariant.
+  inv="$(git ls-files '*SPEC.md' | xargs cat | grep -cE '^V[0-9]+:')"
+  bug="$(git ls-files '*SPEC.md' | xargs cat | grep -cE '^B[0-9]+[|]')"
   nod="$(git ls-files '*SPEC.md' | wc -l | tr -d ' ')"
   com="$(pkl eval --format json hk.pkl | jq '.hooks["pre-commit"].steps | length')"
   pus="$(pkl eval --format json hk.pkl | jq '.hooks["pre-push"].steps | length')"
