@@ -49,6 +49,9 @@ dependencies = [
 [[package]]
 name = "pklith-dev"
 version = "0.0.0"
+dependencies = [
+ "pklith",
+]
 
 [[package]]
 name = "proc-macro2"

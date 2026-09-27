@@ -15,3 +15,9 @@ path = "src/main.rs"
 
 [lints]
 workspace = true
+
+[dependencies]
+# A path dependency on the crate this one maintains: the catalog page is
+# rendered through pklith's own parsers, never a second reading of the
+# format. Same commit, same lock, same gate: nothing to drift.
+pklith = { path = ".." }

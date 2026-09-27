@@ -71,6 +71,12 @@ local fast = (generated.steps) {
     check = "cargo run -q -p pklith-dev -- notices --check"
     fix = "cargo run -q -p pklith-dev -- notices"
   }
+  // docs/CATALOG.md's tables are the built-in catalog pkli compiles in.
+  ["catalog-doc"] {
+    glob = List("src/catalog/builtin.pklith", "docs/CATALOG.md", "dev/**")
+    check = "cargo run -q -p pklith-dev -- catalog --check"
+    fix = "cargo run -q -p pklith-dev -- catalog"
+  }
   // V28 (T65): the vendored schema is the one the pinned hk ships.
   ["schema-pin"] {
     glob = List("pkl/**", "flake.lock", "scripts/schema-pin.sh")

@@ -18,7 +18,7 @@ Notes for anyone, human or agent, changing this repository.
 ## The gate
 
 <!-- BEGIN steps: generated from hk.pkl by `cargo run -p pklith-dev -- agents`; do not edit -->
-38 steps run on every commit and 45 on push and `hk check`; the commit-msg hook checks the message.
+39 steps run on every commit and 46 on push and `hk check`; the commit-msg hook checks the message.
 
 | step | runs on | files | fixes |
 |---|---|---|---|
@@ -58,6 +58,7 @@ Notes for anyone, human or agent, changing this repository.
 | `agents-table` | commit | `hk.pkl` `hk.pklith.pkl` `AGENTS.md` `dev/**` | yes |
 | `readme-badges` | commit | `README.md` `Cargo.toml` `.coverage` `hk.pkl` `hk.pklith.pkl` `flake.lock` `**/SPEC.md` `docs/LLM-DISCLAIMER.md` `.github/workflows/ci.yml` `dev/**` | yes |
 | `notices` | commit | `Cargo.toml` `Cargo.lock` `docs/THIRD-PARTY-NOTICES.md` `dev/**` | yes |
+| `catalog-doc` | commit | `src/catalog/builtin.pklith` `docs/CATALOG.md` `dev/**` | yes |
 | `schema-pin` | commit | `pkl/**` `flake.lock` `scripts/schema-pin.sh` | - |
 | `hk-parity` | commit | `hk.pkl` `hk.pklith.pkl` `pkl/**` `scripts/hk-parity.sh` | - |
 | `coverage` | push | `**/*.rs` `Cargo.toml` `.coverage` | - |
