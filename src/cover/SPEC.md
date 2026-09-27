@@ -48,7 +48,7 @@ V9: active fragment whose trigger files include a gap & none of whose checks any
 ## §T TASKS
 
 id|status|task|cites
-T1|~|Coverage type + gap/stale|V1,V2,V4,V5,V6
+T1|x|Coverage type + gap/stale|V1,V2,V4,V5,V6
 T2|x|claim-vs-runner join via src/hook|V3
 T3|x|fold rule results|V7
 T4|x|staged mode: changed + deleted paths only; test: deleting the last `.sh` flags its row stale|V8,`.:V26`
