@@ -119,6 +119,7 @@
             pkgs.markdownlint-cli
             pkgs.yamllint
             pkgs.libxml2
+            pkgs.gawk
             itok.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];
           RUST_BACKTRACE = "1";

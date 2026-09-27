@@ -229,6 +229,7 @@ proven! {
     markdownlint => "markdownlint": [file("a.md", "# A\n# A\n")], [file("a.md", "# A\n\ntext\n")];
     yamllint => "yamllint": [file("a.yml", "a: 1\na: 2\n")], [file("a.yml", "---\na: 1\n")];
     xmllint => "xmllint": [file("a.xml", "<a><b></a>\n")], [file("a.xml", "<a/>\n")];
+    gawk_lint => "gawk-lint": [file("a.awk", "BEGIN { system(\"touch ran\"); x = substr(\"a\") }\n")], [file("a.awk", "BEGIN { print 1 }\n")];
     shfmt => "shfmt": [file("a.sh", "if true;then echo;fi\n")], [file("a.sh", "if true; then echo; fi\n")];
     taplo => "taplo": [file("a.toml", "a=1\n")], [file("a.toml", "a = 1\n")];
     rustfmt => "rustfmt": crate_with("pub fn f(){}\n"), crate_with("pub fn f() {}\n");
