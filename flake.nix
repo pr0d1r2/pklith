@@ -157,6 +157,9 @@
               ./Cargo.lock
               ./src
               ./pkl
+              # A workspace member cargo must find, though the package
+              # builds only pkli.
+              ./dev
             ];
           };
           cargoLock.lockFile = ./Cargo.lock;

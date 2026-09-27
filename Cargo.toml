@@ -19,12 +19,21 @@ path = "src/main.rs"
 [dependencies]
 globset = { version = "0.4", default-features = false }
 
-[lints.rust]
+[workspace]
+# `dev/` maintains this repository's own files and ships to nobody: a
+# `publish = false` member cannot land on a consumer's PATH or in the
+# tarball, where a second `[[bin]]` here would (as sherd-dev, sherd §C).
+members = ["dev"]
+
+[lints]
+workspace = true
+
+[workspace.lints.rust]
 unsafe_code = "forbid"
 
 # Code limits (§C), Sandi Metz adapted; thresholds in clippy.toml. They land
-# with the clippy step that enforces them.
-[lints.clippy]
+# with the clippy step that enforces them. Every workspace member takes them.
+[workspace.lints.clippy]
 all = { level = "deny", priority = -1 }
 pedantic = { level = "deny", priority = -1 }
 cognitive_complexity = "deny"

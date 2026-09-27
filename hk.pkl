@@ -57,12 +57,12 @@ local fast = (generated.steps) {
   // V35 (B12): hk's own Pkl evaluator and `pkl eval` must see the same steps,
   // each with a command. Hand-written, so it does not depend on the
   // generated module it guards.
-  // T43 (V6): README badges are generated from Cargo.toml, .coverage, the
-  // SPEC.md set, flake.lock and this file, never typed.
+  // T43 (V6): README badges, and the numbers docs/LLM-DISCLAIMER.md quotes,
+  // are rendered by pklith-dev (dev/SPEC.md) from the files that own them.
   ["readme-badges"] {
-    glob = List("README.md", "Cargo.toml", ".coverage", "hk.pkl", "hk.pklith.pkl", "flake.lock", "**/SPEC.md", "docs/LLM-DISCLAIMER.md", "scripts/readme-badges.sh")
-    check = "scripts/readme-badges.sh --check"
-    fix = "scripts/readme-badges.sh"
+    glob = List("README.md", "Cargo.toml", ".coverage", "hk.pkl", "hk.pklith.pkl", "flake.lock", "**/SPEC.md", "docs/LLM-DISCLAIMER.md", ".github/workflows/ci.yml", "dev/**")
+    check = "cargo run -q -p pklith-dev -- readme --check"
+    fix = "cargo run -q -p pklith-dev -- readme"
   }
   // docs/THIRD-PARTY-NOTICES.md: its crate table is what Cargo.lock ships,
   // and its prose holds the counts and the licence claim.

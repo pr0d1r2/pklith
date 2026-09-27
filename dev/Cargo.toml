@@ -1,0 +1,17 @@
+[package]
+name = "pklith-dev"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.95"
+license = "MIT"
+description = "Development-only tooling for the pklith repository; never published"
+# It maintains files in THIS repository and means nothing to anyone who
+# installs pklith, so it is a workspace member that cannot be published.
+publish = false
+
+[[bin]]
+name = "pklith-dev"
+path = "src/main.rs"
+
+[lints]
+workspace = true

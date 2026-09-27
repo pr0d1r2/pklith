@@ -12,10 +12,10 @@ format 1
 ## checks
 id|category|nix|glob|check|fix|env|msg
 no-large-files|hygiene|-|**/*|scripts/no-large-files.sh {{files}}|-|-|file over its type's size limit
-clippy|lint|clippy|**/*.rs, Cargo.toml, clippy.toml|cargo clippy --all-targets -q -- -D warnings|-|-|clippy finding or a §C code limit exceeded
-test|test|cargo-nextest|**/*.rs, Cargo.toml, Cargo.lock, src/catalog/builtin.pklith|cargo nextest run --no-fail-fast --status-level fail --final-status-level fail|-|-|a test failed, or the suite is empty
+clippy|lint|clippy|**/*.rs, Cargo.toml, clippy.toml|cargo clippy --workspace --all-targets -q -- -D warnings|-|-|clippy finding or a §C code limit exceeded
+test|test|cargo-nextest|**/*.rs, Cargo.toml, Cargo.lock, src/catalog/builtin.pklith|cargo nextest run --workspace --no-fail-fast --status-level fail --final-status-level fail|-|-|a test failed, or the suite is empty
 doctest|test|cargo|**/*.rs, Cargo.toml|cargo test --doc -q|-|-|a doc example failed
-rustdoc|lint|cargo|**/*.rs, Cargo.toml|cargo doc --no-deps --document-private-items -q|-|RUSTDOCFLAGS=-D warnings|docs do not build cleanly
+rustdoc|lint|cargo|**/*.rs, Cargo.toml|cargo doc --workspace --no-deps --document-private-items -q|-|RUSTDOCFLAGS=-D warnings|docs do not build cleanly
 coverage|coverage|sherd|**/*.rs, Cargo.toml, .coverage|sherd coverage --check|-|-|line coverage fell below .coverage
 file-ceilings|spec|sherd|**/*.rs|scripts/file-ceilings.sh|-|-|a Rust file is over its token ceiling
 shellcheck|lint|shellcheck|.githooks/*, .envrc, **/*.sh|shellcheck --shell=bash {{files}}|-|-|shell script finding

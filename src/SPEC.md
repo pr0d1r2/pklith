@@ -31,6 +31,7 @@ cli|arg dispatch, usage, exit codes|every verb's logic|-
 rel|path|lens
 up|.|-
 self|src|product code nodes — scan, detect, registry, catalog, rule, hook, legacy, cover, map, report, gen, lay, seed, confirm, migrate, protect, cli
+sib|dev|`pklith-dev`: generated docs of THIS repo & their drift checks, `publish = false`
 
 ## §C CONSTRAINTS
 

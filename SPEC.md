@@ -16,6 +16,7 @@ FIRST BUILT: this repo's own guardrails (§T T1–T43), check by check, 1 commit
 
 dir|owns|⊥owns|tokens
 src|product code nodes — scan, detect, registry, catalog, rule, hook, legacy, cover, map, report, gen, lay, seed, confirm, migrate, protect, cli|guardrails of THIS repo, nix/hk wiring of this repo|-
+dev|`pklith-dev`: generated docs of THIS repo & their drift checks, `publish = false`|product behaviour; anything a consumer runs|-
 
 ## §N NAV
 
@@ -28,7 +29,7 @@ self|.|-
 - deterministic core. same tree + same `.pklith` → byte-identical output & identical commits. ⊥ LLM, ⊥ heuristic guess, ⊥ network (sole exception: `pkli protect`, opt-in), ⊥ clock | rng | hostname in output.
 - trust: `.pklith` `## checks` rows are commands, trusted exactly like `hk.pkl`; pkli ⊥ runs check commands itself — hk does (`lay`/`confirm` invoke hk).
 - lang: Rust **edition 2024**, stable, MSRV **1.95** = fleet pin (`nixpkgs-lock` → nixos-26.05). crate `pklith`, bin `pkli` (⊥ `pkl` — Pkl's own CLI; README states `pkli` ⊥ part of Pkl).
-- layout: **one crate**. module = **dir + `mod.rs`**. node = dir = Rust module = `SPEC.md` (sherd shape).
+- layout: **one published crate**; `dev/` = `pklith-dev`, a `publish = false` workspace member for repo tooling (sherd shape). module = **dir + `mod.rs`**. node = dir = Rust module = `SPEC.md` (sherd shape).
 - deps minimal. ∀ new crate dep ! justified in §R. `unsafe_code` FORBID.
 - CODE limits (Sandi Metz adapted, `clippy.toml` + `[lints.clippy]`): fn ≤15 lines · cognitive ≤7 · nesting ≤4 · args ≤4 · `unwrap`/`expect`/`panic`/`indexing_slicing`/`todo`/`dbg_macro` DENY.
 - nix flake. inputs: `nixpkgs-lock` (nixpkgs follows it), `nix-hk`, `itok`, `microlith`, `sherd` — ∀ `inputs.nixpkgs-lock.follows = "nixpkgs-lock"`. ONE nixpkgs rev. `nixConfig` substituter block (cachix) ∴ hk ⊥ built from source on first entry (R12).

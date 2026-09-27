@@ -11,6 +11,7 @@
 # with its reason. Every chain pays the root, so a row added to the root
 # SPEC.md is billed 19 times.
 SPEC.md        6600
+dev            7900
 src            6900
 src/catalog    7600
 src/cli        7300
