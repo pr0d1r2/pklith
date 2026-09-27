@@ -136,13 +136,13 @@ hooks {
   ["commit-msg"] {
     steps {
       ["commit-msg"] {
-        check = "scripts/commit-msg.sh"
+        check = "scripts/commit-msg.sh {{commit_msg_file}}"
       }
       // V33 (T68): a feat, fix or perf commit changing src/ adds a CHANGELOG
       // entry. Here, not in pre-commit: only the message says which kind a
       // change is.
       ["changelog-touched"] {
-        check = "scripts/changelog-touched.sh"
+        check = "scripts/changelog-touched.sh {{commit_msg_file}}"
       }
     }
   }

@@ -2,7 +2,8 @@
 # The commit message rule (pklith §C, T4): subject `type(scope): claim`, at
 # most 72 characters, and a body that says why.
 #
-#   scripts/commit-msg.sh [MESSAGE_FILE]    (default: git's COMMIT_EDITMSG)
+#   scripts/commit-msg.sh [MESSAGE_FILE]    (default: git's COMMIT_EDITMSG; the hook passes
+#                                           the file git gave it, MERGE_MSG on a merge)
 set -euo pipefail
 
 f="${1:-$(git rev-parse --git-path COMMIT_EDITMSG)}"
