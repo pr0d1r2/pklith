@@ -5,6 +5,7 @@
 pub mod catalog;
 pub mod cli;
 pub mod cover;
+pub mod detect;
 pub mod r#gen;
 pub mod hook;
 pub mod lay;

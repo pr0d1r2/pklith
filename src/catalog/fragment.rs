@@ -91,6 +91,36 @@ fn unique(fragments: &[Fragment]) -> Result<(), Error> {
     Ok(())
 }
 
+/// The built-in fragments with local ones laid over them: a local fragment
+/// replaces the built-in one with its id where it stands, so detect order
+/// holds; a new id goes at the end.
+#[must_use]
+pub fn merge(builtin: Vec<Fragment>, mut local: Vec<Fragment>) -> Vec<Fragment> {
+    let mut merged: Vec<Fragment> = builtin
+        .into_iter()
+        .map(|b| match local.iter().position(|l| l.id == b.id) {
+            Some(i) => local.remove(i),
+            None => b,
+        })
+        .collect();
+    merged.extend(local);
+    merged
+}
+
+/// The fragments a repository works with: the built-in ones with its
+/// `## fragments` rows laid over them, each naming a check `catalog` holds
+/// (root V17).
+///
+/// # Errors
+///
+/// An [`Error`] naming the line of a malformed local fragment, or of one
+/// naming an unknown check.
+pub fn resolved(local: &[Row], catalog: &[Check]) -> Result<Vec<Fragment>, Error> {
+    let fragments = merge(crate::catalog::builtin_fragments()?, parse(local)?);
+    known(&fragments, catalog)?;
+    Ok(fragments)
+}
+
 /// Root V17: every check a fragment names resolves to a catalog row.
 ///
 /// # Errors
@@ -187,6 +217,24 @@ mod tests {
             .map(|c| c.id.as_str())
             .collect();
         assert!(orphans.is_empty(), "in no fragment: {orphans:?}");
+        Ok(())
+    }
+    /// A local fragment replaces the built-in one with its id where it
+    /// stands; a new id goes last; its checks must exist (root V17).
+    #[test]
+    fn local_fragments_override_in_place_and_extend() -> Result<(), Error> {
+        let rows = "shell|**/*.sh|shellcheck|-\nlocal|*.x|typos|-\n";
+        let registry = crate::registry::parse(&format!("{HEADER}{rows}"))?;
+        let catalog = crate::catalog::builtin()?;
+        let merged = super::resolved(&registry.fragments, &catalog)?;
+        let ids: Vec<&str> = merged.iter().map(|f| f.id.as_str()).collect();
+        let shell = merged
+            .iter()
+            .find(|f| f.id == "shell")
+            .map(|f| f.checks.clone());
+        assert_eq!(ids.get(3..5), Some(&["shell", "rubocop"][..]));
+        assert_eq!(ids.last(), Some(&"local"));
+        assert_eq!(shell, Some(vec!["shellcheck".to_owned()]));
         Ok(())
     }
 }

@@ -42,7 +42,7 @@ V3: `--root` & git sources give identical result on same tree
 ## §T TASKS
 
 id|status|task|cites
-T1|.|detector + golden tests ported from `detect-fragments.sh` bats|V1,V2,`.:T52`
+T1|x|detector + golden tests ported from `detect-fragments.sh` bats|V1,V2,`.:T52`
 T2|.|test: same tree via git source & `--root` walk → identical fragments|V3
 
 ## §B BUGS
