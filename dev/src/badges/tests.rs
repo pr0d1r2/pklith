@@ -13,6 +13,7 @@ fn nixpkgs() -> Nixpkgs {
 fn facts() -> Facts {
     Facts {
         slug: "o/r".into(),
+        name: "pklith".into(),
         license: "MIT".into(),
         edition: "2024".into(),
         msrv: "1.95".into(),
@@ -31,6 +32,7 @@ fn the_block_renders_every_group() {
     let block = render(&facts());
     for want in [
         "[![CI](https://github.com/o/r/actions/workflows/ci.yml/badge.svg)](https://github.com/o/r/actions/workflows/ci.yml)\n",
+        "[![crates.io](https://img.shields.io/crates/v/pklith.svg)](https://crates.io/crates/pklith)\n[![docs.rs](https://docs.rs/pklith/badge.svg)](https://docs.rs/pklith)\n",
         "[![gate steps 38 commit / 45 push](https://img.shields.io/badge/gate_steps-38_commit_%2F_45_push-6E4AFF)](hk.pkl)\n",
         "[![coverage floor 100%](https://img.shields.io/badge/coverage_floor-%E2%89%A5100%25-brightgreen)](.coverage)\n",
         "[![nixpkgs 26.05 (2026-09-25 - f5c082a)](https://img.shields.io/badge/nixpkgs-26.05_(2026--09--25_--_f5c082a)-5277C3?logo=nixos&logoColor=white)](flake.lock)\n",
