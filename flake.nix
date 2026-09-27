@@ -114,6 +114,7 @@
             pkgs.shfmt
             pkgs.rubocop
             pkgs.editorconfig-checker
+            pkgs.statix
             itok.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];
           RUST_BACKTRACE = "1";
