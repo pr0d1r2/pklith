@@ -34,12 +34,22 @@ fn file(path: &'static str, text: &str) -> Entry {
     File(path, text.to_owned())
 }
 
+/// A fresh directory name, unique per call: `cargo test` runs every case in
+/// one process, and a check proven twice (a crate and a workspace) shares
+/// its name.
+fn scratch(name: &str) -> std::path::PathBuf {
+    static NEXT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+    let n = NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    let pid = std::process::id();
+    std::env::temp_dir().join(format!("pklith-catalog-{pid}-{n}-{name}"))
+}
+
 /// A throwaway git repository holding `entries`, all staged, and the paths
 /// its index holds, which is what hk passes as `{{files}}`. Its git runs
 /// without the hook's `GIT_DIR` and `GIT_INDEX_FILE`: inside a commit from a
 /// linked worktree those would stage the fixture into the real index.
 fn fixture(name: &str, entries: &[Entry]) -> Result<(std::path::PathBuf, String)> {
-    let dir = std::env::temp_dir().join(format!("pklith-catalog-{}-{name}", std::process::id()));
+    let dir = scratch(name);
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir)?;
     entries.iter().try_for_each(|e| write(&dir, e))?;
