@@ -9,6 +9,10 @@
 set -euo pipefail
 
 root="$(git rev-parse --show-toplevel)"
+# A hook in a linked worktree gets GIT_DIR and GIT_INDEX_FILE pointing at
+# the real repository; left set, every git call below would commit the copy
+# into the developer's branch. Resolved root first, then dropped.
+unset GIT_DIR GIT_INDEX_FILE GIT_WORK_TREE GIT_PREFIX
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 repo="$work/repo"
