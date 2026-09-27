@@ -92,3 +92,20 @@ fn seed_init_bootstraps_a_repository_lay_can_plan() -> Result {
     assert!(plan.contains("ci(shellcheck): "), "{plan}");
     Ok(std::fs::remove_dir_all(dir)?)
 }
+
+/// Seeding is a green start: after `seed --init` and `gen` on a fresh
+/// repository, `pkli check` passes. The registry types the files seed and
+/// gen write (README, hk config, vendored schema, nix/pklith.nix), and the
+/// fragments they switch on, not only the files that were there before.
+#[test]
+fn seed_init_then_gen_passes_check() -> Result {
+    let dir = bare("green")?;
+    assert_eq!(pkli(&dir, &["seed", "--init"])?.0, Some(0));
+    assert_eq!(pkli(&dir, &["gen"])?.0, Some(0));
+    pklith::proc::command("git", &dir)
+        .args(["add", "-A"])
+        .output()?;
+    let (code, _, stderr) = pkli(&dir, &["check"])?;
+    assert_eq!((code, stderr.as_str()), (Some(0), ""));
+    Ok(std::fs::remove_dir_all(dir)?)
+}

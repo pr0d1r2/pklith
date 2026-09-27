@@ -26,3 +26,6 @@ the bytes pkli emits for the same inputs is at least a minor version
 - `pkli seed --init` no longer writes a binary type's row twice when its
   files are interleaved with another binary type's, which left a
   `.pklith` pkli could not read.
+- `pkli seed --init` types the files seed and gen write too, so `seed
+  --init`, `gen`, `check` is green on a fresh repository; types only pkli's
+  own files have are exempt as "written by pkli (seed or gen)".

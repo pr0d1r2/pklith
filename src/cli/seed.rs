@@ -23,11 +23,33 @@ fn seeded(cwd: &Path, init: bool) -> Result<Vec<String>, String> {
     let active = crate::detect::active(&files, &fragments);
     let mut seeds = crate::seed::files(&active, &name(&root))?;
     if init {
-        let text = crate::seed::init::registry(&files, &active, &catalog);
+        let text = first_registry(&root, &files, &seeds, (&fragments, &catalog));
         seeds.push(crate::seed::Seed::file(".pklith", text));
     }
     let written = crate::seed::write(&root, &seeds)?;
     Ok(written.into_iter().map(str::to_owned).collect())
+}
+
+/// The first `.pklith`, for the tree as it will be once seeded and
+/// generated: the seed files and what `pkli gen` writes are files the
+/// registry must type too, and they switch fragments on (a README is
+/// markdown). Types only pkli's own files have are exempt, so `seed
+/// --init`, `gen`, `check` is green on a fresh repository.
+fn first_registry(
+    root: &Path,
+    files: &[String],
+    seeds: &[crate::seed::Seed],
+    (fragments, catalog): (&[crate::catalog::Fragment], &[crate::catalog::Check]),
+) -> String {
+    let mut own: Vec<&str> = seeds.iter().map(|s| s.path).collect();
+    own.extend(crate::r#gen::files(root));
+    own.push(".pklith");
+    let mut after = files.to_vec();
+    after.extend(own.iter().map(|p| (*p).to_owned()));
+    after.sort();
+    after.dedup();
+    let active = crate::detect::active(&after, fragments);
+    crate::seed::init::registry(&after, &active, catalog, &own)
 }
 
 /// The repository's directory name, for the README stub.

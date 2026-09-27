@@ -30,14 +30,34 @@ impl Reach<'_> {
 /// The `.pklith` text for `files`: the checks of `active` fragments that
 /// run on every file go in `*`; the rest are given to the types whose
 /// files they reach, as a `path:` class where they reach only some files
-/// of a type; binary types are exempt. Types no check reaches get no row,
-/// so `pkli check` names them until someone decides (root V5).
+/// of a type; binary types are exempt. A type no check reaches gets no
+/// row, so `pkli check` names it until someone decides (root V5), unless
+/// every file of it is one pkli writes itself (`own`: the seed files and
+/// what gen writes, such as the vendored hk schema): that type is exempt,
+/// so a repository is green the moment it is seeded.
 #[must_use]
-pub fn registry(files: &[String], active: &[&Fragment], catalog: &[Check]) -> String {
-    let (universal, rows) = rows(files, active, catalog);
+pub fn registry(files: &[String], active: &[&Fragment], catalog: &[Check], own: &[&str]) -> String {
+    let (universal, mut rows) = rows(files, active, catalog);
     let (_, specific) = split(active, catalog);
     let text: Vec<&String> = files.iter().filter(|f| !binary(f)).collect();
-    render(&universal, &rows, &unreached(&text, &specific))
+    let (owned, open): (Vec<String>, Vec<String>) = unreached(&text, &specific)
+        .into_iter()
+        .partition(|key| only_own(&text, key, own));
+    rows.extend(
+        owned
+            .iter()
+            .map(|k| format!("{k}|-|-|written by pkli (seed or gen)")),
+    );
+    rows.sort();
+    render(&universal, &rows, &open)
+}
+
+/// Whether every file of type `key` is one pkli writes itself.
+fn only_own(files: &[&String], key: &str, own: &[&str]) -> bool {
+    files
+        .iter()
+        .filter(|f| crate::scan::key(f) == key)
+        .all(|f| own.contains(&f.as_str()))
 }
 
 /// What `registry` writes, before rendering: the `*` checks, and the type
@@ -319,7 +339,12 @@ yml|yamllint|-|-
             crate::catalog::builtin_fragments()?,
             crate::catalog::builtin()?,
         );
-        let text = registry(&files, &crate::detect::active(&files, &fragments), &catalog);
+        let text = registry(
+            &files,
+            &crate::detect::active(&files, &fragments),
+            &catalog,
+            &[],
+        );
         Ok((files, text))
     }
 
@@ -352,7 +377,7 @@ yml|yamllint|-|-
     #[test]
     fn interleaved_binary_types_seed_one_row_each() -> Result<(), Error> {
         let files: Vec<String> = ["a.png", "b.gz", "c.png"].map(str::to_owned).into();
-        let text = registry(&files, &[], &crate::catalog::builtin()?);
+        let text = registry(&files, &[], &crate::catalog::builtin()?, &[]);
         assert!(
             text.ends_with("gz|-|-|binary asset\npng|-|-|binary asset\n"),
             "{text}"
