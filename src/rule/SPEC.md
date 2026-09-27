@@ -30,8 +30,8 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 ## §C CONSTRAINTS
 
-- row: `id|kind|select|target|except`. kinds: `exists` (path template) · `mentions` (glob + literal pattern template) · `changed` (target changes when source changes; diff input) · `orphan` (reverse: target w/o source).
-- template vars `{path} {dir} {stem} {ext}`, written `{var|filter|…}`; filters `strip:<prefix>` `chop:<suffix>` `suffix:<s>` `ext:<e>` `snake` `dash` `plural`. rendered `//` collapses ∴ empty `{dir}` ⊥ breaks a path.
+- row: `id|kind|select|target|except`; `select` & `except` = glob lists. kinds: `exists` (path template) · `mentions` (target `<glob> :: <pattern template>`) · `changed` (target changes when source changes; diff input) · `orphan` (reverse: target w/o source).
+- template vars `{path} {dir} {stem} {ext}`, written `{var|filter|…}`; inside a `.pklith` cell each `|` is `\|` (FORMAT cell rule); filters `strip:<prefix>` `chop:<suffix>` `suffix:<s>` `ext:<e>` `snake` `dash` `plural`. rendered `//` collapses ∴ empty `{dir}` ⊥ breaks a path.
 - `plural` = `## plural` table first, then fixed suffix rules (consonant+`y`→`ies`; `s x z ch sh`→`+es`; else `+s`). ⊥ inflector guess.
 - ⊥ `spec_bigger`, ⊥ `mentioning_methods` — quality proxies (`.:R10`).
 
@@ -47,10 +47,10 @@ V5: ⊥ rule result depends on file content except `mentions`
 
 id|status|task|cites
 T1|x|template parser + filters + plural rules|V1
-T2|.|`exists` + `orphan`|V4
-T3|.|`mentions` (factory_bot `factory :{stem\|snake}` under `spec/factories/**`)|V2
-T4|.|`changed` over staged diff|V3
-T5|.|test: editing file content flips only `mentions` results|V5
+T2|x|`exists` + `orphan`|V4
+T3|x|`mentions` (factory_bot `factory :{stem\|snake}` under `spec/factories/**`)|V2
+T4|x|`changed` over staged diff|V3
+T5|x|test: editing file content flips only `mentions` results|V5
 
 ## §B BUGS
 
