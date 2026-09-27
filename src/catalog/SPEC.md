@@ -30,7 +30,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 ## §C CONSTRAINTS
 
-- row: `id|category|nix|glob|check|fix|env|msg`. `env` = vars the step needs & their values, emitted w/ the step (`.:V19`); `-` if none. category ∈ `hygiene secret format lint spec test coverage supply`, IN THAT ORDER — the order lay lays them (cheapest & broadest first).
+- row: `id|category|nix|glob|check|fix|env|msg`. `env` = vars the step needs & their values, emitted w/ the step (`.:V19`); `-` if none. category ∈ `hygiene secret format lint spec test coverage supply gate`, IN THAT ORDER — the order lay lays them (cheapest & broadest first). `gate` = checks judging the gate itself (`pkli check`, `gen --check`): pass only once ∀ other step laid ∴ last
 - built-in rows seeded from sibling gates (`.:R6`); `.pklith ## checks` overrides by id.
 - `glob` = the RUNNER glob; gen emits it verbatim into the hk step. `glob` & `env` cells are comma lists; `env` items `KEY=value`. `nix` empty (`-`) = hk runs it natively (`hk util`).
 - fragment row: `fragment|triggers|checks|seed`. triggers = file types, paths, globs (read by src/detect); checks = catalog ids; seed = seed file ids (src/seed). built-in order = fragment order.

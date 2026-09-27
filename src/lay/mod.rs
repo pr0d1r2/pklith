@@ -10,7 +10,7 @@ pub use apply::{Context, Failure, lay};
 /// The checks to lay, in the order they are laid (lay §C): what the
 /// registry uses, minus what hk.pkl already runs, minus what no file claims
 /// (root V15). Universal `*` checks first, then category, then catalog
-/// order, the order src/gen emits.
+/// order, the order src/gen emits; gate checks last even when universal.
 #[must_use]
 pub fn plan<'a>(
     registry: &Registry,
@@ -29,7 +29,8 @@ pub fn plan<'a>(
         .into_iter()
         .filter(missing)
         .collect();
-    plan.sort_by_key(|c| !universal.contains(&&c.id));
+    let gate = |c: &Check| c.category == crate::catalog::Category::Gate;
+    plan.sort_by_key(|c| (gate(c), !universal.contains(&&c.id)));
     plan
 }
 
@@ -52,7 +53,7 @@ mod tests {
     use crate::catalog::Check;
     use crate::registry::{Error, parse};
 
-    const REGISTRY: &str = "format 1\n## checks\nid|category|nix|glob|check|fix|env|msg\nlint|lint|-|*|l|-|-|m\nfmt|format|-|*|f|-|-|m\nws|hygiene|-|*|w|-|-|m\nsecret|secret|-|*|s|-|-|m\nruff|lint|-|*|r|-|-|m\n## types\ntype|checks|min|exempt\nrs|lint,fmt|-|-\npy|ruff|-|-\n*|secret,ws|-|-\n";
+    const REGISTRY: &str = "format 1\n## checks\nid|category|nix|glob|check|fix|env|msg\nlint|lint|-|*|l|-|-|m\nfmt|format|-|*|f|-|-|m\nws|hygiene|-|*|w|-|-|m\nsecret|secret|-|*|s|-|-|m\nruff|lint|-|*|r|-|-|m\nwhole|gate|-|*|g|-|-|m\n## types\ntype|checks|min|exempt\nrs|lint,fmt|-|-\npy|ruff|-|-\n*|whole,secret,ws|-|-\n";
 
     fn ids(checks: &[&Check]) -> Vec<String> {
         checks.iter().map(|c| c.id.clone()).collect()
@@ -70,15 +71,16 @@ mod tests {
         )))
     }
 
-    const ALL: [&str; 4] = ["lint", "fmt", "ws", "secret"];
+    const ALL: [&str; 5] = ["lint", "fmt", "ws", "secret", "whole"];
 
-    /// Universal checks first (hygiene before secret), then category order;
+    /// Universal checks first (hygiene before secret), then category order,
+    /// and gate checks last even when universal: they judge the rest;
     /// what hk.pkl runs is not laid again (V5), nor what no file claims
     /// (root V15: ruff, with no `.py` file).
     #[test]
     fn the_plan_is_what_is_missing_in_lay_order() -> Result<(), Error> {
-        assert_eq!(laid(&[], &ALL)?, ["ws", "secret", "fmt", "lint"]);
-        assert_eq!(laid(&["ws", "fmt"], &ALL)?, ["secret", "lint"]);
+        assert_eq!(laid(&[], &ALL)?, ["ws", "secret", "fmt", "lint", "whole"]);
+        assert_eq!(laid(&["ws", "fmt"], &ALL)?, ["secret", "lint", "whole"]);
         assert!(laid(&ALL, &ALL)?.is_empty());
         Ok(())
     }

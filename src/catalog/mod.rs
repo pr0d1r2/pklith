@@ -24,6 +24,9 @@ pub enum Category {
     Coverage,
     /// Dependencies and licenses.
     Supply,
+    /// Checks on the gate itself (`pkli check`, `gen --check`): they judge
+    /// every other step, so they pass only once the others are laid.
+    Gate,
 }
 
 impl Category {
@@ -37,6 +40,7 @@ impl Category {
             Self::Test,
             Self::Coverage,
             Self::Supply,
+            Self::Gate,
         ];
         all.into_iter().find(|c| c.name() == name)
     }
@@ -53,6 +57,7 @@ impl Category {
             Self::Test => "test",
             Self::Coverage => "coverage",
             Self::Supply => "supply",
+            Self::Gate => "gate",
         }
     }
 }
@@ -307,7 +312,7 @@ mod tests {
     #[test]
     fn categories_sort_in_lay_order() {
         let names = [
-            "supply", "coverage", "test", "spec", "lint", "format", "secret", "hygiene",
+            "gate", "supply", "coverage", "test", "spec", "lint", "format", "secret", "hygiene",
         ];
         let mut categories: Vec<Category> = names
             .iter()
@@ -318,7 +323,7 @@ mod tests {
         assert_eq!(
             sorted,
             [
-                "hygiene", "secret", "format", "lint", "spec", "test", "coverage", "supply"
+                "hygiene", "secret", "format", "lint", "spec", "test", "coverage", "supply", "gate"
             ]
         );
     }

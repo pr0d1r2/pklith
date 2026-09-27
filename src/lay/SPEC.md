@@ -31,7 +31,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 ## §C CONSTRAINTS
 
 - plan = checks registry requires − steps in `hk.pkl` (src/hook), ∧ ≥1 file covered (`.:V15`).
-- order FIXED: `*` universal first, then category order (src/catalog), then catalog order (as src/gen emits). ⊥ LLM, ⊥ heuristic.
+- order FIXED: `*` universal first, then category order (src/catalog), then catalog order (as src/gen emits); `gate` last even if universal. ⊥ LLM, ⊥ heuristic.
 - per check: gen fragment + config file + AGENTS row → `git add` exact paths → `git commit` w/ hooks ON.
 - subject `ci(<check>): add the <check> check`: catalog `msg` describes a FAILURE & can exceed 72 chars, so it goes in the body. body: msg, deliberately absent checks & why, + planted-violation proof from the catalog fixture (`.:V32`).
 
