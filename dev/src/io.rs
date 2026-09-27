@@ -51,3 +51,25 @@ pub fn update(path: &str, wanted: &str, check: bool, verb: &str) -> Result<(), F
     }
     std::fs::write(path, wanted).map_err(|e| (2, format!("cannot write {path}: {e}")))
 }
+
+/// Steps in one hook, as `pkl` evaluates hk.pkl.
+///
+/// # Errors
+///
+/// `pkl` failing, or printing something other than a number.
+pub fn steps(hook: &str) -> Result<usize, Failed> {
+    let expr = format!("hooks[\"{hook}\"].steps.length");
+    let text = run("pkl", &["eval", "-x", &expr, "hk.pkl"])?;
+    text.trim()
+        .parse()
+        .map_err(|_| (2, format!("pkl printed `{}` for {expr}", text.trim())))
+}
+
+/// Steps on commit and on push.
+///
+/// # Errors
+///
+/// As [`steps`].
+pub fn hooks() -> Result<(usize, usize), Failed> {
+    Ok((steps("pre-commit")?, steps("pre-push")?))
+}

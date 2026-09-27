@@ -33,7 +33,7 @@ fn gather() -> Result<badges::Facts, Failed> {
         msrv: field("rust-version"),
         dependencies: facts::dependencies(&cargo),
         floor,
-        steps: (steps("pre-commit")?, steps("pre-push")?),
+        steps: crate::io::hooks()?,
         spec: spec()?,
         nixpkgs,
         platforms,
@@ -48,15 +48,6 @@ fn files() -> Result<(String, facts::Nixpkgs, Vec<facts::Platform>), Failed> {
         facts::nixpkgs(&read("flake.lock")?).ok_or_else(|| missing("flake.lock nixpkgs"))?;
     let platforms = facts::platforms(&read(".github/workflows/ci.yml")?).map_err(|e| (2, e))?;
     Ok((floor, nixpkgs, platforms))
-}
-
-/// Steps in one hook, as `pkl` evaluates hk.pkl.
-fn steps(hook: &str) -> Result<usize, Failed> {
-    let expr = format!("hooks[\"{hook}\"].steps.length");
-    let text = run("pkl", &["eval", "-x", &expr, "hk.pkl"])?;
-    text.trim()
-        .parse()
-        .map_err(|_| (2, format!("pkl printed `{}` for {expr}", text.trim())))
 }
 
 /// `§V` rows, `§B` rows and nodes, over every tracked SPEC.md.

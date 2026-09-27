@@ -50,9 +50,9 @@ local fast = (generated.steps) {
   // Not file-type checks, so not in .pklith. The AGENTS.md step table is
   // generated from this file and must stay equal to it (V14).
   ["agents-table"] {
-    glob = List("hk.pkl", "AGENTS.md", "scripts/agents-table.sh")
-    check = "scripts/agents-table.sh --check"
-    fix = "scripts/agents-table.sh"
+    glob = List("hk.pkl", "hk.pklith.pkl", "AGENTS.md", "dev/**")
+    check = "cargo run -q -p pklith-dev -- agents --check"
+    fix = "cargo run -q -p pklith-dev -- agents"
   }
   // V35 (B12): hk's own Pkl evaluator and `pkl eval` must see the same steps,
   // each with a command. Hand-written, so it does not depend on the

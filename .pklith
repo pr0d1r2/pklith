@@ -23,7 +23,7 @@ links|lint|lychee|**/*.md|git ls-files -z '*.md' \| xargs -0 lychee --offline --
 flake-lock-graph|supply|jq|flake.lock|scripts/flake-lock-graph.sh {{files}}|-|-|flake.lock grew a second nixpkgs or too many nodes
 deny|supply|cargo-deny|Cargo.toml, Cargo.lock, deny.toml|cargo deny check --disable-fetch licenses bans|-|-|a license or ban rule failed
 catalog-nix|supply|nix|src/catalog/builtin.pklith, flake.nix, flake.lock, scripts/catalog-nix.sh|scripts/catalog-nix.sh src/catalog/builtin.pklith|-|-|a built-in catalog row names a nix attribute that does not build, or whose binaries its command never calls
-agents-table|spec|-|hk.pkl, AGENTS.md, scripts/agents-table.sh|scripts/agents-table.sh --check|scripts/agents-table.sh|-|AGENTS.md step table is stale
+agents-table|spec|-|hk.pkl, hk.pklith.pkl, AGENTS.md, dev/**|cargo run -q -p pklith-dev -- agents --check|cargo run -q -p pklith-dev -- agents|-|AGENTS.md step table is stale
 gen-check|gate|cargo|-|cargo run -q --bin pkli -- gen --check|-|-|a step in hk.pklith.pkl no longer matches .pklith; run `pkli gen`
 pkli-check|gate|cargo|-|cargo run -q --bin pkli -- check|-|-|a tracked file type has no row in .pklith, or a row matches nothing
 

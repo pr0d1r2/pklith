@@ -5,9 +5,11 @@
 //!
 //!   pklith-dev readme [--check]    README badges and the disclaimer's numbers
 //!   pklith-dev notices [--check]   the third-party notices' crate table
+//!   pklith-dev agents [--check]    the step table in AGENTS.md
 //!
 //! Exit 0 clean, 1 drift found by `--check`, 2 usage or I/O.
 
+mod agents;
 mod badges;
 mod block;
 mod facts;
@@ -17,7 +19,7 @@ mod readme;
 
 use std::process::ExitCode;
 
-const USAGE: &str = "usage: pklith-dev <readme|notices> [--check]";
+const USAGE: &str = "usage: pklith-dev <readme|notices|agents> [--check]";
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -40,6 +42,7 @@ fn dispatch(args: &[String]) -> Result<(), io::Failed> {
     match verb {
         "readme" => readme::run_verb(check),
         "notices" => notices::run_verb(check),
+        "agents" => agents::run_verb(check),
         _ => Err((2, USAGE.to_owned())),
     }
 }
