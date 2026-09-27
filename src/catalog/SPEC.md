@@ -50,6 +50,7 @@ T2|x|built-in catalog: hk util hygiene family, ripsecrets, typos, nixfmt, shellc
 T3|x|test: ∀ built-in nix attr evals|V2
 T4|x|`env` column: gen emits it; test: step w/ unset required env ⊥ emitted|`.:V19`
 T5|x|test: ∀ built-in `check` resolves to a binary of its `nix` attr; `npx`/`pipx run`/`curl` in a row → rejected|`.:V29`
+T6|x|fragment rows: parse, non-empty (`.:V18`), built-in fragments ported from set-and-setting + completeness test|`.:V16`,`.:V17`,`.:V18`
 
 ## §B BUGS
 

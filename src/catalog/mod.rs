@@ -5,6 +5,9 @@
 use crate::registry::{Error, Registry, Row};
 
 mod fetch;
+pub mod fragment;
+
+pub use fragment::Fragment;
 
 /// Kinds of check, in the order `lay` lays them: cheapest and broadest
 /// first (catalog §C).
@@ -196,6 +199,17 @@ pub fn builtin() -> Result<Vec<Check>, Error> {
     let checks = parse(&crate::registry::parse(BUILTIN)?.checks)?;
     unique(&checks)?;
     Ok(checks)
+}
+
+/// The built-in fragments, in detect order (root V16), each naming only
+/// built-in checks (root V17).
+///
+/// # Errors
+///
+/// An [`Error`] naming the line of `src/catalog/builtin.pklith` that does
+/// not parse; the tests below keep that from shipping.
+pub fn builtin_fragments() -> Result<Vec<Fragment>, Error> {
+    fragment::parse(&crate::registry::parse(BUILTIN)?.fragments)
 }
 
 /// The built-in catalog with local rows laid over it: a local row replaces
