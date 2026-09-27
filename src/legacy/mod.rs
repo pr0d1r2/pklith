@@ -32,9 +32,13 @@ pub fn tokens(doc: &str) -> Vec<Token> {
         .collect()
 }
 
+/// A row's tokens; one with no `|` closing its first cell has none, as
+/// the awk skipped it (`if (end == 0) next`).
 fn row_tokens(row: &str) -> Vec<Token> {
-    let mut cells = row.split('|').map(str::trim);
-    let first = cells.next().unwrap_or_default();
+    let Some((first, rest)) = row.split_once('|') else {
+        return Vec::new();
+    };
+    let mut cells = rest.split('|').map(str::trim);
     let (linter, notes) = (
         cells.next().unwrap_or_default(),
         cells.next().unwrap_or_default(),
@@ -47,16 +51,24 @@ fn row_tokens(row: &str) -> Vec<Token> {
     backticked(first).into_iter().map(make).collect()
 }
 
-/// Every `` `token` `` in a cell, in order.
+/// Every token the awk regex `` `[^`]+` `` finds in a cell, leftmost
+/// first: an empty pair is no token, and its second backtick may open one
+/// (two backticks, a space and a backtick hold a one-space token).
 fn backticked(cell: &str) -> Vec<&str> {
-    let parts: Vec<&str> = cell.split('`').collect();
-    let closed = |(i, t): &(usize, &&str)| i % 2 == 1 && i + 1 < parts.len() && !t.is_empty();
-    parts
-        .iter()
-        .enumerate()
-        .filter(closed)
-        .map(|(_, t)| *t)
-        .collect()
+    let mut found = Vec::new();
+    let mut rest = cell;
+    while let Some((_, after)) = rest.split_once('`') {
+        let Some((token, next)) = after.split_once('`') else {
+            break;
+        };
+        if token.is_empty() {
+            rest = after;
+        } else {
+            found.push(token);
+            rest = next;
+        }
+    }
+    found
 }
 
 /// Why a legacy document could not be imported.
@@ -147,10 +159,15 @@ mod tests {
         assert!(keys("").is_empty());
     }
 
-    /// The awk regex needs both backticks and one character between them.
+    /// The awk regex needs both backticks and one character between them,
+    /// matching leftmost: after an empty pair, its second backtick opens
+    /// the next token. A row whose first cell has no closing `|` is
+    /// skipped, as the awk skipped it.
     #[test]
-    fn an_unclosed_or_empty_backtick_is_not_a_token() {
-        assert_eq!(keys("| `a` `` `b |\n"), ["a"]);
+    fn backticks_and_pipes_are_read_as_the_awk_read_them() {
+        assert_eq!(keys("| `a` `` `b |\n"), ["a", " "]);
+        assert_eq!(keys("| `a` `b\n"), Vec::<String>::new());
+        assert_eq!(keys("| `.rb`\n| `sh` |\n"), ["sh"]);
     }
 
     const DOC: &str = "| Extension | Linter | Notes |\n|---|---|---|\n| `.lock` | - | Nix flake lock |\n| `LICENSE` | - | |\n| `.rb`, `.lock` | RuboCop | x |\n| `.md` | markdownlint \\| typos | |\n";

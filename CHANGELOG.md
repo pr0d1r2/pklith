@@ -35,3 +35,5 @@ the bytes pkli emits for the same inputs is at least a minor version
   or is missing is exit 2 instead of an empty list that passed.
 - With a `*_ROOT` variable the compat entries walk as `find . -type f`
   did: regular files only, and only the top-level `.git/` skipped.
+- A linter document is read as the legacy awk read it: a row whose first
+  cell has no closing `|` lists nothing, and backtick pairs match leftmost.
