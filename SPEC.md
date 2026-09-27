@@ -88,6 +88,7 @@ R16|name clash|`lydite` free on 11 registries yet GitHub org `lydite` + lydite.o
 R17|commit style|recent subjects: xenolith/microlith/itok = `type(scope): claim` hybrid; ashlar/sherd = prose `<topic>: <claim>`. hybrid keeps claim & stays machine-readable|`git log` 5 repos 2026-09-26
 R18|fleet sweep (T70)|9 repos w/ a legacy doc, legacy checker vs `pkli check --registry` on `pkli import`: GAPS IDENTICAL in 9/9 (leadgen `packwerk`; set-and-setting 23 types, where the doc is ⊥ its real coverage source). import token sets = legacy awk in 9/9 (170 tokens). only diff = STALE rows legacy cannot see (`R4`): nix-config lists `.json` w/ ⊥ json file (legacy 0, pkli 1); leadgen lists 10 linter NAMES (`typos`, `gitleaks` …) as types. ∴ root V4 holds for gaps; stale is a stricter verdict, ⊥ a regression|sweep 2026-09-26
 R19|glob engine (src T2)|hk 1.58.1 matches step globs w/ `globset` 0.4 (`src/glob.rs`): `GlobBuilder::empty_alternates(true)`, `literal_separator` OFF ∴ `*.rs` matches `src/a.rs` (`*` crosses `/`); `dir` steps turn it ON. pklith uses the same crate & options ∴ a claim is judged exactly as the runner matches (`src:V1`, cover V3). hand-rolled = a 2nd reading of one rule. licenses: globset and its deps are MIT or dual-licensed incl. MIT, inside deny.toml allow|hk source `src/glob.rs`, `Cargo.toml`
+R20|bench (T64)|best of 3, release build, aarch64-darwin, fixtures of 50 / 1,000 / 10,000 files over 6 types (`scripts/bench.sh --compare`). `pkli detect` 13 / 14 / 19 ms vs legacy `detect-fragments.sh` 54 / 60 / 87 ms. compat `-full` 4 / 6 / 26 ms vs legacy 14 / 18 / 32 ms. `pkli check` (incl. `pkl eval` of hk.pkl, ~0.55 s of it) 582 / 593 / 634 ms, ⊥ legacy equivalent (legacy checked listing only). first measurement found `check` 39.5 s @ 10k (quadratic row suggestion, fixed 08de36a). setting shell entry ⊥ measured: a nix eval, ⊥ per-commit work. budgets ≈ 5× these|scripts/bench.sh 2026-09-27
 
 ## §V INVARIANTS
 
@@ -193,7 +194,7 @@ T60|.|set-and-setting consumes pklith via flake input; its setting shell retired
 T61|x|`lib.devShell` for consumers + test: shell entered on repo w/o `hk.pkl` installs no hooks|V22,V12
 T62|x|`package-nix` step: `nix build` → run built `pkli` on fixture repo; grep built outputs for `@…@` \| `*_PATH` placeholders|V10
 T63|x|one process-spawn helper scrubbing `GIT_DIR` `GIT_INDEX_FILE` `GIT_WORK_TREE` (done: `src/proc`); test: pkli run from inside a real hook on a 2nd repo leaves both intact (waits for a pkli verb)|V20
-T64|.|bench: fixture repos (small, 10k files, fleet-sized) × set-and-setting shell vs pkli → §R row; `bench` step w/ budgets from it|V27
+T64|x|bench: fixture repos (small, 10k files, fleet-sized) × set-and-setting shell vs pkli → §R row; `bench` step w/ budgets from it|V27
 T65|x|`schema-pin` step: vendored `pkl/Config.pkl` matches pinned hk's schema|V28
 T66|x|fixture per built-in catalog check: planted violation → step red, clean twin → green|V30,V2
 T67|.|pre-publish audit: ∀ committed file & message ⊥ names an unpublished fleet repo (ashlar today); publish it or anonymize|R12,R14

@@ -106,6 +106,13 @@ local all = (fast) {
     glob = List("Cargo.toml", "src/**", "scripts/semver.sh")
     check = "scripts/semver.sh"
   }
+  // T64 (V27): pkli timed on 50, 1,000 and 10,000-file fixtures against
+  // budgets set from §R R20. Proven red on a budget below the measurement.
+  ["bench"] {
+    glob = List("Cargo.toml", "Cargo.lock", "src/**", "scripts/bench.sh")
+    check = "scripts/bench.sh"
+    depends = List("test")
+  }
   // T62 (V10): the flake's packages built by nix and run on a fixture, and
   // no placeholder left in what was built.
   ["package-nix"] {
