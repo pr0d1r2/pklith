@@ -1,5 +1,6 @@
 //! Parse and validate `.pklith` (`src/registry/SPEC.md`): file types to
-//! check sets, local catalog rows, companion rules, plural table.
+//! check sets, local catalog rows, companion rules, plural table,
+//! fragments.
 //!
 //! ```text
 //! format 1
@@ -23,6 +24,7 @@ enum Section {
     Checks,
     Rules,
     Plural,
+    Fragments,
 }
 
 impl Section {
@@ -32,6 +34,7 @@ impl Section {
             "checks" => Some(Self::Checks),
             "rules" => Some(Self::Rules),
             "plural" => Some(Self::Plural),
+            "fragments" => Some(Self::Fragments),
             _ => None,
         }
     }
@@ -42,6 +45,7 @@ impl Section {
             Self::Checks => "id|category|nix|glob|check|fix|env|msg",
             Self::Rules => "id|kind|select|target|except",
             Self::Plural => "singular|plural",
+            Self::Fragments => "fragment|triggers|checks|seed",
         }
     }
 }
@@ -82,6 +86,9 @@ pub struct Registry {
     pub rules: Vec<Row>,
     /// `## plural`: irregular plurals.
     pub plural: Vec<Row>,
+    /// `## fragments`: groups of checks and the files that switch them on
+    /// (src/catalog, src/detect).
+    pub fragments: Vec<Row>,
 }
 
 /// What is wrong with `.pklith`, and where.
@@ -205,6 +212,7 @@ impl Parser {
             Section::Checks => self.registry.checks.push(row),
             Section::Rules => self.registry.rules.push(row),
             Section::Plural => self.registry.plural.push(row),
+            Section::Fragments => self.registry.fragments.push(row),
         }
         Ok(())
     }
@@ -337,7 +345,7 @@ mod tests {
 
     const TYPES: &str = "format 1\n## types\ntype|checks|min|exempt\n";
 
-    const FULL: &str = "# comment\n\nformat 1\n\n## types\ntype|checks|min|exempt\n*|typos|-|-\nrs|rustfmt, clippy|2|-\npng|-|-|binary asset\n\n## checks\nid|category|nix|glob|check|fix|env|msg\nx|lint|x|**/*.x|x a \\| b|-|-|m\n## rules\nid|kind|select|target|except\nspec|exists|app/**/*.rb|spec/{stem}_spec.rb|-\n## plural\nsingular|plural\nperson|people\n";
+    const FULL: &str = "# comment\n\nformat 1\n\n## types\ntype|checks|min|exempt\n*|typos|-|-\nrs|rustfmt, clippy|2|-\npng|-|-|binary asset\n\n## checks\nid|category|nix|glob|check|fix|env|msg\nx|lint|x|**/*.x|x a \\| b|-|-|m\n## rules\nid|kind|select|target|except\nspec|exists|app/**/*.rb|spec/{stem}_spec.rb|-\n## plural\nsingular|plural\nperson|people\n## fragments\nfragment|triggers|checks|seed\nshell|**/*.sh|shellcheck|-\n";
 
     /// One line per type row: `line key [checks] min exempt`.
     fn types(registry: &Registry) -> Vec<String> {
@@ -381,6 +389,7 @@ mod tests {
             ["16:spec|exists|app/**/*.rb|spec/{stem}_spec.rb|"]
         );
         assert_eq!(cells(&registry.plural), ["19:person|people"]);
+        assert_eq!(cells(&registry.fragments), ["22:shell|**/*.sh|shellcheck|"]);
         Ok(())
     }
 

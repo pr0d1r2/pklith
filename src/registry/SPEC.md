@@ -30,11 +30,11 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 ## §C CONSTRAINTS
 
-- syntax = sectioned pipe tables, FORMAT cell rules (`\|` escape, `-` empty), `#` comments. ⊥ TOML (adds dep). first line `format N` (`.:V31`); `## <section>` then its fixed header row: `types` `type|checks|min|exempt` · `checks` `id|category|nix|glob|check|fix|env|msg` · `rules` `id|kind|select|target|except` · `plural` `singular|plural`.
+- syntax = sectioned pipe tables, FORMAT cell rules (`\|` escape, `-` empty), `#` comments. ⊥ TOML (adds dep). first line `format N` (`.:V31`); `## <section>` then its fixed header row: `types` `type|checks|min|exempt` · `checks` `id|category|nix|glob|check|fix|env|msg` · `rules` `id|kind|select|target|except` · `plural` `singular|plural` · `fragments` `fragment|triggers|checks|seed`.
 - `## types` → `type|checks|min|exempt`. `checks` = comma list of catalog ids (MANY per type). `min` default 1. `exempt` = reason | `-`.
 - type key syntax: `sh` (ext) · `tar.gz` (compound) · `Makefile` (bare) · `.envrc` (dotfile, ≡ `envrc`) · `path:<glob>` (path class, e.g. `path:docs/**/*.md`). path classes port set-and-setting `coveragePerFileClass` path & glob keys.
 - type `*` = UNIVERSAL checks (typos, whitespace, …), spread to ∀ type. ⊥ a literal type.
-- `## checks` → local catalog rows (override | extend src/catalog). `## rules` → src/rule rows. `## plural` → `singular|plural`.
+- `## checks` → local catalog rows (override | extend src/catalog). `## rules` → src/rule rows. `## plural` → `singular|plural`. `## fragments` → catalog fragment rows (src/catalog, read by src/detect).
 
 ## §V INVARIANTS
 
