@@ -18,3 +18,8 @@ the bytes pkli emits for the same inputs is at least a minor version
   `lefthook-linter-coverage-full` or `lefthook-unit-coverage` behaves as
   that tool (`packages.compat`).
 - `lib.devShell` for consumers, and `packages.default`.
+
+### Fixed
+
+- `pkli check` and `pkli seed --init` no longer take time in the square of
+  the file count when suggesting rows: on 10,000 files, 39.5 s became 0.6 s.

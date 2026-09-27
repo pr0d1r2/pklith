@@ -3,6 +3,7 @@
 
 use crate::catalog::{Check, Fragment};
 use crate::scan::Globs;
+use std::collections::BTreeMap;
 
 /// Types that are data, not text a linter reads: seeded as exempt.
 const BINARY: [&str; 20] = [
@@ -55,7 +56,7 @@ pub fn rows(
     rows.extend(
         classes
             .iter()
-            .map(|(glob, ids)| row(&format!("path:{glob}"), ids)),
+            .map(|c| row(&format!("path:{}", c.glob), &c.ids)),
     );
     rows.extend(binary_rows(files));
     rows.sort();
@@ -122,43 +123,69 @@ fn reaching<'a>(file: &str, specific: &'a [Reach<'_>]) -> Vec<&'a str> {
         .collect()
 }
 
+/// Files grouped by type key, keys in byte order.
+fn by_key<'a>(files: &[&'a String]) -> BTreeMap<String, Vec<&'a String>> {
+    let mut groups: BTreeMap<String, Vec<&String>> = BTreeMap::new();
+    for file in files {
+        groups.entry(crate::scan::key(file)).or_default().push(file);
+    }
+    groups
+}
+
+/// A `path:` class: its glob, compiled once, and the checks it claims.
+struct Class {
+    glob: String,
+    matcher: Globs,
+    ids: Vec<String>,
+}
+
 /// `path:` classes: where a check reaches only some files of a type, its
 /// matching glob becomes a class, claiming what every file it matches
-/// shares.
-fn classes(files: &[&String], specific: &[Reach<'_>]) -> Vec<(String, Vec<String>)> {
+/// shares. Whether a check misses some file of a type is decided once per
+/// type, so the work grows with the files, not their square (root T64).
+fn classes(files: &[&String], specific: &[Reach<'_>]) -> Vec<Class> {
     let mut globs: Vec<String> = Vec::new();
-    for file in files {
-        if let Some(glob) = narrow(file, files, specific).filter(|g| !globs.contains(g)) {
-            globs.push(glob);
+    for peers in by_key(files).values() {
+        let partial = partial(peers, specific);
+        for file in peers {
+            if let Some(glob) = narrow(file, specific, &partial).filter(|g| !globs.contains(g)) {
+                globs.push(glob);
+            }
         }
     }
     globs
         .into_iter()
-        .map(|g| {
-            let shared = shared(files.iter().filter(|f| matches(&g, f)).copied(), specific);
-            (g, shared)
-        })
+        .filter_map(|g| class(g, files, specific))
         .collect()
 }
 
-/// The glob of the first check reaching `file` that misses another file
-/// of its type, or reaches it by name (`Cargo.toml`): a named file is its
-/// own class, so the next file of its type is not claimed for that check.
-fn narrow(file: &str, files: &[&String], specific: &[Reach<'_>]) -> Option<String> {
-    let key = crate::scan::key(file);
-    let peers: Vec<&&String> = files
+/// For each check, whether it misses some of `peers` (one type's files).
+fn partial(peers: &[&String], specific: &[Reach<'_>]) -> Vec<bool> {
+    specific
         .iter()
-        .filter(|f| crate::scan::key(f) == key)
-        .collect();
-    specific.iter().find_map(|r| {
-        let glob = r.glob(file)?;
-        let named = !glob.contains(['*', '?', '[', '{']);
-        (named || peers.iter().any(|p| r.glob(p).is_none())).then(|| glob.to_owned())
-    })
+        .map(|r| peers.iter().any(|p| r.glob(p).is_none()))
+        .collect()
 }
 
-fn matches(glob: &str, file: &str) -> bool {
-    Globs::new(&[glob.to_owned()]).is_ok_and(|g| g.matches(file))
+fn class(glob: String, files: &[&String], specific: &[Reach<'_>]) -> Option<Class> {
+    let matcher = Globs::new(std::slice::from_ref(&glob)).ok()?;
+    let ids = shared(
+        files.iter().filter(|f| matcher.matches(f)).copied(),
+        specific,
+    );
+    Some(Class { glob, matcher, ids })
+}
+
+/// The glob of the first check reaching `file` that misses another file
+/// of its type (`partial`, per check), or reaches it by name
+/// (`Cargo.toml`): a named file is its own class, so the next file of its
+/// type is not claimed for that check.
+fn narrow(file: &str, specific: &[Reach<'_>], partial: &[bool]) -> Option<String> {
+    specific.iter().zip(partial).find_map(|(r, partial)| {
+        let glob = r.glob(file)?;
+        let named = !glob.contains(['*', '?', '[', '{']);
+        (named || *partial).then(|| glob.to_owned())
+    })
 }
 
 /// The checks every one of `files` is reached by, in catalog order.
@@ -178,29 +205,19 @@ fn shared<'a>(files: impl Iterator<Item = &'a String>, specific: &[Reach<'_>]) -
 
 /// One row per type, over the files no class takes, claiming what they
 /// all share; a type sharing nothing gets no row.
-fn type_rows(
-    files: &[&String],
-    specific: &[Reach<'_>],
-    classes: &[(String, Vec<String>)],
-) -> Vec<String> {
+fn type_rows(files: &[&String], specific: &[Reach<'_>], classes: &[Class]) -> Vec<String> {
     let free: Vec<&String> = files
         .iter()
-        .filter(|f| classes.iter().all(|(g, _)| !matches(g, f)))
+        .filter(|f| classes.iter().all(|c| !c.matcher.matches(f)))
         .copied()
         .collect();
-    let mut keys: Vec<String> = free.iter().map(|f| crate::scan::key(f)).collect();
-    keys.sort();
-    keys.dedup();
-    keys.iter()
-        .filter_map(|k| type_row(k, &free, specific))
+    by_key(&free)
+        .iter()
+        .filter_map(|(key, files)| {
+            let ids = shared(files.iter().copied(), specific);
+            (!ids.is_empty()).then(|| row(key, &ids))
+        })
         .collect()
-}
-
-/// The row for type `key` over `free` files, if they share any check.
-fn type_row(key: &str, free: &[&String], specific: &[Reach<'_>]) -> Option<String> {
-    let of_key = free.iter().filter(|f| crate::scan::key(f) == key).copied();
-    let ids = shared(of_key, specific);
-    (!ids.is_empty()).then(|| row(key, &ids))
 }
 
 fn binary_rows(files: &[String]) -> Vec<String> {
