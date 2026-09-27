@@ -5,16 +5,18 @@
 use std::path::{Path, PathBuf};
 
 mod check;
+mod detect;
 mod generate;
 mod import;
 mod lay;
 
 /// Printed on stderr for a usage error (V2).
 pub const USAGE: &str = "usage: pkli <command>\n
-  check [--root DIR] [--registry FILE]  every tracked file has a type in .pklith with its checks
-  gen [--check]                         write hk.pklith.pkl from .pklith; --check: fail when it is stale
-  lay [--dry-run]                       one commit per missing check, through the hooks; --dry-run: list them
-  import DOC                            a .pklith from a legacy linter coverage document, on stdout
+  check [--root DIR] [--registry FILE]   every tracked file has a type in .pklith with its checks
+  detect [--root DIR] [--registry FILE]  the fragments the tracked files switch on, one per line
+  gen [--check]                          write hk.pklith.pkl from .pklith; --check: fail when it is stale
+  lay [--dry-run]                        one commit per missing check, through the hooks; --dry-run: list them
+  import DOC                             a .pklith from a legacy linter coverage document, on stdout
 ";
 
 /// What a run produced: the exit code (V1) and the text for each stream (V3).
@@ -52,6 +54,7 @@ pub fn run(args: &[String], cwd: &Path) -> Outcome {
     };
     match (verb.as_str(), rest) {
         ("check", _) => check::run(rest, cwd),
+        ("detect", _) => detect::run(rest, cwd),
         ("gen", []) => generate::run(cwd, false),
         ("lay", []) => lay::run(cwd),
         ("import", [doc]) => import::run(Path::new(doc)),
@@ -67,6 +70,29 @@ fn flagged(verb: &str, flag: &str, cwd: &Path) -> Outcome {
         ("lay", "--dry-run") => lay::plan(cwd),
         _ => exit(2, USAGE),
     }
+}
+
+/// Where a verb looks: `--root` walks that tree instead of asking git;
+/// `--registry` reads a registry other than `<root>/.pklith`, so a
+/// repository can be judged without writing into it.
+#[derive(Default)]
+struct Options {
+    root: Option<PathBuf>,
+    registry: Option<PathBuf>,
+}
+
+fn options(args: &[String]) -> Option<Options> {
+    let mut opts = Options::default();
+    for pair in args.chunks(2) {
+        match pair {
+            [flag, v] if flag == "--root" && opts.root.is_none() => opts.root = Some(v.into()),
+            [flag, v] if flag == "--registry" && opts.registry.is_none() => {
+                opts.registry = Some(v.into());
+            }
+            _ => return None,
+        }
+    }
+    Some(opts)
 }
 
 fn files(root: &Path, walk: bool) -> Result<Vec<String>, String> {

@@ -1,30 +1,7 @@
 //! `pkli check`: the gate verdict.
 
-use super::{Outcome, USAGE, exit, files, load, toplevel};
-use std::path::{Path, PathBuf};
-
-/// Where `check` looks: `--root` walks that tree instead of asking git;
-/// `--registry` reads a registry other than `<root>/.pklith`, so a
-/// repository can be judged without writing into it.
-#[derive(Default)]
-struct Options {
-    root: Option<PathBuf>,
-    registry: Option<PathBuf>,
-}
-
-fn options(args: &[String]) -> Option<Options> {
-    let mut opts = Options::default();
-    for pair in args.chunks(2) {
-        match pair {
-            [flag, v] if flag == "--root" && opts.root.is_none() => opts.root = Some(v.into()),
-            [flag, v] if flag == "--registry" && opts.registry.is_none() => {
-                opts.registry = Some(v.into());
-            }
-            _ => return None,
-        }
-    }
-    Some(opts)
-}
+use super::{Options, Outcome, USAGE, exit, files, load, options, toplevel};
+use std::path::Path;
 
 pub(super) fn run(args: &[String], cwd: &Path) -> Outcome {
     let Some(opts) = options(args) else {
