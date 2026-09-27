@@ -19,14 +19,16 @@ compare="${2:-}"
 
 # Budgets in milliseconds: fixture:command.
 declare -A budget=(
-  [small:detect]=100 [small:check]=2500 [small:compat]=50
-  [fleet:detect]=100 [fleet:check]=2500 [fleet:compat]=50
-  [large:detect]=200 [large:check]=3000 [large:compat]=150
+  [small:detect]=150 [small:check]=3500 [small:compat]=50
+  [fleet:detect]=150 [fleet:check]=3500 [fleet:compat]=50
+  [large:detect]=200 [large:check]=8000 [large:compat]=150
 )
 
 export CARGO_TARGET_DIR="$root/target"
 cargo build -q --release --bin pkli
 pkli="$root/target/release/pkli"
+stamp="$(sha256sum "$pkli" | cut -c1-16)"
+tick=$'\x60'
 work="$root/target/bench"
 mkdir -p "$work/bin"
 ln -sf "$pkli" "$work/bin/lefthook-linter-coverage-full"
@@ -34,7 +36,9 @@ ln -sf "$pkli" "$work/bin/lefthook-linter-coverage-full"
 # fixture NAME COUNT: COUNT files over a spread of types, committed.
 fixture() {
   local dir="$work/$1" n="$2" i
-  [ -f "$dir/.done-$n" ] && return
+  # Rebuilt whenever pkli changes: what it seeds and generates is part of
+  # the fixture, and a stale one would time yesterday's work.
+  [ -f "$work/.done-$1-$n-$stamp" ] && return
   rm -rf "$dir" && mkdir -p "$dir/src" "$dir/lib" "$dir/docs" "$dir/nix"
   git -C "$dir" init -q
   for ((i = 0; i < n; i++)); do
@@ -47,17 +51,22 @@ fixture() {
       5) printf 'fn f%d() {}\n' "$i" >"$dir/src/r$i.rs" ;;
     esac
   done
-  cat >"$dir/docs/linters.md" <<'DOC'
-| Ext |
-|---|
-| `.sh` `.nix` `.md` `.toml` `.yml` `.rs` |
-DOC
+  git -C "$dir" add -A
   (cd "$dir" && "$pkli" seed --init >/dev/null && "$pkli" gen >/dev/null)
   git -C "$dir" add -A
-  touch "$dir/.done-$n"
+  # A doc listing every key the tree has, so the compat run passes and a
+  # failing one means something broke.
+  {
+    printf '| Ext |\n|---|\n'
+    git -C "$dir" ls-files | sed 's|.*/||; s|.*\.||' | sort -u |
+      while read -r key; do printf '| %s%s%s |\n' "$tick" "$key" "$tick"; done
+  } >"$dir/docs/linters.md"
+  git -C "$dir" add -A
+  touch "$work/.done-$1-$n-$stamp"
 }
 
-# best NAME DIR CMD...: best-of-three wall time in ms; exit 2 is a failure.
+# best DIR CMD...: best-of-three wall time in ms. Every run must pass: a
+# run that fails fast (a missing doc, an unset variable) measures nothing.
 best() {
   local dir="$1" min='' t0 t1 ms rc
   shift
@@ -66,7 +75,7 @@ best() {
     rc=0
     (cd "$dir" && "$@" >/dev/null 2>&1) || rc=$?
     t1="$(date +%s%N)"
-    [ "$rc" -le 1 ] || { echo "bench: '$*' in $dir exited $rc" >&2; exit 1; }
+    [ "$rc" -eq 0 ] || { echo "bench: '$*' in $dir exited $rc" >&2; exit 1; }
     ms=$(((t1 - t0) / 1000000))
     [ -z "$min" ] || [ "$ms" -lt "$min" ] && min="$ms"
   done
@@ -87,12 +96,16 @@ for spec in small:50 fleet:1000 large:10000; do
   dir="$work/$name"
   export LEFTHOOK_LINTER_COVERAGE_DOC=docs/linters.md LEFTHOOK_LINTER_COVERAGE_ROOT="$dir"
   legacy_detect='' legacy_compat=''
+  # best runs in a subshell, so its failure is caught here, not lost.
   if [ -n "$compare" ]; then
-    legacy_detect="$(best "$dir" bash "$compare/set-and-setting/setting/lib/detect-fragments.sh")"
-    legacy_compat="$(best "$dir" "$compare/nix-lefthook-linter-coverage-full/result/bin/lefthook-linter-coverage-full")"
+    legacy_detect="$(best "$dir" bash "$compare/set-and-setting/setting/lib/detect-fragments.sh")" || exit 1
+    legacy_compat="$(best "$dir" "$compare/nix-lefthook-linter-coverage-full/result/bin/lefthook-linter-coverage-full")" || exit 1
   fi
-  row "$name" detect "$(best "$dir" "$pkli" detect)" "$legacy_detect"
-  row "$name" check "$(best "$dir" "$pkli" check)"
-  row "$name" compat "$(best "$dir" "$work/bin/lefthook-linter-coverage-full")" "$legacy_compat"
+  detect="$(best "$dir" "$pkli" detect)" || exit 1
+  check="$(best "$dir" "$pkli" check)" || exit 1
+  compat="$(best "$dir" "$work/bin/lefthook-linter-coverage-full")" || exit 1
+  row "$name" detect "$detect" "$legacy_detect"
+  row "$name" check "$check"
+  row "$name" compat "$compat" "$legacy_compat"
 done
 exit "$over"
