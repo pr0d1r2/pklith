@@ -186,6 +186,25 @@ fn list(cell: &str) -> Vec<String> {
         .collect()
 }
 
+/// set-and-setting check names pklith ships under another name (PORT.md).
+const RENAMED: [(&str, &str); 5] = [
+    ("gitleaks", "ripsecrets"),
+    ("git-conflict-markers", "no-merge-conflict"),
+    ("missing-final-newline", "final-newline"),
+    ("git-no-local-paths", "no-local-paths"),
+    ("linter-coverage", "pkli-check"),
+];
+
+/// The pklith check id a set-and-setting check name stands for: its
+/// rename, or the name itself.
+#[must_use]
+pub fn renamed(name: &str) -> &str {
+    RENAMED
+        .iter()
+        .find(|(from, _)| *from == name)
+        .map_or(name, |(_, to)| to)
+}
+
 /// The built-in catalog (T2), compiled into `pkli`.
 const BUILTIN: &str = include_str!("builtin.pklith");
 

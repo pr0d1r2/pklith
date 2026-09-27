@@ -61,3 +61,23 @@ fn import_and_option_errors_exit_2() -> Result {
     }
     Ok(std::fs::remove_dir_all(dir)?)
 }
+
+/// Root T51: a set-and-setting fragment map, as `nix eval --json` prints
+/// it, imports to type rows pkli reads back.
+#[test]
+fn a_fragment_map_imports_to_type_rows() -> Result {
+    let dir = temp("import-map")?;
+    let map = r#"{"coveragePerFileClass":{"all":["gitleaks"],"sh":["shellcheck","no-shell-functions"]},"unlintedFileClasses":{"lock":"generated"}}"#;
+    std::fs::write(dir.join("map.json"), map)?;
+    let (code, stdout, _) = pkli(&dir, &["import", "map.json"])?;
+    assert_eq!(code, Some(0));
+    assert!(
+        stdout.ends_with(
+            "type|checks|min|exempt\n*|ripsecrets|-|-\nsh|shellcheck|-|-\nlock|-|-|generated\n"
+        ),
+        "{stdout}"
+    );
+    std::fs::write(dir.join("bad.json"), "{")?;
+    assert_eq!(pkli(&dir, &["import", "bad.json"])?.0, Some(2));
+    Ok(std::fs::remove_dir_all(dir)?)
+}

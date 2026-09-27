@@ -7,16 +7,6 @@ use crate::scan::Globs;
 
 pub mod lefthook;
 
-/// Lefthook command names set-and-setting used for checks pklith ships
-/// under another name (PORT.md).
-const RENAMED: [(&str, &str); 5] = [
-    ("gitleaks", "ripsecrets"),
-    ("git-conflict-markers", "no-merge-conflict"),
-    ("missing-final-newline", "final-newline"),
-    ("git-no-local-paths", "no-local-paths"),
-    ("linter-coverage", "pkli-check"),
-];
-
 /// Why migrate writes nothing (V1, V3).
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Refusal {
@@ -54,14 +44,6 @@ pub fn plan(
     Ok(render(&star, &rows, drop))
 }
 
-/// The pklith check id a lefthook command name stands for.
-fn renamed(name: &str) -> &str {
-    RENAMED
-        .iter()
-        .find(|(from, _)| *from == name)
-        .map_or(name, |(_, to)| to)
-}
-
 /// The pklith checks the kept commands stand for, each once, and the
 /// commands none does.
 fn mapped(
@@ -71,7 +53,10 @@ fn mapped(
 ) -> (Vec<String>, Vec<(String, String)>) {
     let (mut ids, mut unmapped) = (Vec::new(), Vec::new());
     for (hook, command) in commands.iter().filter(|(_, c)| !drop.contains(c)) {
-        match catalog.iter().find(|c| c.id == renamed(command)) {
+        match catalog
+            .iter()
+            .find(|c| c.id == crate::catalog::renamed(command))
+        {
             Some(check) if !ids.contains(&check.id) => ids.push(check.id.clone()),
             Some(_) => {}
             None => unmapped.push((hook.clone(), command.clone())),
