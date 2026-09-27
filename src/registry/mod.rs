@@ -134,6 +134,7 @@ pub fn parse(text: &str) -> Result<Registry, Error> {
         parser.line(line, content)?;
     }
     no_duplicates(&parser.registry)?;
+    minimums(&parser.registry)?;
     Ok(parser.registry)
 }
 
@@ -290,15 +291,33 @@ fn requirement(row: &TypeRow) -> Result<(), Error> {
             "`{}` has checks and an exemption; pick one",
             row.key
         )),
-        (None, n) if n < row.min && row.key != "*" => fail(format!(
-            "`{}` has {n} checks, needs {}, or an exemption reason",
-            row.key, row.min
-        )),
         _ => Ok(()),
     }
 }
 
 /// V3: a type or rule id appears once; the error names both lines.
+/// V1, V5: each checked type has `min` checks beyond the universal `*`
+/// ones: universal hygiene is not coverage of the type.
+fn minimums(registry: &Registry) -> Result<(), Error> {
+    let star = registry.types.iter().filter(|t| t.key == "*");
+    let universal: Vec<&String> = star.flat_map(|t| &t.checks).collect();
+    let mut checked = registry
+        .types
+        .iter()
+        .filter(|t| t.key != "*" && t.exempt.is_none());
+    checked
+        .find_map(|row| short(row, &universal))
+        .map_or(Ok(()), Err)
+}
+
+/// The error for a row with fewer than `min` checks beyond `universal`.
+fn short(row: &TypeRow, universal: &[&String]) -> Option<Error> {
+    let n = row.checks.iter().filter(|c| !universal.contains(c)).count();
+    let (key, min) = (&row.key, row.min);
+    let why = format!("`{key}` has {n} checks beyond `*`, needs {min}, or an exemption reason");
+    (n < min).then(|| error(row.line, why))
+}
+
 fn no_duplicates(registry: &Registry) -> Result<(), Error> {
     let types = registry.types.iter().map(|t| (t.key.as_str(), t.line));
     let rules = registry
@@ -439,7 +458,7 @@ mod tests {
 
     /// V1: checks or an exemption, never both, never neither. V5 (set-and-
     /// setting B55): universal checks never count toward a type's minimum.
-    const REQUIREMENT_CASES: [(&str, &str); 5] = [
+    const REQUIREMENT_CASES: [(&str, &str); 6] = [
         ("|x|-|-", ".pklith:4: a type row needs a type"),
         (
             "rs|x|-|why",
@@ -447,7 +466,7 @@ mod tests {
         ),
         (
             "rs|x|2|-",
-            ".pklith:4: `rs` has 1 checks, needs 2, or an exemption reason",
+            ".pklith:4: `rs` has 1 checks beyond `*`, needs 2, or an exemption reason",
         ),
         (
             "*|-|-|why",
@@ -455,7 +474,11 @@ mod tests {
         ),
         (
             "*|typos|-|-\nrs|-|-|-",
-            ".pklith:5: `rs` has 0 checks, needs 1, or an exemption reason",
+            ".pklith:5: `rs` has 0 checks beyond `*`, needs 1, or an exemption reason",
+        ),
+        (
+            "*|typos|-|-\nmd|typos|-|-",
+            ".pklith:5: `md` has 0 checks beyond `*`, needs 1, or an exemption reason",
         ),
     ];
 

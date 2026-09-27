@@ -6,9 +6,10 @@ use common::{OK, Result, pkli, repo};
 
 /// The common fixture with an untyped x.py, so there is a gap to report.
 fn gapped(name: &str) -> Result<std::path::PathBuf> {
-    let star = OK.replace(
+    let ws = "lint|lint|-|*|true|-|-|m\nws|hygiene|-|*|true|-|-|m\n";
+    let star = OK.replace("lint|lint|-|*|true|-|-|m\n", ws).replace(
         "type|checks|min|exempt\n",
-        "type|checks|min|exempt\n*|lint|-|-\n",
+        "type|checks|min|exempt\n*|ws|-|-\n",
     );
     let dir = repo(name, Some(&star))?;
     std::fs::write(dir.join("x.py"), "")?;
@@ -24,7 +25,7 @@ fn report_prints_the_matrix_and_findings_and_exits_0() -> Result {
     let dir = gapped("report")?;
     let (code, stdout, stderr) = pkli(&dir, &["report"])?;
     assert_eq!((code, stderr.as_str()), (Some(0), ""));
-    assert!(stdout.starts_with("*       -  lint\n"), "{stdout}");
+    assert!(stdout.starts_with("*       -  ws\n"), "{stdout}");
     assert!(stdout.contains("\nrs      2  lint\n"), "{stdout}");
     assert!(
         stdout.contains("gap: `py` has no row in .pklith"),
