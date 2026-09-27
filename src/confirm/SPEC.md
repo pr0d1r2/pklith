@@ -30,7 +30,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 ## §C CONSTRAINTS
 
-- checks: completeness (∀ active fragment's checks present), fidelity (on-disk `hk.pkl` fragment == generated), coherence (∀ step binary on PATH), executability (`pkl eval` + hk validate), idempotence (gen twice → 0 diff).
+- checks: completeness (∀ claimed check has an hk step = `lay` plan empty), fidelity (on-disk generated files == `gen` for the steps held), coherence (∀ program a step runs on PATH | an executable repo script), executability (`pkl eval` → steps + `hk validate`), idempotence (render twice → same bytes).
 
 ## §V INVARIANTS
 
@@ -41,7 +41,7 @@ V3: each failure names sub-check, file & fix
 ## §T TASKS
 
 id|status|task|cites
-T1|.|5 sub-checks + planted-failure tests|V1,V2,V3,`.:T56`
+T1|x|5 sub-checks + planted-failure tests|V1,V2,V3,`.:T56`
 
 ## §B BUGS
 

@@ -31,7 +31,7 @@ fn inputs(cwd: &Path) -> Result<Inputs, String> {
 
 /// Step ids hk already runs. For planning, an hk.pkl with no steps yet is
 /// a repository with nothing laid, not an error (hook V2 guards judging).
-fn present(root: &Path) -> Result<Vec<String>, String> {
+pub(super) fn present(root: &Path) -> Result<Vec<String>, String> {
     match crate::hook::steps(root) {
         Ok(steps) => Ok(steps.into_iter().map(|s| s.id).collect()),
         Err(crate::hook::Error::NoSteps) => Ok(Vec::new()),

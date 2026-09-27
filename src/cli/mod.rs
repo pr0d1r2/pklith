@@ -5,6 +5,7 @@
 use std::path::{Path, PathBuf};
 
 mod check;
+mod confirm;
 mod detect;
 mod generate;
 mod import;
@@ -18,6 +19,7 @@ pub const USAGE: &str = "usage: pkli <command> | --version\n
   check [--root DIR] [--registry FILE] [--staged | --range A..B]
                                          every tracked file has a type in .pklith with its checks;
                                          --staged: only what the commit changes; a diff feeds `changed` rules
+  confirm                                accept the gate: complete, faithful, runnable, deterministic
   detect [--root DIR] [--registry FILE]  the fragments the tracked files switch on, one per line
   gen [--check]                          write hk.pklith.pkl from .pklith; --check: fail when it is stale
   lay [--dry-run]                        one commit per missing check, through the hooks; --dry-run: list them
@@ -63,6 +65,7 @@ pub fn run(args: &[String], cwd: &Path) -> Outcome {
     match (verb.as_str(), rest) {
         ("--version", []) => data(version()),
         ("check", _) => check::run(rest, cwd),
+        ("confirm", []) => confirm::run(cwd),
         ("detect", _) => detect::run(rest, cwd),
         ("map", _) => map::run(rest, cwd),
         ("report", _) => report::run(rest, cwd),

@@ -56,7 +56,7 @@ self|.|-
 - cmd: `pkli import <linter-doc.md|.unit-coverage.toml|fragment-map.json>` → `.pklith` rows on stdout. fragment map = `nix eval --json --file lib/check-fragment-map.nix` output; pkli ⊥ evaluates nix
 - cmd: `pkli detect [--root DIR] [--registry FILE]` → ordered active fragment list from tracked files, 1 per line; ⊥ `.pklith` = built-in fragments (src/detect)
 - cmd: `pkli seed [--init]` → repo-owned seed files of active fragments, ⊥ over an existing file; `--init` + first `.pklith`; paths written on stdout (src/seed)
-- cmd: `pkli confirm` → acceptance: completeness, fidelity, coherence, executability, idempotence (src/confirm)
+- cmd: `pkli confirm` → acceptance: completeness, fidelity, coherence, executability, idempotence; read-only; silent + 0 when accepted (src/confirm)
 - cmd: `pkli migrate` → lefthook-materialized repo → hk, gated on check-set equivalence (src/migrate)
 - cmd: `pkli protect [--dry-run]` → branch protection required contexts from CI job names (src/protect)
 - cmd: `lefthook-linter-coverage`, `lefthook-linter-coverage-full`, `lefthook-unit-coverage` → compat entries, legacy env & exit codes (V4)
@@ -185,7 +185,7 @@ T52|x|port `detect-fragments.sh` semantics; its 33 bats → golden tests|V16
 T53|x|port 24 `mk*Check` → catalog rows|V17
 T54|.|`hk.pkl` emission replaces `assemble-lefthook.sh`; its 53 bats → step-set equivalence goldens|V13,V18
 T55|x|seed + canon port|V25
-T56|.|confirm port (hk: `hk validate`, step set vs fragments, idempotence)|V22
+T56|x|confirm port (hk: `hk validate`, step set vs fragments, idempotence)|V22
 T57|.|migrate port: lefthook repo → hk|V24
 T58|.|protect port: required contexts from CI job names|`src/protect:V2`
 T59|.|raise set-and-setting issues for D1, D2, D3|R15

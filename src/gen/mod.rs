@@ -15,6 +15,7 @@ mod guard;
 mod nix;
 
 pub use agents::AGENTS;
+pub use guard::programs;
 pub use nix::{NIX, nix};
 
 /// The generated file, next to `hk.pkl`.
