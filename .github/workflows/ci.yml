@@ -38,4 +38,16 @@ jobs:
           extra_nix_config: |
             extra-substituters = https://pr0d1r2.cachix.org
             extra-trusted-public-keys = pr0d1r2.cachix.org-1:NfWjbhgAj41byXhCKiaE+av3Vnphm1fTezHXEGsiQIM=
+      # Push what this job builds, so the next run downloads it. The flake
+      # makes sherd, hk, microlith and itok follow pklith's nixpkgs-lock; when
+      # that pin is newer than theirs, their own caches never match and every
+      # runner builds them from source (with their test suites, one of them
+      # flaky: PR #1). Fork PRs get no secret and still read the cache.
+      - uses: cachix/cachix-action@5f2d7c5294214f71b873db4b969586b980625e71 # v17
+        with:
+          name: pr0d1r2
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          skipPush: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
+          # Only what was built here; sources and tarballs stay out of the cache.
+          pushFilter: '(-source$|nixpkgs\.tar\.gz$)'
       - run: nix develop --command hk check --all --check
