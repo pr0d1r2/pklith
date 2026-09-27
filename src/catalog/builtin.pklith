@@ -38,6 +38,7 @@ statix|lint|statix|**/*.nix|(for f in {{files}}; do statix check "$f" \|\| exit 
 deadnix|lint|deadnix|**/*.nix|deadnix --fail {{files}}|deadnix --edit {{files}}|-|unused nix binding or argument; remove it, or prefix it with _
 markdownlint|lint|markdownlint-cli|**/*.md|markdownlint {{files}}|markdownlint --fix {{files}}|-|markdown style finding; markdownlint names the rule
 yamllint|lint|yamllint|**/*.yml, **/*.yaml|yamllint {{files}}|-|-|YAML error; yamllint names the rule
+xmllint|lint|libxml2|**/*.xml|xmllint --noout {{files}}|-|-|XML is not well-formed
 editorconfig-checker|lint|editorconfig-checker|**/*|editorconfig-checker {{files}}|-|-|file breaks its .editorconfig (indent, line ends, final newline)
 mth-fmt|spec|microlith|**/SPEC.md|(for f in {{files}}; do mth fmt --check "$f" \|\| exit 1; done)|(for f in {{files}}; do mth fmt "$f" \|\| exit 1; done)|-|SPEC.md is hard-wrapped or over the line cap
 mth-check|spec|microlith|**/SPEC.md|(for f in {{files}}; do mth check "$f" \|\| exit 1; done)|-|-|SPEC.md breaks a structural rule
@@ -60,6 +61,7 @@ actions|.github/workflows/*.yml, .github/workflows/*.yaml|actionlint, zizmor|-
 nix|**/*.nix|nixfmt, statix, deadnix|-
 shell|**/*.sh, **/*.bash|shellcheck, shfmt|-
 rubocop|**/.rubocop.yml, **/*.gemspec|rubocop|-
+xml|**/*.xml|xmllint|-
 markdown|**/*.md|markdownlint|-
 yaml|**/*.yml, **/*.yaml|yamllint|-
 toml|**/*.toml|taplo|-

@@ -118,6 +118,7 @@
             pkgs.deadnix
             pkgs.markdownlint-cli
             pkgs.yamllint
+            pkgs.libxml2
             itok.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];
           RUST_BACKTRACE = "1";
