@@ -54,6 +54,7 @@ fn take_value(args: &mut Vec<String>, flag: &str) -> Result<Option<String>, Stri
 struct Scope {
     root: PathBuf,
     registry: crate::registry::Registry,
+    catalog: Vec<crate::catalog::Check>,
     files: Vec<String>,
     /// Paths the diff touches, when one was given.
     changed: Option<Vec<String>>,
@@ -64,7 +65,7 @@ struct Scope {
 fn scope(opts: Options, diff: Option<Diff>, cwd: &Path) -> Result<Scope, String> {
     let walk = opts.root.is_some();
     let root = opts.root.map_or_else(|| toplevel(cwd), Ok)?;
-    let (registry, _) = load(&opts.registry.unwrap_or_else(|| root.join(".pklith")))?;
+    let (registry, catalog) = load(&opts.registry.unwrap_or_else(|| root.join(".pklith")))?;
     let files = files(&root, walk)?;
     let staged = diff == Some(Diff::Staged);
     let changed = diff.map(|d| crate::scan::changed(&root, &d));
@@ -72,6 +73,7 @@ fn scope(opts: Options, diff: Option<Diff>, cwd: &Path) -> Result<Scope, String>
     Ok(Scope {
         root,
         registry,
+        catalog,
         files,
         changed,
         staged,
@@ -90,6 +92,7 @@ fn judge(opts: Options, diff: Option<Diff>, cwd: &Path) -> Result<Verdict, Strin
         _ => crate::cover::judge(&s.files, &s.registry),
     };
     coverage.failed = rules(&s)?;
+    coverage.unreflected = reflect(&s, &coverage.gaps)?;
     Ok((coverage, unbacked))
 }
 
@@ -131,6 +134,45 @@ fn rules(s: &Scope) -> Result<Vec<crate::rule::Failure>, String> {
         only_changed: s.staged,
     };
     Ok(crate::rule::evaluate(&rules, &input))
+}
+
+/// Cover V9: fragments the gaps switch on that `.pklith` does not
+/// reflect, each with the rows `pkli seed --init` would add for those
+/// files. A registry that claims nothing (a legacy import) is not asked.
+fn reflect(
+    s: &Scope,
+    gaps: &[crate::cover::Gap],
+) -> Result<Vec<crate::cover::Unreflected>, String> {
+    if !crate::cover::claims_any(&s.registry) {
+        return Ok(Vec::new());
+    }
+    let fragments = crate::catalog::fragment::resolved(&s.registry.fragments, &s.catalog);
+    let fragments = fragments.map_err(|e| e.to_string())?;
+    let active = crate::detect::active(&judged(s), &fragments);
+    let found = crate::cover::unreflected(&active, &s.registry, gaps);
+    Ok(found
+        .into_iter()
+        .map(|f| suggest(f, gaps, &s.catalog))
+        .collect())
+}
+
+fn suggest(
+    fragment: &crate::catalog::Fragment,
+    gaps: &[crate::cover::Gap],
+    catalog: &[crate::catalog::Check],
+) -> crate::cover::Unreflected {
+    let files: Vec<String> = gaps.iter().flat_map(|g| g.files.clone()).collect();
+    let (star, rows) = crate::seed::init::rows(&files, &[fragment], catalog);
+    let star = (!star.is_empty()).then_some(format!("*|{}|-|-", star.join(", ")));
+    let rows = star
+        .into_iter()
+        .chain(rows)
+        .filter(|r| !r.ends_with("|binary asset"))
+        .collect();
+    crate::cover::Unreflected {
+        fragment: fragment.id.clone(),
+        rows,
+    }
 }
 
 /// A `## plural` row, which the registry keeps at its header's two cells.

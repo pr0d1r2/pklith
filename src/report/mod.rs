@@ -1,6 +1,6 @@
 //! Render a coverage verdict (`src/report/SPEC.md`).
 
-use crate::cover::{Coverage, Gap, Stale, Unbacked};
+use crate::cover::{Coverage, Gap, Stale, Unbacked, Unreflected};
 use crate::rule::Failure;
 
 /// The verdict as text for a person or a hook log: one line per finding,
@@ -12,10 +12,9 @@ pub fn text(coverage: &Coverage) -> String {
     let gaps = coverage.gaps.iter().map(gap_line);
     let stale = coverage.stale.iter().map(stale_line);
     let failed = coverage.failed.iter().map(rule_line);
-    gaps.chain(stale)
-        .chain(failed)
-        .map(|line| line + "\n")
-        .collect()
+    let unreflected = coverage.unreflected.iter().map(fragment_line);
+    let lines = gaps.chain(stale).chain(failed).chain(unreflected);
+    lines.map(|line| line + "\n").collect()
 }
 
 /// Claims no hk step backs (cover V3), one line per check and reason.
@@ -38,6 +37,13 @@ fn gap_line(gap: &Gap) -> String {
     let noun = if n == 1 { "file" } else { "files" };
     format!(
         "gap: `{key}` has no row in .pklith ({n} {noun}: {files}); add its checks, or an exemption reason"
+    )
+}
+
+fn fragment_line(u: &Unreflected) -> String {
+    let (id, rows) = (&u.fragment, u.rows.join("; "));
+    format!(
+        "fragment: `{id}` is on, but .pklith claims none of its checks; add rows such as: {rows}"
     )
 }
 

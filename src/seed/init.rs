@@ -33,6 +33,21 @@ impl Reach<'_> {
 /// so `pkli check` names them until someone decides (root V5).
 #[must_use]
 pub fn registry(files: &[String], active: &[&Fragment], catalog: &[Check]) -> String {
+    let (universal, rows) = rows(files, active, catalog);
+    let (_, specific) = split(active, catalog);
+    let text: Vec<&String> = files.iter().filter(|f| !binary(f)).collect();
+    render(&universal, &rows, &unreached(&text, &specific))
+}
+
+/// What `registry` writes, before rendering: the `*` checks, and the type
+/// rows sorted bytewise (root V3). Also what `pkli check` suggests for a
+/// fragment `.pklith` does not reflect (cover V9).
+#[must_use]
+pub fn rows(
+    files: &[String],
+    active: &[&Fragment],
+    catalog: &[Check],
+) -> (Vec<String>, Vec<String>) {
     let (universal, specific) = split(active, catalog);
     let text: Vec<&String> = files.iter().filter(|f| !binary(f)).collect();
     let classes = classes(&text, &specific);
@@ -44,7 +59,7 @@ pub fn registry(files: &[String], active: &[&Fragment], catalog: &[Check]) -> St
     );
     rows.extend(binary_rows(files));
     rows.sort();
-    render(&universal, &rows, &unreached(&text, &specific))
+    (universal.into_iter().map(|c| c.id.clone()).collect(), rows)
 }
 
 /// Active checks in fragment order, once each: those of `always`
@@ -216,8 +231,7 @@ fn unreached(files: &[&String], specific: &[Reach<'_>]) -> Vec<String> {
     keys
 }
 
-fn render(universal: &[&Check], rows: &[String], unreached: &[String]) -> String {
-    let star: Vec<&str> = universal.iter().map(|c| c.id.as_str()).collect();
+fn render(star: &[String], rows: &[String], unreached: &[String]) -> String {
     let open = if unreached.is_empty() {
         String::new()
     } else {

@@ -6,8 +6,10 @@ use crate::registry::{Registry, TypeRow};
 use crate::scan::{Globs, candidates};
 
 mod claims;
+mod reflect;
 mod staged;
 pub use claims::{Unbacked, claimed_somewhere, claims_any, unbacked};
+pub use reflect::{Unreflected, unreflected};
 pub use staged::judge_staged;
 
 /// A type found on disk with no registry row (V1, V6): every file is
@@ -54,14 +56,19 @@ pub struct Coverage {
     pub covered: Vec<Covered>,
     /// Companion rules a file fails (V7).
     pub failed: Vec<crate::rule::Failure>,
+    /// Fragments the files switch on that `.pklith` does not reflect (V9).
+    pub unreflected: Vec<Unreflected>,
 }
 
 impl Coverage {
-    /// The gate verdict: no gap, nothing stale, no failed rule. An empty
-    /// tree passes (V5).
+    /// The gate verdict: no gap, nothing stale, no failed rule, no
+    /// unreflected fragment. An empty tree passes (V5).
     #[must_use]
     pub fn ok(&self) -> bool {
-        self.gaps.is_empty() && self.stale.is_empty() && self.failed.is_empty()
+        self.gaps.is_empty()
+            && self.stale.is_empty()
+            && self.failed.is_empty()
+            && self.unreflected.is_empty()
     }
 }
 

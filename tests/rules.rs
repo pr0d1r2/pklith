@@ -66,3 +66,36 @@ fn mentions_reads_tracked_files() -> Result {
     assert_eq!(check_in(&dir)?, (Some(0), String::new()));
     Ok(std::fs::remove_dir_all(dir)?)
 }
+
+/// Cover V9 (T5): the first `.rb` beside a gemspec, with no rows for
+/// either, is reported with the rows the rubocop fragment would add.
+#[test]
+fn an_unreflected_fragment_names_the_rows_to_add() -> Result {
+    let dir = repo("reflect", Some(OK))?;
+    std::fs::create_dir_all(dir.join("lib"))?;
+    std::fs::write(dir.join("lib/c.rb"), "")?;
+    std::fs::write(dir.join("x.gemspec"), "")?;
+    git_add(&dir)?;
+    let (code, stderr) = check_in(&dir)?;
+    assert_eq!(code, Some(1));
+    let want = "fragment: `rubocop` is on, but .pklith claims none of its checks; add rows such as: gemspec|rubocop|-|-; rb|rubocop|-|-\n";
+    assert!(stderr.ends_with(want), "{stderr}");
+    Ok(std::fs::remove_dir_all(dir)?)
+}
+
+/// A local fragment naming an unknown check stops the check with its
+/// line, as a bad check row does.
+#[test]
+fn a_bad_local_fragment_exits_2() -> Result {
+    let bad = format!("{OK}## fragments\nfragment|triggers|checks|seed\nx|always|nope|-\n");
+    let dir = repo("reflect-bad", Some(&bad))?;
+    let (code, stderr) = check_in(&dir)?;
+    assert_eq!(
+        (code, stderr.as_str()),
+        (
+            Some(2),
+            "pkli check: .pklith:12: fragment `x` names unknown check `nope`\n"
+        )
+    );
+    Ok(std::fs::remove_dir_all(dir)?)
+}
