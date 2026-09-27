@@ -179,10 +179,10 @@ T46|.|compat package + README migration guide|V4,V10
 T47|.|review `nix-lefthook-unit-coverage` PRs + SPEC → backprop|R9
 T48|.|deprecation notice + migration link in 3 legacy READMEs, after V4 parity proven|V4
 T49|.|raise ashlar issue: hooks-disabled commits & degrade-w/o-hk vs V12/V1; bundled courses vs V13|R12
-T50|.|port map: ∀ set-and-setting setting entry point → pklith verb \| dropped w/ reason|R15
+T50|x|port map: ∀ set-and-setting setting entry point → pklith verb \| dropped w/ reason|R15
 T51|~|port `check-fragment-map.nix` → built-in catalog fragments (20) + importer|V17,R15
-T52|~|port `detect-fragments.sh` semantics; its 33 bats → golden tests|V16
-T53|.|port 24 `mk*Check` → catalog rows|V17
+T52|x|port `detect-fragments.sh` semantics; its 33 bats → golden tests|V16
+T53|x|port 24 `mk*Check` → catalog rows|V17
 T54|.|`hk.pkl` emission replaces `assemble-lefthook.sh`; its 53 bats → step-set equivalence goldens|V13,V18
 T55|.|seed + canon port|V25
 T56|.|confirm port (hk: `hk validate`, step set vs fragments, idempotence)|V22
