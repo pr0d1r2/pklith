@@ -92,6 +92,13 @@ local all = (fast) {
     glob = List("Cargo.toml", "Cargo.lock", "deny.toml")
     check = "cargo deny check advisories"
   }
+  // T42: the crate packages, and the packaged crate alone builds; a file
+  // the build embeds but the package leaves out fails here, not at
+  // publish. Proven red with pkl/ excluded from the package.
+  ["package"] {
+    glob = List("Cargo.toml", "Cargo.lock", "src/**", "pkl/**")
+    check = "cargo package --locked --allow-dirty -q"
+  }
   // T62 (V10): the flake's packages built by nix and run on a fixture, and
   // no placeholder left in what was built.
   ["package-nix"] {
