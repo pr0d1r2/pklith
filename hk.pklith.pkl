@@ -139,7 +139,6 @@ steps: Mapping<String, Config.Step> = new {
   ["gen-check"] {
     glob = List(".pklith", "hk.pklith.pkl")
     check = "command -v cargo >/dev/null 2>&1 || { echo 'gen-check: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo run -q --bin pkli -- gen --check || { echo 'gen-check: a step in hk.pklith.pkl no longer matches .pklith; run `pkli gen`' >&2; exit 1; }"
-    fix = "cargo run -q --bin pkli -- gen"
   }
   ["pkli-check"] {
     check = "command -v cargo >/dev/null 2>&1 || { echo 'pkli-check: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo run -q --bin pkli -- check || { echo 'pkli-check: a tracked file type has no row in .pklith, or a row matches nothing' >&2; exit 1; }"
