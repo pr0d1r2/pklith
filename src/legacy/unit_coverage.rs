@@ -48,7 +48,9 @@ pub struct Config {
 ///
 /// # Errors
 ///
-/// Text outside the subset `.unit-coverage.toml` uses, by line.
+/// Text outside the subset `.unit-coverage.toml` uses, by line, or a rule
+/// without a `test_dir`: the legacy tool stopped there on taplo's error,
+/// and checking tests at the filesystem root would be a guess.
 pub fn config(text: &str) -> Result<Config, String> {
     let doc = toml::parse(text)?;
     let rules = doc
@@ -56,24 +58,37 @@ pub fn config(text: &str) -> Result<Config, String> {
         .iter()
         .filter(|(name, _)| name == "rules")
         .map_while(|(_, t)| rule(t))
-        .collect();
+        .enumerate()
+        .map(|(idx, r)| r.map_err(|e| format!("rule {idx} {e}")))
+        .collect::<Result<_, _>>()?;
     let allowlist = text_of(&doc.top, "allowlist").unwrap_or_else(|| ALLOWLIST.to_owned());
     Ok(Config { allowlist, rules })
 }
 
-fn rule(t: &Table) -> Option<Rule> {
+/// A `[[rules]]` entry: `None` without a `glob` (the legacy loop ended
+/// there), an error without a `test_dir`.
+fn rule(t: &Table) -> Option<Result<Rule, &'static str>> {
+    let glob = text_of(t, "glob")?;
+    Some(
+        text_of(t, "test_dir")
+            .map(|d| read(t, glob, d))
+            .ok_or("has no test_dir"),
+    )
+}
+
+fn read(t: &Table, glob: String, test_dir: String) -> Rule {
     let text = |key| text_of(t, key).unwrap_or_default();
-    Some(Rule {
-        glob: text_of(t, "glob")?,
+    Rule {
+        glob,
         dirs: list_of(t, "dirs"),
         exclude: list_of(t, "exclude"),
-        test_dir: text("test_dir"),
+        test_dir,
         pattern: text_of(t, "pattern").unwrap_or_else(|| "mirror".to_owned()),
         test_ext: text("test_ext"),
         test_suffix: text("test_suffix"),
         strip: text("strip"),
         normalize: text("normalize") == "true",
-    })
+    }
 }
 
 /// A scalar as `taplo get -o value` printed it.

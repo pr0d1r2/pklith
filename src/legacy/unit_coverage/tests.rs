@@ -55,8 +55,9 @@ fn an_empty_config_has_no_rules() -> Result<(), String> {
 /// as absent, as `taplo get` failing did.
 #[test]
 fn a_wrong_shape_reads_as_absent() -> Result<(), String> {
-    let cfg = config("[[rules]]\nglob = \"*.sh\"\ndirs = \"a\"\nstrip = [\"b\"]\n")?;
-    assert_eq!(cfg.rules, [rule("*.sh", &[], "")]);
+    let cfg =
+        config("[[rules]]\nglob = \"*.sh\"\ntest_dir = \"t\"\ndirs = \"a\"\nstrip = [\"b\"]\n")?;
+    assert_eq!(cfg.rules, [rule("*.sh", &[], "t")]);
     Ok(())
 }
 
@@ -170,7 +171,7 @@ fn the_verdict_is_the_legacy_text() -> Result<(), String> {
 #[test]
 fn an_unknown_pattern_ends_the_verdict() -> Result<(), String> {
     let cfg = config(
-        "[[rules]]\nglob = \"*.sh\"\ndirs = [\"s\"]\n[[rules]]\nglob = \"*.sh\"\ndirs = [\"s\"]\npattern = \"odd\"\n",
+        "[[rules]]\nglob = \"*.sh\"\ndirs = [\"s\"]\ntest_dir = \"\"\n[[rules]]\nglob = \"*.sh\"\ndirs = [\"s\"]\ntest_dir = \"t\"\npattern = \"odd\"\n",
     )?;
     let (text, failed) = super::verdict(&cfg, &owned(&["s/a.sh"]), &[], |_| false);
     assert!(failed && text.starts_with("lefthook-unit-coverage: rule 0 (*.sh)"));
@@ -181,4 +182,12 @@ fn an_unknown_pattern_ends_the_verdict() -> Result<(), String> {
         "{text}"
     );
     Ok(())
+}
+
+/// A rule without `test_dir` is a config error naming it, never tests
+/// looked for at the filesystem root.
+#[test]
+fn a_rule_without_test_dir_is_refused() {
+    let err = config("[[rules]]\nglob = \"*.sh\"\n[[rules]]\nglob = \"*.rb\"\n").err();
+    assert_eq!(err.as_deref(), Some("rule 0 has no test_dir"));
 }

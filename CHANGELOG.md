@@ -40,3 +40,5 @@ the bytes pkli emits for the same inputs is at least a minor version
 - `lefthook-unit-coverage` reads configs with numbers, dates, `[table]`s,
   dotted keys and every string escape, as the legacy tool did; only
   multi-line strings and inline tables are refused, by line.
+- A `[[rules]]` entry without `test_dir` is a config error (exit 2),
+  where tests were looked for at the filesystem root.
