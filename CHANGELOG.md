@@ -36,6 +36,8 @@ the bytes pkli emits for the same inputs is at least a minor version
 - `pkli seed --init` types the files seed and gen write too, so `seed
   --init`, `gen`, `check` is green on a fresh repository; types only pkli's
   own files have are exempt as "written by pkli (seed or gen)".
+  A file the repository already had is left to it, never exempted as
+  pkli's own.
 - The compat entries list files as the legacy tools' `git ls-files` did:
   in the caller's git environment (`GIT_DIR`, `GIT_WORK_TREE`,
   `GIT_INDEX_FILE`), symlinks and submodules included; a git that fails

@@ -41,7 +41,10 @@ fn first_registry(
     seeds: &[crate::seed::Seed],
     (fragments, catalog): (&[crate::catalog::Fragment], &[crate::catalog::Check]),
 ) -> String {
-    let mut own: Vec<&str> = seeds.iter().map(|s| s.path).collect();
+    // A seed the repository already has is skipped, so the file is its
+    // own, not pkli's.
+    let written = seeds.iter().filter(|s| !root.join(s.path).exists());
+    let mut own: Vec<&str> = written.map(|s| s.path).collect();
     own.extend(crate::r#gen::files(root));
     own.push(".pklith");
     let mut after = files.to_vec();

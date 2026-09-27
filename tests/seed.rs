@@ -109,3 +109,22 @@ fn seed_init_then_gen_passes_check() -> Result {
     assert_eq!((code, stderr.as_str()), (Some(0), ""));
     Ok(std::fs::remove_dir_all(dir)?)
 }
+
+/// A file the repository already had is its own, even where seed would
+/// have written one: its type is not exempted as written by pkli.
+#[test]
+fn seed_init_leaves_existing_files_to_the_repository() -> Result {
+    let dir = bare("own-files")?;
+    std::fs::write(dir.join(".editorconfig"), "root = true\n")?;
+    pklith::proc::command("git", &dir)
+        .args(["add", "-A"])
+        .output()?;
+    assert_eq!(pkli(&dir, &["seed", "--init"])?.0, Some(0));
+    let registry = std::fs::read_to_string(dir.join(".pklith"))?;
+    assert!(
+        !registry.contains("editorconfig|-|-|written by pkli"),
+        "{registry}"
+    );
+    assert!(registry.contains("pkl|-|-|written by pkli"), "{registry}");
+    Ok(std::fs::remove_dir_all(dir)?)
+}
