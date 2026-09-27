@@ -38,14 +38,14 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 V1: `--init` skip-if-exists; existing file ⊥ touched (`.:V25`)
 V2: `.gitignore` fragments concatenated in fragment order
-V3: seeded exemptions ledger = empty list, valid (`.:V11`, `.:V23`)
+V3: seeded `.pklith` parses & cover accepts it on the tree it came from: ⊥ stale row, ⊥ unbacked claim; a type no check reads is left a gap & named, ⊥ silent exempt (`.:V5`, `.:V11`)
 
 ## §T TASKS
 
 id|status|task|cites
 T1|x|seed writer + skip-if-exists + empty ledger valid|V1,V3,`.:T55`
 T2|x|`.gitignore` composition|V2
-T3|.|`.pklith` from detected fragments + binary-asset exemptions|V1,`.:V11`
+T3|x|`.pklith` from detected fragments + binary-asset exemptions|V1,`.:V11`
 
 ## §B BUGS
 

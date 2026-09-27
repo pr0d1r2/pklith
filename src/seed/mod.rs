@@ -4,6 +4,7 @@
 use crate::catalog::Fragment;
 use std::path::Path;
 
+pub mod init;
 pub mod templates;
 
 use templates::Template;
