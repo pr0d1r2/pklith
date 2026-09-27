@@ -60,7 +60,7 @@ local fast = (generated.steps) {
   // T43 (V6): README badges are generated from Cargo.toml, .coverage, the
   // SPEC.md set, flake.lock and this file, never typed.
   ["readme-badges"] {
-    glob = List("README.md", "Cargo.toml", ".coverage", "hk.pkl", "hk.pklith.pkl", "flake.lock", "**/SPEC.md", "scripts/readme-badges.sh")
+    glob = List("README.md", "Cargo.toml", ".coverage", "hk.pkl", "hk.pklith.pkl", "flake.lock", "**/SPEC.md", "docs/LLM-DISCLAIMER.md", "scripts/readme-badges.sh")
     check = "scripts/readme-badges.sh --check"
     fix = "scripts/readme-badges.sh"
   }

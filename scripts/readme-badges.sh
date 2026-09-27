@@ -10,6 +10,8 @@
 # are editorial (intel and amd linux are one nix system), and the credits
 # name what built this repository (every commit's Co-Authored-By trailer).
 #
+# The same numbers are held in docs/LLM-DISCLAIMER.md's prose.
+#
 # --check: write nothing, exit 1 when README.md differs from its sources.
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
@@ -38,6 +40,20 @@ badges() {
   nixday="$(date -u -r "$when" +%Y-%m-%d 2>/dev/null || date -u -d "@$when" +%Y-%m-%d)"
   # shields.io reads one dash as a separator, so the date doubles its own.
   nixurl="${nixday//-/--}"
+  # docs/LLM-DISCLAIMER.md quotes these numbers in prose; hold it to them
+  # too, or the file a reader is told to open first says what was true
+  # once. Its lines wrap, so the text is joined before matching.
+  local prose want
+  prose="$(tr '\n' ' ' <docs/LLM-DISCLAIMER.md)"
+  for want in "**$com steps on commit, $pus on push**" "**$inv \`§V\` invariants**" "**$bug \`§B\` bugs**" "floor of $cov%"; do
+    case "$prose" in
+      *"$want"*) ;;
+      *)
+        echo "readme-badges: docs/LLM-DISCLAIMER.md must say $want, as its sources do" >&2
+        exit 1
+        ;;
+    esac
+  done
   grep -q '^unsafe_code = "forbid"' Cargo.toml || {
     echo "readme-badges: Cargo.toml no longer forbids unsafe code, so the badge would lie" >&2
     exit 1

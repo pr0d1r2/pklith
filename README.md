@@ -28,6 +28,8 @@
 [![built with SDD](https://img.shields.io/badge/built_with-spec--driven_development-D97757)](SPEC.md)
 <!-- END badges -->
 
+Read [LLM-DISCLAIMER](docs/LLM-DISCLAIMER.md) first.
+
 Materialize [hk](https://hk.jdx.dev) git hook guardrails from what a
 repository's files require.
 
