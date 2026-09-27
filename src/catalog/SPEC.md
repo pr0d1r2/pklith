@@ -48,7 +48,7 @@ id|status|task|cites
 T1|x|catalog row type + parser shared w/ registry cell rules|V3,V4
 T2|x|built-in catalog: hk util hygiene family, ripsecrets, typos, nixfmt, shellcheck, shfmt, taplo, rustfmt, clippy, rubocop, actionlint, zizmor, mth, sherd, itok|V1,`.:R6`
 T3|x|test: ∀ built-in nix attr evals|V2
-T4|~|`env` column: gen emits it; test: step w/ unset required env ⊥ emitted|`.:V19`
+T4|x|`env` column: gen emits it; test: step w/ unset required env ⊥ emitted|`.:V19`
 T5|x|test: ∀ built-in `check` resolves to a binary of its `nix` attr; `npx`/`pipx run`/`curl` in a row → rejected|`.:V29`
 
 ## §B BUGS

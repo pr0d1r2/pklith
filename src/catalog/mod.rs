@@ -126,7 +126,26 @@ fn complete(check: Check) -> Result<Check, Error> {
         () if check.id.is_empty() => Err(error(check.line, "a check row needs an id")),
         () if check.check.is_empty() => missing("check command"),
         () if check.msg.is_empty() => missing("failure message"),
-        () => pinned(check),
+        () => set(check).and_then(pinned),
+    }
+}
+
+/// Root V19: every variable a step needs is set by the step itself, so an
+/// `env` item is `KEY=value`; a bare `KEY` would be emitted empty.
+fn set(check: Check) -> Result<Check, Error> {
+    let bad = check
+        .env
+        .iter()
+        .find_map(|pair| match pair.split_once('=') {
+            None => Some(format!(
+                "needs env `{pair}` but sets no value; write `{pair}=value` (root V19)"
+            )),
+            Some(("", _)) => Some(format!("env item `{pair}` has no name")),
+            Some(_) => None,
+        });
+    match bad {
+        Some(why) => Err(error(check.line, format!("`{}` {why}", check.id))),
+        None => Ok(check),
     }
 }
 
@@ -304,7 +323,7 @@ mod tests {
         );
     }
 
-    const INCOMPLETE_CASES: [(&str, &str); 4] = [
+    const INCOMPLETE_CASES: [(&str, &str); 6] = [
         (
             "x|style|-|*|x|-|-|m",
             ".pklith:4: `x`: unknown category `style`",
@@ -314,6 +333,14 @@ mod tests {
         (
             "x|lint|-|*|x|x --fix|-|-",
             ".pklith:4: `x` has no failure message",
+        ),
+        (
+            "x|lint|-|*|x|-|FOO|m",
+            ".pklith:4: `x` needs env `FOO` but sets no value; write `FOO=value` (root V19)",
+        ),
+        (
+            "x|lint|-|*|x|-|A=1, =2|m",
+            ".pklith:4: `x` env item `=2` has no name",
         ),
     ];
 
