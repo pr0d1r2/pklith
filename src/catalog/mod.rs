@@ -145,7 +145,7 @@ fn set(check: Check) -> Result<Check, Error> {
         .iter()
         .find_map(|pair| match pair.split_once('=') {
             None => Some(format!(
-                "needs env `{pair}` but sets no value; write `{pair}=value` (root V19)"
+                "needs env `{pair}` but sets no value; write `{pair}=value`, and no comma inside a value (root V19)"
             )),
             Some(("", _)) => Some(format!("env item `{pair}` has no name")),
             Some(_) => None,
@@ -327,7 +327,7 @@ mod tests {
         ),
         (
             "x|lint|-|*|x|-|FOO|m",
-            ".pklith:4: `x` needs env `FOO` but sets no value; write `FOO=value` (root V19)",
+            ".pklith:4: `x` needs env `FOO` but sets no value; write `FOO=value`, and no comma inside a value (root V19)",
         ),
         (
             "x|lint|-|*|x|-|A=1, =2|m",
