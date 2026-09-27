@@ -157,8 +157,10 @@ fn load(path: &Path) -> Result<(crate::registry::Registry, Vec<crate::catalog::C
         .map_err(|e| format!("cannot read {}: {e}", path.display()))?;
     let registry = crate::registry::parse(&text).map_err(|e| e.to_string())?;
     let local = crate::catalog::parse(&registry.checks).map_err(|e| e.to_string())?;
-    let builtin = crate::catalog::builtin().map_err(|e| format!("built-in catalog: {e}"))?;
-    let catalog = crate::catalog::merge(builtin, local).map_err(|e| e.to_string())?;
+    // The built-in catalog cannot fail to parse: its own tests keep it so.
+    let catalog = crate::catalog::builtin()
+        .and_then(|builtin| crate::catalog::merge(builtin, local))
+        .map_err(|e| e.to_string())?;
     crate::catalog::known(&registry, &catalog).map_err(|e| e.to_string())?;
     Ok((registry, catalog))
 }
