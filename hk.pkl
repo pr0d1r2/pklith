@@ -57,10 +57,10 @@ local fast = (generated.steps) {
   // V35 (B12): hk's own Pkl evaluator and `pkl eval` must see the same steps,
   // each with a command. Hand-written, so it does not depend on the
   // generated module it guards.
-  // T43 (V6): README badges are generated from Cargo.toml, .coverage and
-  // this file, never typed.
+  // T43 (V6): README badges are generated from Cargo.toml, .coverage, the
+  // SPEC.md set, flake.lock and this file, never typed.
   ["readme-badges"] {
-    glob = List("README.md", "Cargo.toml", ".coverage", "hk.pkl", "hk.pklith.pkl", "scripts/readme-badges.sh")
+    glob = List("README.md", "Cargo.toml", ".coverage", "hk.pkl", "hk.pklith.pkl", "flake.lock", "**/SPEC.md", "scripts/readme-badges.sh")
     check = "scripts/readme-badges.sh --check"
     fix = "scripts/readme-badges.sh"
   }
