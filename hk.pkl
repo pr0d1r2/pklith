@@ -60,7 +60,7 @@ local fast = (generated.steps) {
   // T43 (V6): README badges are generated from Cargo.toml, .coverage and
   // this file, never typed.
   ["readme-badges"] {
-    glob = List("README.md", "Cargo.toml", ".coverage", "hk.pkl", "scripts/readme-badges.sh")
+    glob = List("README.md", "Cargo.toml", ".coverage", "hk.pkl", "hk.pklith.pkl", "scripts/readme-badges.sh")
     check = "scripts/readme-badges.sh --check"
     fix = "scripts/readme-badges.sh"
   }
@@ -116,7 +116,7 @@ local all = (fast) {
   // T62 (V10): the flake's packages built by nix and run on a fixture, and
   // no placeholder left in what was built.
   ["package-nix"] {
-    glob = List("flake.nix", "flake.lock", "Cargo.toml", "Cargo.lock", "src/**", "pkl/**", "scripts/package-nix.sh")
+    glob = List("flake.nix", "flake.lock", "Cargo.toml", "Cargo.lock", "src/**", "pkl/**", "nix/**", "scripts/package-nix.sh")
     check = "scripts/package-nix.sh"
     depends = List("test")
   }

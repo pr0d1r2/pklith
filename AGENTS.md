@@ -56,7 +56,7 @@ Notes for anyone, human or agent, changing this repository.
 | `gen-check` | commit | whole tree | - |
 | `pkli-check` | commit | whole tree | - |
 | `agents-table` | commit | `hk.pkl` `AGENTS.md` `scripts/agents-table.sh` | yes |
-| `readme-badges` | commit | `README.md` `Cargo.toml` `.coverage` `hk.pkl` `scripts/readme-badges.sh` | yes |
+| `readme-badges` | commit | `README.md` `Cargo.toml` `.coverage` `hk.pkl` `hk.pklith.pkl` `scripts/readme-badges.sh` | yes |
 | `schema-pin` | commit | `pkl/**` `flake.lock` `scripts/schema-pin.sh` | - |
 | `hk-parity` | commit | `hk.pkl` `hk.pklith.pkl` `pkl/**` `scripts/hk-parity.sh` | - |
 | `coverage` | push | `**/*.rs` `Cargo.toml` `.coverage` | - |
@@ -65,5 +65,5 @@ Notes for anyone, human or agent, changing this repository.
 | `package` | push | `Cargo.toml` `Cargo.lock` `src/**` `pkl/**` | - |
 | `semver` | push | `Cargo.toml` `src/**` `scripts/semver.sh` | - |
 | `bench` | push | `Cargo.toml` `Cargo.lock` `src/**` `scripts/bench.sh` | - |
-| `package-nix` | push | `flake.nix` `flake.lock` `Cargo.toml` `Cargo.lock` `src/**` `pkl/**` `scripts/package-nix.sh` | - |
+| `package-nix` | push | `flake.nix` `flake.lock` `Cargo.toml` `Cargo.lock` `src/**` `pkl/**` `nix/**` `scripts/package-nix.sh` | - |
 <!-- END steps -->
