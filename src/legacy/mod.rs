@@ -167,6 +167,7 @@ mod tests {
     fn backticks_and_pipes_are_read_as_the_awk_read_them() {
         assert_eq!(keys("| `a` `` `b |\n"), ["a", " "]);
         assert_eq!(keys("| `a` `b\n"), Vec::<String>::new());
+        assert_eq!(keys("| `a` `b |\n"), ["a"]);
         assert_eq!(keys("| `.rb`\n| `sh` |\n"), ["sh"]);
     }
 
