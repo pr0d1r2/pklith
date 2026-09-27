@@ -120,6 +120,7 @@
             pkgs.yamllint
             pkgs.libxml2
             pkgs.gawk
+            pkgs.bats
             itok.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];
           RUST_BACKTRACE = "1";

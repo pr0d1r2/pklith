@@ -29,7 +29,12 @@ mod tests {
     /// Cases ported from set-and-setting's `tests/detect-fragments.bats`,
     /// for the fragments pklith ships: its expectations, less the dropped
     /// fragments (ruby, rspec, ascii, …).
-    const CASES: [(&str, &[&str], &[&str]); 15] = [
+    const CASES: [(&str, &[&str], &[&str]); 16] = [
+        (
+            ".bats files detect bats",
+            &["tests/a.bats"],
+            &["base", "bats"],
+        ),
         ("awk detects awk", &["x.awk"], &["base", "awk"]),
         ("xml detects xml", &["a/b.xml"], &["base", "xml"]),
         (

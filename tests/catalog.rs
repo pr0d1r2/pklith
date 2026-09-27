@@ -230,6 +230,7 @@ proven! {
     yamllint => "yamllint": [file("a.yml", "a: 1\na: 2\n")], [file("a.yml", "---\na: 1\n")];
     xmllint => "xmllint": [file("a.xml", "<a><b></a>\n")], [file("a.xml", "<a/>\n")];
     gawk_lint => "gawk-lint": [file("a.awk", "BEGIN { system(\"touch ran\"); x = substr(\"a\") }\n")], [file("a.awk", "BEGIN { print 1 }\n")];
+    bats_parse => "bats-parse": [file("a.bats", "@test \"x\" {\n  true\n")], [file("a.bats", "@test \"x\" {\n  true\n}\n")];
     shfmt => "shfmt": [file("a.sh", "if true;then echo;fi\n")], [file("a.sh", "if true; then echo; fi\n")];
     taplo => "taplo": [file("a.toml", "a=1\n")], [file("a.toml", "a = 1\n")];
     rustfmt => "rustfmt": crate_with("pub fn f(){}\n"), crate_with("pub fn f() {}\n");

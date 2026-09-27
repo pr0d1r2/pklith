@@ -40,6 +40,7 @@ markdownlint|lint|markdownlint-cli|**/*.md|markdownlint {{files}}|markdownlint -
 yamllint|lint|yamllint|**/*.yml, **/*.yaml|yamllint {{files}}|-|-|YAML error; yamllint names the rule
 xmllint|lint|libxml2|**/*.xml|xmllint --noout {{files}}|-|-|XML is not well-formed
 gawk-lint|lint|gawk|**/*.awk|(for f in {{files}}; do gawk --lint=fatal --pretty-print=/dev/null -f "$f" \|\| exit 1; done)|-|-|awk script does not parse, or trips gawk's lint
+bats-parse|lint|bats|**/*.bats|bats --count {{files}} >/dev/null|-|-|bats file does not parse
 editorconfig-checker|lint|editorconfig-checker|**/*|editorconfig-checker {{files}}|-|-|file breaks its .editorconfig (indent, line ends, final newline)
 mth-fmt|spec|microlith|**/SPEC.md|(for f in {{files}}; do mth fmt --check "$f" \|\| exit 1; done)|(for f in {{files}}; do mth fmt "$f" \|\| exit 1; done)|-|SPEC.md is hard-wrapped or over the line cap
 mth-check|spec|microlith|**/SPEC.md|(for f in {{files}}; do mth check "$f" \|\| exit 1; done)|-|-|SPEC.md breaks a structural rule
@@ -64,6 +65,7 @@ shell|**/*.sh, **/*.bash|shellcheck, shfmt|-
 rubocop|**/.rubocop.yml, **/*.gemspec|rubocop|-
 xml|**/*.xml|xmllint|-
 awk|**/*.awk|gawk-lint|-
+bats|**/*.bats|bats-parse|-
 markdown|**/*.md|markdownlint|-
 yaml|**/*.yml, **/*.yaml|yamllint|-
 toml|**/*.toml|taplo|-
