@@ -117,6 +117,7 @@
             pkgs.statix
             pkgs.deadnix
             pkgs.markdownlint-cli
+            pkgs.yamllint
             itok.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];
           RUST_BACKTRACE = "1";

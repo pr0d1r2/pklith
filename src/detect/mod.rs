@@ -50,7 +50,7 @@ mod tests {
         (
             ".rubocop.yml detects rubocop",
             &[".rubocop.yml"],
-            &["base", "rubocop"],
+            &["base", "rubocop", "yaml"],
         ),
         (
             "gemspec detects rubocop",
@@ -62,12 +62,12 @@ mod tests {
         (
             "workflows detect actions",
             &[".github/workflows/ci.yml"],
-            &["base", "actions"],
+            &["base", "actions", "yaml"],
         ),
         (
-            "a yml elsewhere is not a workflow",
+            "a yml elsewhere is yaml, not a workflow",
             &["x/ci.yml"],
-            &["base"],
+            &["base", "yaml"],
         ),
         (
             "nested files are detected",
@@ -95,7 +95,7 @@ mod tests {
     fn the_order_does_not_follow_the_files() -> Result<(), Error> {
         let forward = detected(&["a.toml", "b.sh", "c.nix", ".github/workflows/x.yaml"])?;
         let backward = detected(&[".github/workflows/x.yaml", "c.nix", "b.sh", "a.toml"])?;
-        assert_eq!(forward, ["base", "actions", "nix", "shell", "toml"]);
+        assert_eq!(forward, ["base", "actions", "nix", "shell", "yaml", "toml"]);
         assert_eq!(forward, backward);
         Ok(())
     }

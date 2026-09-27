@@ -37,6 +37,7 @@ zizmor|lint|zizmor|.github/workflows/*.yml, .github/workflows/*.yaml|zizmor --of
 statix|lint|statix|**/*.nix|(for f in {{files}}; do statix check "$f" \|\| exit 1; done)|(for f in {{files}}; do statix fix "$f" \|\| exit 1; done)|-|nix anti-pattern; statix names the lint and its fix
 deadnix|lint|deadnix|**/*.nix|deadnix --fail {{files}}|deadnix --edit {{files}}|-|unused nix binding or argument; remove it, or prefix it with _
 markdownlint|lint|markdownlint-cli|**/*.md|markdownlint {{files}}|markdownlint --fix {{files}}|-|markdown style finding; markdownlint names the rule
+yamllint|lint|yamllint|**/*.yml, **/*.yaml|yamllint {{files}}|-|-|YAML error; yamllint names the rule
 editorconfig-checker|lint|editorconfig-checker|**/*|editorconfig-checker {{files}}|-|-|file breaks its .editorconfig (indent, line ends, final newline)
 mth-fmt|spec|microlith|**/SPEC.md|(for f in {{files}}; do mth fmt --check "$f" \|\| exit 1; done)|(for f in {{files}}; do mth fmt "$f" \|\| exit 1; done)|-|SPEC.md is hard-wrapped or over the line cap
 mth-check|spec|microlith|**/SPEC.md|(for f in {{files}}; do mth check "$f" \|\| exit 1; done)|-|-|SPEC.md breaks a structural rule
@@ -60,6 +61,7 @@ nix|**/*.nix|nixfmt, statix, deadnix|-
 shell|**/*.sh, **/*.bash|shellcheck, shfmt|-
 rubocop|**/.rubocop.yml, **/*.gemspec|rubocop|-
 markdown|**/*.md|markdownlint|-
+yaml|**/*.yml, **/*.yaml|yamllint|-
 toml|**/*.toml|taplo|-
 rust|**/Cargo.toml, **/*.rs|rustfmt, clippy|-
 spec|**/SPEC.md|mth-fmt, mth-check, sherd-check, sherd-nav, sherd-budget|-
