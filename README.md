@@ -46,10 +46,10 @@ green.
    (`LEFTHOOK_LINTER_COVERAGE_DOC`, `LEFTHOOK_LINTER_COVERAGE_ROOT`,
    `LEFTHOOK_UNIT_COVERAGE_CONFIG`, `LEFTHOOK_UNIT_COVERAGE_ROOT`), prints
    the same messages and exits with the same codes. Your hook config does
-   not change. There are two deliberate differences. A linter document with
-   table rows but no backtick token is an error (exit 2), not a report that
-   every extension is unlisted. An unreadable input is also exit 2, and the
-   message names its cause.
+   not change. Where legacy would pass having checked nothing (a document
+   with table rows but no backtick token, an unreadable input, git
+   failing), the compat entry exits 2 and names the cause; the full list
+   of deliberate differences is in [`src/legacy/SPEC.md`](src/legacy/SPEC.md).
 2. **Move onto `pkli check`.** Run `pkli import docs/linter-coverage.md >
    .pklith` (a set-and-setting fragment map, from `nix eval --json`, imports
    the same way from a `.json` file). Every listed type becomes an exempt
