@@ -17,7 +17,7 @@ fn inputs(cwd: &Path) -> Result<Inputs, String> {
     let Loaded {
         registry, catalog, ..
     } = load(&root.join(".pklith"))?;
-    let files = files(&root, false)?;
+    let files = laid_tree(&root)?;
     let present = present(&root)?;
     let claimed = crate::cover::claimed_somewhere(&files, &registry);
     Ok(Inputs {
@@ -27,6 +27,17 @@ fn inputs(cwd: &Path) -> Result<Inputs, String> {
         present,
         claimed,
     })
+}
+
+/// The tree as lay leaves it: tracked files and the files gen writes, so
+/// a check claimed for a generated file lands in this run, not the next
+/// (lay V5).
+fn laid_tree(root: &Path) -> Result<Vec<String>, String> {
+    let mut files = files(root, false)?;
+    files.extend(crate::r#gen::files(root).into_iter().map(str::to_owned));
+    files.sort();
+    files.dedup();
+    Ok(files)
 }
 
 /// Step ids hk already runs. For planning, an hk.pkl with no steps yet is

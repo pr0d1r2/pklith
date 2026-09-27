@@ -285,3 +285,26 @@ fn lay_refuses_an_edited_agents_file() -> Result {
     );
     Ok(std::fs::remove_dir_all(dir)?)
 }
+
+/// `common::OK` plus a check for `.nix` files, of which the tree holds
+/// only the one lay itself generates.
+const NIX: &str = "format 1\n## checks\nid|category|nix|glob|check|fix|env|msg\nlint|lint|-|*|true|-|-|m\nnixlint|lint|-|**/*.nix|true|-|-|m\n## types\ntype|checks|min|exempt\nrs|lint|-|-\npklith|-|-|the registry itself\npkl|-|-|hk config\nnix|nixlint|-|-\n";
+
+/// lay V5: a check claimed for a file lay generates (nix/pklith.nix) is
+/// laid in the same run, so a second run lays nothing.
+#[test]
+fn a_check_for_a_generated_file_is_laid_in_one_run() -> Result {
+    let dir = laying_repo("lay-generated", 0)?;
+    std::fs::write(dir.join(".pklith"), NIX)?;
+    git(&dir, &["commit", "-qam", "nix row", "--no-verify"])?;
+    let (code, stdout, _) = pkli_as(&dir, &["lay"])?;
+    assert!(
+        code == Some(0) && stdout.contains("ci(nixlint)"),
+        "{stdout}"
+    );
+    assert_eq!(
+        pkli_as(&dir, &["lay"])?,
+        (Some(0), String::new(), String::new())
+    );
+    Ok(std::fs::remove_dir_all(dir)?)
+}

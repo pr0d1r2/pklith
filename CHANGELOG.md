@@ -21,6 +21,9 @@ the bytes pkli emits for the same inputs is at least a minor version
 
 ### Fixed
 
+- `pkli lay` lays, in one run, the checks claimed for files it generates
+  itself (such as `nix/pklith.nix`), so a second run lays nothing and
+  `pkli check` passes after the first.
 - The built-in `clippy` check lints every workspace member
   (`cargo clippy --workspace`), not only the root package; a lint in a
   member crate used to pass. Consumers see the step's command change in
