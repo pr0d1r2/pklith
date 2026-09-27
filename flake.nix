@@ -76,6 +76,28 @@
         }
       );
 
+      packages = forAll (pkgs: {
+        # pkli, built from the crate alone: the sources cargo reads and the
+        # vendored hk schema it embeds. The suite runs in the gate; the
+        # binary is tested as built by the package-nix step (V10).
+        default = pkgs.rustPlatform.buildRustPackage {
+          pname = "pklith";
+          version = (builtins.fromTOML (builtins.readFile ./Cargo.toml)).package.version;
+          src = pkgs.lib.fileset.toSource {
+            root = ./.;
+            fileset = pkgs.lib.fileset.unions [
+              ./Cargo.toml
+              ./Cargo.lock
+              ./src
+              ./pkl
+            ];
+          };
+          cargoLock.lockFile = ./Cargo.lock;
+          doCheck = false;
+          meta.mainProgram = "pkli";
+        };
+      });
+
       devShells = forAll (pkgs: {
         default = pkgs.mkShell {
           packages = [
