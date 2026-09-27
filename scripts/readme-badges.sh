@@ -53,7 +53,7 @@ badges() {
 [![License: $lic](https://img.shields.io/badge/license-$lic-blue.svg)](LICENSE)
 [![edition $ed](https://img.shields.io/badge/edition-$ed-000000?logo=rust&logoColor=white)](Cargo.toml)
 [![MSRV $msrv](https://img.shields.io/badge/MSRV-$msrv-000000?logo=rust&logoColor=white)](Cargo.toml)
-[![direct dependencies $deps](https://img.shields.io/badge/direct_dependencies-$deps-brightgreen)](Cargo.toml)
+[![direct dependencies $deps](https://img.shields.io/badge/direct_dependencies-$deps-brightgreen)](docs/THIRD-PARTY-NOTICES.md)
 [![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-brightgreen)](Cargo.toml)
 [![network pkli protect only](https://img.shields.io/badge/network-pkli_protect_only-brightgreen)](SECURITY.md)
 
