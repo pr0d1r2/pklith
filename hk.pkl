@@ -84,6 +84,14 @@ local all = (fast) {
     check = "scripts/relay.sh"
     depends = List("gen-check", "pkli-check")
   }
+  // T40: no dependency with a published advisory. It fetches the advisory
+  // database, so it runs at push, which needs the network anyway; the
+  // commit-time `deny` step stays offline. Proven red on a lockfile holding
+  // time 0.2.22 (RUSTSEC-2020-0071).
+  ["deny-advisories"] {
+    glob = List("Cargo.toml", "Cargo.lock", "deny.toml")
+    check = "cargo deny check advisories"
+  }
   // T62 (V10): the flake's packages built by nix and run on a fixture, and
   // no placeholder left in what was built.
   ["package-nix"] {

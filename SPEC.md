@@ -169,7 +169,7 @@ T36|x|`.github/workflows/ci.yml` = orchestration only, `hk check` on 3 tier-1 sy
 T37|x|`actionlint`|V2,V15
 T38|x|`zizmor`|V2,V15
 T39|x|`deny` (licenses, bans) + `deny.toml`|V2
-T40|.|`deny-advisories`|V2
+T40|x|`deny-advisories`|V2
 T41|.|`semver` (cargo semver-checks)|V2
 T42|.|`package` / must-package|V2
 T43|.|README badges generated + `readme-badges` step|V6
