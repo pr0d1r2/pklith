@@ -1,6 +1,6 @@
 //! `pkli lay [--dry-run]`: one commit per missing check.
 
-use super::{Outcome, data, exit, files, load, toplevel};
+use super::{Loaded, Outcome, data, exit, files, load, toplevel};
 use std::path::{Path, PathBuf};
 
 /// What both `lay` and `lay --dry-run` read.
@@ -14,7 +14,9 @@ struct Inputs {
 
 fn inputs(cwd: &Path) -> Result<Inputs, String> {
     let root = toplevel(cwd)?;
-    let (registry, catalog) = load(&root.join(".pklith"))?;
+    let Loaded {
+        registry, catalog, ..
+    } = load(&root.join(".pklith"))?;
     let files = files(&root, false)?;
     let present = present(&root)?;
     let claimed = crate::cover::claimed_somewhere(&files, &registry);

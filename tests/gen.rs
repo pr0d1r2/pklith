@@ -120,3 +120,21 @@ fn gen_check_judges_only_the_steps_the_file_holds() -> Result {
     assert_eq!(pkli(&dir, &["gen", "--check"])?.0, Some(1));
     Ok(std::fs::remove_dir_all(dir)?)
 }
+
+/// Every verb resolves the whole registry: gen refuses a local fragment
+/// naming an unknown check, as check and detect do.
+#[test]
+fn gen_refuses_a_bad_local_fragment() -> Result {
+    let bad = format!("{OK}## fragments\nfragment|triggers|checks|seed\nx|always|nope|-\n");
+    let dir = repo("gen-bad-fragment", Some(&bad))?;
+    let (code, _, stderr) = pkli(&dir, &["gen"])?;
+    assert_eq!(
+        (code, stderr.as_str()),
+        (
+            Some(2),
+            "pkli gen: .pklith:12: fragment `x` names unknown check `nope`\n"
+        )
+    );
+    assert!(!dir.join("hk.pklith.pkl").exists());
+    Ok(std::fs::remove_dir_all(dir)?)
+}

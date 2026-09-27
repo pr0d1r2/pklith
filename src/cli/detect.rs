@@ -1,7 +1,7 @@
 //! `pkli detect`: the fragments a repository's files switch on
 //! (src/detect).
 
-use super::{Options, Outcome, USAGE, data, exit, files, fragments, options, toplevel};
+use super::{Options, Outcome, USAGE, data, detecting, exit, files, options, toplevel};
 use std::path::Path;
 
 /// One fragment id per line, in catalog order, on stdout (V3). `.pklith`
@@ -20,7 +20,7 @@ pub(super) fn run(args: &[String], cwd: &Path) -> Outcome {
 fn detected(opts: Options, cwd: &Path) -> Result<Vec<String>, String> {
     let walk = opts.root.is_some();
     let root = opts.root.map_or_else(|| toplevel(cwd), Ok)?;
-    let (fragments, _) = fragments(opts.registry, &root)?;
+    let fragments = detecting(opts.registry, &root)?.fragments;
     let files = files(&root, walk)?;
     let active = crate::detect::active(&files, &fragments);
     Ok(active.into_iter().map(|f| f.id.clone()).collect())

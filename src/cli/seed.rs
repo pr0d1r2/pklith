@@ -1,7 +1,7 @@
 //! `pkli seed [--init]`: repo-owned seed files from the active fragments
 //! (src/seed).
 
-use super::{Outcome, data, exit, files, fragments, toplevel};
+use super::{Loaded, Outcome, data, detecting, exit, files, toplevel};
 use std::path::Path;
 
 /// The paths written, one per line, on stdout (V3); an existing file is
@@ -16,7 +16,9 @@ pub(super) fn run(cwd: &Path, init: bool) -> Outcome {
 
 fn seeded(cwd: &Path, init: bool) -> Result<Vec<String>, String> {
     let root = toplevel(cwd)?;
-    let (fragments, catalog) = fragments(None, &root)?;
+    let Loaded {
+        catalog, fragments, ..
+    } = detecting(None, &root)?;
     let files = files(&root, false)?;
     let active = crate::detect::active(&files, &fragments);
     let mut seeds = crate::seed::files(&active, &name(&root))?;

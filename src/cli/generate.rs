@@ -8,13 +8,11 @@ use std::path::Path;
 /// a step the file holds is stale, or the file is missing (gen V3).
 pub(super) fn run(cwd: &Path, check: bool) -> Outcome {
     let loaded = toplevel(cwd).and_then(|root| Ok((load(&root.join(".pklith"))?, root)));
-    let Ok(((registry, catalog), root)) = loaded else {
-        return exit(
-            2,
-            format!("pkli gen: {}\n", loaded.err().unwrap_or_default()),
-        );
+    let (loaded, root) = match loaded {
+        Ok(found) => found,
+        Err(message) => return exit(2, format!("pkli gen: {message}\n")),
     };
-    let used = crate::r#gen::used(&registry, &catalog);
+    let used = crate::r#gen::used(&loaded.registry, &loaded.catalog);
     if check {
         return freshness(&root, &used);
     }

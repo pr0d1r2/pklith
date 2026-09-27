@@ -120,44 +120,50 @@ fn toplevel(cwd: &Path) -> Result<PathBuf, String> {
     Ok(PathBuf::from(String::from_utf8_lossy(&out).trim_end()))
 }
 
-/// The registry and its checks: the built-in catalog with the local rows
-/// laid over it, every type row naming a known check (registry V2). Root
-/// V11: no `.pklith` is an error, never a pass.
-fn load(path: &Path) -> Result<(crate::registry::Registry, Vec<crate::catalog::Check>), String> {
+/// A registry with everything it names resolved: the built-in catalog and
+/// fragments with its own rows laid over them.
+struct Loaded {
+    registry: crate::registry::Registry,
+    catalog: Vec<crate::catalog::Check>,
+    fragments: Vec<crate::catalog::Fragment>,
+}
+
+/// Read and resolve the registry at `path`. Root V11: no `.pklith` is an
+/// error, never a pass.
+fn load(path: &Path) -> Result<Loaded, String> {
     let text = std::fs::read_to_string(path)
         .map_err(|e| format!("cannot read {}: {e}", path.display()))?;
     let registry = crate::registry::parse(&text).map_err(|e| e.to_string())?;
-    let local = crate::catalog::parse(&registry.checks).map_err(|e| e.to_string())?;
-    // The built-in catalog cannot fail to parse: its own tests keep it so.
-    let catalog = crate::catalog::builtin()
-        .and_then(|builtin| crate::catalog::merge(builtin, local))
-        .map_err(|e| e.to_string())?;
-    crate::catalog::known(&registry, &catalog).map_err(|e| e.to_string())?;
-    Ok((registry, catalog))
+    resolved(registry)
 }
 
-type Catalog = (Vec<crate::catalog::Fragment>, Vec<crate::catalog::Check>);
+fn resolved(registry: crate::registry::Registry) -> Result<Loaded, String> {
+    resolve(registry).map_err(|e| e.to_string())
+}
 
-/// The fragments to detect with, and the catalog they name: the registry's
-/// over the built-in ones. A named registry must exist; the default
+/// Every type row and fragment naming a known check (registry V2, root
+/// V17), so every verb refuses the same malformed registry.
+fn resolve(registry: crate::registry::Registry) -> Result<Loaded, crate::registry::Error> {
+    let local = crate::catalog::parse(&registry.checks)?;
+    // The built-in catalog cannot fail to parse: its own tests keep it so.
+    let catalog = crate::catalog::merge(crate::catalog::builtin()?, local)?;
+    crate::catalog::known(&registry, &catalog)?;
+    let fragments = crate::catalog::fragment::resolved(&registry.fragments, &catalog)?;
+    Ok(Loaded {
+        registry,
+        catalog,
+        fragments,
+    })
+}
+
+/// What detection works from. A named registry must exist; the default
 /// `.pklith` may not yet, which means the built-in catalog alone, since
 /// detection is how a repository gets its first.
-fn fragments(named: Option<PathBuf>, root: &Path) -> Result<Catalog, String> {
+fn detecting(named: Option<PathBuf>, root: &Path) -> Result<Loaded, String> {
     let default = root.join(".pklith");
-    let loaded = match named {
-        Some(path) => Some(rows(&path)?),
-        None if default.exists() => Some(rows(&default)?),
-        None => None,
-    };
-    // The built-in catalog cannot fail to parse: its own tests keep it so.
-    let catalog = loaded.map_or_else(|| crate::catalog::builtin().map(|c| (Vec::new(), c)), Ok);
-    let resolve = |(rows, catalog): (Vec<_>, Vec<_>)| {
-        crate::catalog::fragment::resolved(&rows, &catalog).map(|f| (f, catalog))
-    };
-    catalog.and_then(resolve).map_err(|e| e.to_string())
-}
-
-fn rows(path: &Path) -> Result<(Vec<crate::registry::Row>, Vec<crate::catalog::Check>), String> {
-    let (registry, catalog) = load(path)?;
-    Ok((registry.fragments, catalog))
+    match named {
+        Some(path) => load(&path),
+        None if default.exists() => load(&default),
+        None => resolved(crate::registry::Registry::default()),
+    }
 }
