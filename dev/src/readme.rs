@@ -23,11 +23,11 @@ pub fn run_verb(check: bool) -> Result<(), Failed> {
 }
 
 fn gather() -> Result<badges::Facts, Failed> {
-    let cargo = read("Cargo.toml")?;
+    let (cargo, (floor, nixpkgs, platforms)) = (read("Cargo.toml")?, files()?);
     let field = |key: &str| facts::quoted(&cargo, key).unwrap_or_default();
-    let (floor, nixpkgs, platforms) = files()?;
     Ok(badges::Facts {
         slug: field("repository").replace("https://github.com/", ""),
+        name: field("name"),
         license: field("license"),
         edition: field("edition"),
         msrv: field("rust-version"),
