@@ -32,6 +32,7 @@ sib|src/protect|branch protection required contexts from CI job names via `gh ap
 
 - hand arg parse (fleet style); ? `lexopt` if hand parse breaks fn limits.
 - 1 file per verb (`check.rs`, `generate.rs`, …): flags, load, call the owning node, map to `Outcome`. `mod.rs` = dispatch, usage, `Outcome`, root discovery, `load`. verb logic ⊥ here; a verb earns its own node only by invariants ⊥ shared & ⊥ its domain node's.
+- invoked as a legacy tool name (`lefthook-linter-coverage`, `-full`, `lefthook-unit-coverage`) → `compat.rs`, args ignored, legacy exit codes (`src/legacy` V2).
 
 ## §V INVARIANTS
 

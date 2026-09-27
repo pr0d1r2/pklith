@@ -4,6 +4,7 @@
 
 use std::fmt::Write as _;
 
+pub mod compat;
 pub mod fragment_map;
 pub mod json;
 pub mod toml;
@@ -84,13 +85,22 @@ impl std::error::Error for Error {}
 /// parser that read nothing must not report every type uncovered, which
 /// is what the legacy `-full` tool did (B2).
 pub fn import(doc: &str) -> Result<String, Error> {
+    Ok(registry(&read(doc)?))
+}
+
+/// The document's tokens, refusing one that parses to nothing (V5).
+///
+/// # Errors
+///
+/// An [`Error`] when the document has table rows but no token.
+pub fn read(doc: &str) -> Result<Vec<Token>, Error> {
     let tokens = tokens(doc);
     if tokens.is_empty() && doc.lines().any(|l| l.starts_with('|')) {
         return Err(Error(
             "parsed nothing: the document has table rows but no backtick tokens in column 1".into(),
         ));
     }
-    Ok(registry(&tokens))
+    Ok(tokens)
 }
 
 /// One exempt type row per distinct key, first wins.

@@ -3,7 +3,9 @@
 //! way `lefthook-unit-coverage` maps it, so the compat entry's missing
 //! lines match the legacy tool's (legacy V2).
 
+use super::compat::UNIT;
 use super::toml::{self, Table, Val};
+use std::fmt::Write as _;
 
 /// The allowlist `lefthook-unit-coverage` reads when the config names none.
 pub const ALLOWLIST: &str = ".coverage-allowlist";
@@ -186,6 +188,46 @@ impl Rule {
         }
         Ok(missing)
     }
+}
+
+/// What `lefthook-unit-coverage` printed on stderr for `config` over
+/// `files`, and whether it failed: a section per rule with missing tests,
+/// then the fix line; an unknown pattern ends the run where it is met.
+#[must_use]
+pub fn verdict(
+    config: &Config,
+    files: &[String],
+    allow: &[&str],
+    exists: impl Fn(&str) -> bool,
+) -> (String, bool) {
+    let mut out = String::new();
+    let mut total = 0;
+    for (idx, rule) in config.rules.iter().enumerate() {
+        match rule.missing(files, allow, &exists) {
+            Ok(missing) => total += section(&mut out, idx, rule, &missing),
+            Err(e) => return (out + &format!("{UNIT}: {e} in rule {idx}\n"), true),
+        }
+    }
+    if total > 0 {
+        let fix = "Fix: add missing test files or allowlist paths in";
+        let _ = write!(out, "\n{fix} {}.\n", config.allowlist);
+    }
+    (out, total > 0)
+}
+
+/// Append a rule's missing lines to `out`; how many there were.
+fn section(out: &mut String, idx: usize, rule: &Rule, missing: &[String]) -> usize {
+    if !missing.is_empty() {
+        let (glob, n) = (&rule.glob, missing.len());
+        let _ = writeln!(
+            out,
+            "{UNIT}: rule {idx} ({glob}): {n} file(s) missing spec:"
+        );
+        for m in missing {
+            let _ = writeln!(out, "  {m}");
+        }
+    }
+    missing.len()
 }
 
 #[cfg(test)]

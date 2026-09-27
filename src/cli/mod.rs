@@ -5,6 +5,7 @@
 use std::path::{Path, PathBuf};
 
 mod check;
+mod compat;
 mod confirm;
 mod detect;
 mod generate;
@@ -59,6 +60,14 @@ fn data(stdout: String) -> Outcome {
         stdout,
         stderr: String::new(),
     }
+}
+
+/// Run as `program`: a legacy tool's name runs its compat entry with
+/// the process environment (`src/legacy` T5), anything else is `pkli`.
+#[must_use]
+pub fn run_as(program: &str, args: &[String], cwd: &Path) -> Outcome {
+    let env = |k: &str| std::env::var(k).ok();
+    compat::run(program, cwd, &env).unwrap_or_else(|| run(args, cwd))
 }
 
 /// Run `pkli` with `args` (without the program name) from `cwd`.

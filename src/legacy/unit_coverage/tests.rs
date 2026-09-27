@@ -147,3 +147,38 @@ fn an_unknown_pattern_fails_when_used() {
     let err = missing(&r, &["s/a.sh"], &[]).err();
     assert_eq!(err.as_deref(), Some("unknown pattern 'odd'"));
 }
+
+/// The legacy stderr: a section per failing rule, then the fix line; a
+/// passing run prints nothing.
+#[test]
+fn the_verdict_is_the_legacy_text() -> Result<(), String> {
+    let cfg = config(
+        "[[rules]]\nglob = \"*.sh\"\ndirs = [\"s\"]\ntest_dir = \"t\"\n[[rules]]\nglob = \"*.rb\"\ndirs = [\"s\"]\ntest_dir = \"t\"\n",
+    )?;
+    let files = owned(&["s/a.sh", "s/b.sh", "s/c.rb"]);
+    let (text, failed) = super::verdict(&cfg, &files, &["s/b.sh"], |s| s == "t/s/c.rb");
+    let want = "lefthook-unit-coverage: rule 0 (*.sh): 1 file(s) missing spec:\n  s/a.sh -> t/s/a.sh\n\nFix: add missing test files or allowlist paths in .coverage-allowlist.\n";
+    assert_eq!((text.as_str(), failed), (want, true));
+    assert_eq!(
+        super::verdict(&cfg, &files, &[], |_| true),
+        (String::new(), false)
+    );
+    Ok(())
+}
+
+/// An unknown pattern stops the run after what earlier rules printed.
+#[test]
+fn an_unknown_pattern_ends_the_verdict() -> Result<(), String> {
+    let cfg = config(
+        "[[rules]]\nglob = \"*.sh\"\ndirs = [\"s\"]\n[[rules]]\nglob = \"*.sh\"\ndirs = [\"s\"]\npattern = \"odd\"\n",
+    )?;
+    let (text, failed) = super::verdict(&cfg, &owned(&["s/a.sh"]), &[], |_| false);
+    assert!(failed && text.starts_with("lefthook-unit-coverage: rule 0 (*.sh)"));
+    assert!(
+        text.ends_with(
+            "\n  s/a.sh -> /s/a.sh\nlefthook-unit-coverage: unknown pattern 'odd' in rule 1\n"
+        ),
+        "{text}"
+    );
+    Ok(())
+}
