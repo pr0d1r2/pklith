@@ -73,11 +73,10 @@ impl Template {
     #[must_use]
     pub fn render(&self, source: &str, plurals: &Plurals) -> String {
         let text: String = self.0.iter().map(|p| part(p, source, plurals)).collect();
-        let mut clean = text.replace("//", "/");
-        while clean.contains("//") {
-            clean = clean.replace("//", "/");
-        }
-        clean.trim_start_matches('/').to_owned()
+        text.split('/')
+            .filter(|s| !s.is_empty())
+            .collect::<Vec<_>>()
+            .join("/")
     }
 }
 
@@ -206,7 +205,9 @@ mod tests {
         Ok(Template::parse(template)?.render(source, &table))
     }
 
-    const CASES: [(&str, &str, &str); 10] = [
+    const CASES: [(&str, &str, &str); 12] = [
+        ("{path|ext:md}", "a.txt", "a.md"),
+        ("{stem|snake}", "user-profile.rb", "user_profile"),
         (
             "spec/{dir|strip:app/}/{stem}_spec.rb",
             "app/models/user.rb",

@@ -142,17 +142,17 @@ type Catalog = (Vec<crate::catalog::Fragment>, Vec<crate::catalog::Check>);
 /// detection is how a repository gets its first.
 fn fragments(named: Option<PathBuf>, root: &Path) -> Result<Catalog, String> {
     let default = root.join(".pklith");
-    let (rows, catalog) = match named {
-        Some(path) => rows(&path)?,
-        None if default.exists() => rows(&default)?,
-        None => (
-            Vec::new(),
-            crate::catalog::builtin().map_err(|e| e.to_string())?,
-        ),
+    let loaded = match named {
+        Some(path) => Some(rows(&path)?),
+        None if default.exists() => Some(rows(&default)?),
+        None => None,
     };
-    let fragments =
-        crate::catalog::fragment::resolved(&rows, &catalog).map_err(|e| e.to_string())?;
-    Ok((fragments, catalog))
+    // The built-in catalog cannot fail to parse: its own tests keep it so.
+    let catalog = loaded.map_or_else(|| crate::catalog::builtin().map(|c| (Vec::new(), c)), Ok);
+    let resolve = |(rows, catalog): (Vec<_>, Vec<_>)| {
+        crate::catalog::fragment::resolved(&rows, &catalog).map(|f| (f, catalog))
+    };
+    catalog.and_then(resolve).map_err(|e| e.to_string())
 }
 
 fn rows(path: &Path) -> Result<(Vec<crate::registry::Row>, Vec<crate::catalog::Check>), String> {

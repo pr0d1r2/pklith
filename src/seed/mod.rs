@@ -95,9 +95,7 @@ pub fn write(root: &Path, seeds: &[Seed]) -> Result<Vec<&'static str>, String> {
 /// Write one seed, its directory first, a hook executable.
 fn put(path: &Path, seed: &Seed) -> std::io::Result<()> {
     use std::os::unix::fs::PermissionsExt as _;
-    if let Some(dir) = path.parent() {
-        std::fs::create_dir_all(dir)?;
-    }
+    path.parent().map_or(Ok(()), std::fs::create_dir_all)?;
     std::fs::write(path, &seed.text)?;
     if seed.executable {
         std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o755))?;
@@ -156,8 +154,8 @@ mod tests {
 
     /// Every seed id a built-in fragment names has a template.
     #[test]
-    fn every_builtin_seed_id_has_a_template() -> Result<(), String> {
-        let all = crate::catalog::builtin_fragments().map_err(|e| e.to_string())?;
+    fn every_builtin_seed_id_has_a_template() -> Result<(), Box<dyn std::error::Error>> {
+        let all = crate::catalog::builtin_fragments()?;
         let ids: Vec<&str> = all.iter().map(|f| f.id.as_str()).collect();
         seeded(&ids)?;
         Ok(())

@@ -83,3 +83,13 @@ fn detect_with_a_bad_or_missing_registry_exits_2() -> Result {
     );
     Ok(std::fs::remove_dir_all(dir)?)
 }
+
+/// An unknown flag is a usage error.
+#[test]
+fn detect_with_an_unknown_flag_is_a_usage_error() -> Result {
+    let dir = scripted("detect-usage", None)?;
+    let (code, _, stderr) = pkli(&dir, &["detect", "--bogus"])?;
+    assert_eq!(code, Some(2));
+    assert!(stderr.starts_with("usage: pkli"), "{stderr}");
+    Ok(std::fs::remove_dir_all(dir)?)
+}

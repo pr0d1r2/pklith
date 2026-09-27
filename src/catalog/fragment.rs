@@ -213,8 +213,7 @@ mod tests {
             |c: &crate::catalog::Check| fragments.iter().any(|f| f.checks.contains(&c.id));
         let orphans: Vec<&str> = checks
             .iter()
-            .filter(|c| !reached(c))
-            .map(|c| c.id.as_str())
+            .filter_map(|c| (!reached(c)).then_some(c.id.as_str()))
             .collect();
         assert!(orphans.is_empty(), "in no fragment: {orphans:?}");
         Ok(())

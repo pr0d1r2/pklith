@@ -147,16 +147,18 @@ fn matches(glob: &str, file: &str) -> bool {
 }
 
 /// The checks every one of `files` is reached by, in catalog order.
-fn shared<'a>(mut files: impl Iterator<Item = &'a String>, specific: &[Reach<'_>]) -> Vec<String> {
-    let Some(first) = files.next() else {
-        return Vec::new();
-    };
-    let mut ids: Vec<&str> = reaching(first, specific);
-    for file in files {
-        let these = reaching(file, specific);
-        ids.retain(|id| these.contains(id));
-    }
-    ids.into_iter().map(str::to_owned).collect()
+fn shared<'a>(files: impl Iterator<Item = &'a String>, specific: &[Reach<'_>]) -> Vec<String> {
+    let common = files
+        .map(|f| reaching(f, specific))
+        .reduce(|mut ids, these| {
+            ids.retain(|id| these.contains(id));
+            ids
+        });
+    common
+        .unwrap_or_default()
+        .into_iter()
+        .map(str::to_owned)
+        .collect()
 }
 
 /// One row per type, over the files no class takes, claiming what they
