@@ -9,6 +9,7 @@ mod detect;
 mod generate;
 mod import;
 mod lay;
+mod seed;
 
 /// Printed on stderr for a usage error (V2).
 pub const USAGE: &str = "usage: pkli <command>\n
@@ -16,6 +17,7 @@ pub const USAGE: &str = "usage: pkli <command>\n
   detect [--root DIR] [--registry FILE]  the fragments the tracked files switch on, one per line
   gen [--check]                          write hk.pklith.pkl from .pklith; --check: fail when it is stale
   lay [--dry-run]                        one commit per missing check, through the hooks; --dry-run: list them
+  seed [--init]                          write the seed files the fragments ask for, never over one; --init: and a first .pklith
   import DOC                             a .pklith from a legacy linter coverage document, on stdout
 ";
 
@@ -57,17 +59,19 @@ pub fn run(args: &[String], cwd: &Path) -> Outcome {
         ("detect", _) => detect::run(rest, cwd),
         ("gen", []) => generate::run(cwd, false),
         ("lay", []) => lay::run(cwd),
+        ("seed", []) => seed::run(cwd, false),
         ("import", [doc]) => import::run(Path::new(doc)),
-        ("gen" | "lay", [flag]) => flagged(verb, flag, cwd),
+        ("gen" | "lay" | "seed", [flag]) => flagged(verb, flag, cwd),
         _ => exit(2, USAGE),
     }
 }
 
-/// `gen --check` and `lay --dry-run`: each verb's one flag.
+/// `gen --check`, `lay --dry-run` and `seed --init`: each verb's one flag.
 fn flagged(verb: &str, flag: &str, cwd: &Path) -> Outcome {
     match (verb, flag) {
         ("gen", "--check") => generate::run(cwd, true),
         ("lay", "--dry-run") => lay::plan(cwd),
+        ("seed", "--init") => seed::run(cwd, true),
         _ => exit(2, USAGE),
     }
 }
@@ -128,4 +132,30 @@ fn load(path: &Path) -> Result<(crate::registry::Registry, Vec<crate::catalog::C
         .map_err(|e| e.to_string())?;
     crate::catalog::known(&registry, &catalog).map_err(|e| e.to_string())?;
     Ok((registry, catalog))
+}
+
+type Catalog = (Vec<crate::catalog::Fragment>, Vec<crate::catalog::Check>);
+
+/// The fragments to detect with, and the catalog they name: the registry's
+/// over the built-in ones. A named registry must exist; the default
+/// `.pklith` may not yet, which means the built-in catalog alone, since
+/// detection is how a repository gets its first.
+fn fragments(named: Option<PathBuf>, root: &Path) -> Result<Catalog, String> {
+    let default = root.join(".pklith");
+    let (rows, catalog) = match named {
+        Some(path) => rows(&path)?,
+        None if default.exists() => rows(&default)?,
+        None => (
+            Vec::new(),
+            crate::catalog::builtin().map_err(|e| e.to_string())?,
+        ),
+    };
+    let fragments =
+        crate::catalog::fragment::resolved(&rows, &catalog).map_err(|e| e.to_string())?;
+    Ok((fragments, catalog))
+}
+
+fn rows(path: &Path) -> Result<(Vec<crate::registry::Row>, Vec<crate::catalog::Check>), String> {
+    let (registry, catalog) = load(path)?;
+    Ok((registry.fragments, catalog))
 }
