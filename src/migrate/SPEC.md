@@ -42,7 +42,7 @@ V3: unmapped lefthook command → named in refusal, ⊥ dropped
 ## §T TASKS
 
 id|status|task|cites
-T1|.|lefthook check-set reader|V3
+T1|x|lefthook check-set reader|V3
 T2|.|equivalence gate + writer|V1,V2,`.:T57`
 
 ## §B BUGS

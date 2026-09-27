@@ -12,6 +12,7 @@ pub mod hook;
 pub mod lay;
 pub mod legacy;
 pub mod map;
+pub mod migrate;
 pub mod proc;
 pub mod registry;
 pub mod report;
