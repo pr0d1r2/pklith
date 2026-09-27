@@ -58,6 +58,22 @@ it:
 typos, nixfmt, shfmt, shellcheck, taplo, rustfmt, clippy, rubocop,
 actionlint, zizmor, mth, sherd, itok); a `.pklith` row with the same id
 replaces one, a new id adds one.
+
+## Documentation
+
+- [Integration](docs/INTEGRATION.md): from no gate to a gate CI shares,
+  step by step, and what pklith will not do to your repository.
+- [The `.pklith` registry](docs/REGISTRY.md): the one file you write.
+- [The built-in catalog](docs/CATALOG.md): every check and fragment pkli
+  ships, generated from the catalog itself.
+- [The command line](docs/CLI.md): every verb and flag, from pkli's own
+  usage text.
+- [A measured example](docs/EXAMPLE.md): pklith put into a real public
+  repository, with the numbers it produced.
+- [Contributing](docs/CONTRIBUTING.md), [security](docs/SECURITY.md), the
+  [code of conduct](docs/CODE_OF_CONDUCT.md) and
+  [third-party notices](docs/THIRD-PARTY-NOTICES.md).
+
 The design lives in [`SPEC.md`](SPEC.md) and the `SPEC.md` files under `src/`.
 
 ## Migrating from the legacy coverage tools
