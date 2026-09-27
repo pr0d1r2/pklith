@@ -183,7 +183,7 @@ T50|x|port map: ∀ set-and-setting setting entry point → pklith verb \| dropp
 T51|x|port `check-fragment-map.nix` → built-in catalog fragments (20) + importer|V17,R15
 T52|x|port `detect-fragments.sh` semantics; its 33 bats → golden tests|V16
 T53|x|port 24 `mk*Check` → catalog rows|V17
-T54|.|`hk.pkl` emission replaces `assemble-lefthook.sh`; its 53 bats → step-set equivalence goldens|V13,V18
+T54|x|`hk.pkl` emission replaces `assemble-lefthook.sh`; its 53 bats → step-set equivalence goldens|V13,V18
 T55|x|seed + canon port|V25
 T56|x|confirm port (hk: `hk validate`, step set vs fragments, idempotence)|V22
 T57|x|migrate port: lefthook repo → hk|V24
