@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# Re-lay reproduction (pklith root T45, V3, V13): `pkli lay` run on a copy of
+# HEAD whose gate holds no steps must commit its way, through the real
+# hooks, back to the very hk.pklith.pkl HEAD tracks, byte for byte. It
+# proves that every check this repository runs can be laid one commit at a
+# time and that lay's output is what gen writes.
+#
+#   scripts/relay.sh
+set -euo pipefail
+
+root="$(git rev-parse --show-toplevel)"
+work="$(mktemp -d)"
+trap 'rm -rf "$work"' EXIT
+repo="$work/repo"
+mkdir "$repo"
+
+# The copy builds and runs its own pkli, in its own target, so it never
+# races this tree's build.
+export CARGO_TARGET_DIR="$work/target"
+git -C "$root" archive HEAD | tar -x -C "$repo"
+
+# A gate with nothing laid: hk.pkl runs whatever the generated module
+# holds, and the module holds no steps.
+cat >"$repo/hk.pkl" <<'EOF'
+amends "pkl/Config.pkl"
+
+import "hk.pklith.pkl" as generated
+
+hooks {
+  ["pre-commit"] {
+    fix = true
+    stash = "git"
+    steps = generated.steps
+  }
+  ["check"] {
+    steps = (generated.steps) { ...generated.push }
+  }
+}
+EOF
+cat >"$repo/hk.pklith.pkl" <<'EOF'
+import "pkl/Config.pkl"
+
+steps: Mapping<String, Config.Step> = new {}
+
+push: Mapping<String, Config.Step> = new {}
+EOF
+
+git -C "$repo" init -q
+git -C "$repo" config user.name relay
+git -C "$repo" config user.email relay@localhost
+git -C "$repo" add -A
+git -C "$repo" commit -q -m 'relay: the tree with an empty gate'
+git -C "$repo" config core.hooksPath .githooks
+
+cargo build -q --manifest-path "$repo/Cargo.toml" --bin pkli
+(cd "$repo" && "$CARGO_TARGET_DIR/debug/pkli" lay >"$work/laid")
+
+if ! git -C "$root" show HEAD:hk.pklith.pkl | cmp -s - "$repo/hk.pklith.pkl"; then
+  echo 'relay: pkli lay did not reproduce hk.pklith.pkl:' >&2
+  git -C "$root" show HEAD:hk.pklith.pkl | diff - "$repo/hk.pklith.pkl" >&2 || true
+  exit 1
+fi
+echo "relay: $(wc -l <"$work/laid" | tr -d ' ') checks laid, one commit each; hk.pklith.pkl reproduced byte for byte"

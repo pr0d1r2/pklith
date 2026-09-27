@@ -63,9 +63,15 @@ local fast = (generated.steps) {
   }
 }
 
-/// Run on push and in CI: everything in `fast`, plus the generated push steps.
+/// Run on push and in CI: everything in `fast`, plus the generated push steps
+/// and the re-lay reproduction (T45), which lays every check into a copy of
+/// HEAD through real hooks: about a minute, too slow for each commit.
 local all = (fast) {
   ["coverage"] = (generated.push["coverage"]) { depends = List("test") }
+  ["relay"] {
+    check = "scripts/relay.sh"
+    depends = List("gen-check", "pkli-check")
+  }
 }
 
 hooks {
