@@ -14,7 +14,7 @@ mod report;
 mod seed;
 
 /// Printed on stderr for a usage error (V2).
-pub const USAGE: &str = "usage: pkli <command>\n
+pub const USAGE: &str = "usage: pkli <command> | --version\n
   check [--root DIR] [--registry FILE] [--staged | --range A..B]
                                          every tracked file has a type in .pklith with its checks;
                                          --staged: only what the commit changes; a diff feeds `changed` rules
@@ -61,25 +61,33 @@ pub fn run(args: &[String], cwd: &Path) -> Outcome {
         return exit(2, USAGE);
     };
     match (verb.as_str(), rest) {
+        ("--version", []) => data(version()),
         ("check", _) => check::run(rest, cwd),
         ("detect", _) => detect::run(rest, cwd),
-        ("gen", []) => generate::run(cwd, false),
-        ("lay", []) => lay::run(cwd),
         ("map", _) => map::run(rest, cwd),
         ("report", _) => report::run(rest, cwd),
-        ("seed", []) => seed::run(cwd, false),
         ("import", [doc]) => import::run(Path::new(doc)),
-        ("gen" | "lay" | "seed", [flag]) => flagged(verb, flag, cwd),
+        ("gen" | "lay" | "seed", [] | [_]) => flagged(verb, rest.first(), cwd),
         _ => exit(2, USAGE),
     }
 }
 
-/// `gen --check`, `lay --dry-run` and `seed --init`: each verb's one flag.
-fn flagged(verb: &str, flag: &str, cwd: &Path) -> Outcome {
-    match (verb, flag) {
-        ("gen", "--check") => generate::run(cwd, true),
-        ("lay", "--dry-run") => lay::plan(cwd),
-        ("seed", "--init") => seed::run(cwd, true),
+/// cli V6: the crate version and the built-in catalog's fingerprint.
+fn version() -> String {
+    let catalog = crate::catalog::fingerprint();
+    format!("pkli {} (catalog {catalog})\n", env!("CARGO_PKG_VERSION"))
+}
+
+/// `gen`, `lay` and `seed`, each with its one optional flag: `--check`,
+/// `--dry-run`, `--init`.
+fn flagged(verb: &str, flag: Option<&String>, cwd: &Path) -> Outcome {
+    match (verb, flag.map(String::as_str)) {
+        ("gen", None) => generate::run(cwd, false),
+        ("gen", Some("--check")) => generate::run(cwd, true),
+        ("lay", None) => lay::run(cwd),
+        ("lay", Some("--dry-run")) => lay::plan(cwd),
+        ("seed", None) => seed::run(cwd, false),
+        ("seed", Some("--init")) => seed::run(cwd, true),
         _ => exit(2, USAGE),
     }
 }

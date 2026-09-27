@@ -184,3 +184,19 @@ fn claims_without_an_hk_config_are_an_error() -> Result {
     );
     Ok(std::fs::remove_dir_all(dir)?)
 }
+
+/// cli V6: `--version` prints the crate version and the built-in
+/// catalog's fingerprint, on stdout, from anywhere.
+#[test]
+fn version_names_the_crate_and_the_catalog() -> Result {
+    let outside = common::temp("version")?;
+    let (code, stdout, _) = pkli(&outside, &["--version"])?;
+    let want = format!(
+        "pkli {} (catalog {})\n",
+        env!("CARGO_PKG_VERSION"),
+        pklith::catalog::fingerprint()
+    );
+    assert_eq!((code, stdout), (Some(0), want));
+    assert_eq!(pklith::catalog::fingerprint().len(), 16);
+    Ok(std::fs::remove_dir_all(outside)?)
+}

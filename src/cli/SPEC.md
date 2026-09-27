@@ -46,7 +46,7 @@ V6: `--version` prints crate version & built-in catalog version
 
 id|status|task|cites
 T1|~|dispatch `check`/`report`/`gen`/`lay`/`map`/`import`/`detect`/`seed`/`confirm`/`migrate`/`protect` + usage|V1,V2,V3,V4,`.:I`
-T2|~|root discovery from subdirectory + `--version`|V5,V6
+T2|x|root discovery from subdirectory + `--version` (catalog = FNV-1a fingerprint of `builtin.pklith`)|V5,V6
 
 ## §B BUGS
 

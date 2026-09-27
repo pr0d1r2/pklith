@@ -189,6 +189,18 @@ fn list(cell: &str) -> Vec<String> {
 /// The built-in catalog (T2), compiled into `pkli`.
 const BUILTIN: &str = include_str!("builtin.pklith");
 
+/// The built-in catalog's version for `pkli --version` (cli V6): an
+/// FNV-1a digest of its text, so it changes exactly when the catalog does.
+#[must_use]
+pub fn fingerprint() -> String {
+    let digest = BUILTIN
+        .bytes()
+        .fold(0xcbf2_9ce4_8422_2325_u64, |hash, byte| {
+            (hash ^ u64::from(byte)).wrapping_mul(0x0000_0100_0000_01b3)
+        });
+    format!("{digest:016x}")
+}
+
 /// The built-in checks, in lay order within each category (V4).
 ///
 /// # Errors
