@@ -34,6 +34,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 - set-and-setting fragment map read as JSON produced by `nix eval --json`; ⊥ nix parsing, ⊥ nix at runtime.
 - `.unit-coverage.toml` = fixed schema (`.:R9`) → hand parser for that subset ?, ⊥ general TOML dep.
 - compat env: `LEFTHOOK_LINTER_COVERAGE_DOC` (base default `docs/linter-coverage.md`, full required), `LEFTHOOK_LINTER_COVERAGE_ROOT`, `LEFTHOOK_UNIT_COVERAGE_CONFIG` (default `.unit-coverage.toml`), `LEFTHOOK_UNIT_COVERAGE_ROOT`.
+- compat divergences, deliberate (⊥ V2 breach): non-ASCII paths read as named (legacy `git ls-files` w/o `-z` quoted them: `café.rb` → ext `rb"`); lists sorted bytewise = `LC_ALL=C` (legacy `sort -u` followed caller locale); exit 2 ⊥ legacy 1 for: doc parsing to nothing (V5), unreadable doc/config/allowlist/dir, git failing, config outside the TOML subset (multi-line strings, inline tables), rule w/o `test_dir`.
 
 ## §V INVARIANTS
 
