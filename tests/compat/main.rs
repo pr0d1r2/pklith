@@ -24,7 +24,12 @@ const VARS: [&str; 7] = [
 
 /// A scratch directory with `bin/<tool>` linked to the built `pkli`.
 fn scratch(name: &str, tool: &str) -> Result<PathBuf> {
-    let dir = std::env::temp_dir().join(format!("pklith-compat-{}-{name}", std::process::id()));
+    // Unique per call: `cargo test` runs every case in one process, and two
+    // cases may share a name across files.
+    static NEXT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+    let n = NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    let pid = std::process::id();
+    let dir = std::env::temp_dir().join(format!("pklith-compat-{pid}-{n}-{name}"));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(dir.join("bin"))?;
     std::fs::create_dir_all(dir.join("repo"))?;
