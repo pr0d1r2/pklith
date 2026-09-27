@@ -13,5 +13,6 @@ pub mod legacy;
 pub mod proc;
 pub mod registry;
 pub mod report;
+pub mod rule;
 pub mod scan;
 pub mod seed;

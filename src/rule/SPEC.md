@@ -31,8 +31,8 @@ sib|src/cli|arg dispatch, usage, exit codes
 ## §C CONSTRAINTS
 
 - row: `id|kind|select|target|except`. kinds: `exists` (path template) · `mentions` (glob + literal pattern template) · `changed` (target changes when source changes; diff input) · `orphan` (reverse: target w/o source).
-- template vars `{path} {dir} {stem} {ext}`; filters `strip:<prefix>` `suffix:<s>` `ext:<e>` `snake` `dash` `plural`.
-- `plural` = fixed suffix rules (`+s`; `y`→`ies`; `s x ch sh`→`+es`) + `## plural` table for irregulars. ⊥ inflector guess.
+- template vars `{path} {dir} {stem} {ext}`, written `{var|filter|…}`; filters `strip:<prefix>` `chop:<suffix>` `suffix:<s>` `ext:<e>` `snake` `dash` `plural`. rendered `//` collapses ∴ empty `{dir}` ⊥ breaks a path.
+- `plural` = `## plural` table first, then fixed suffix rules (consonant+`y`→`ies`; `s x z ch sh`→`+es`; else `+s`). ⊥ inflector guess.
 - ⊥ `spec_bigger`, ⊥ `mentioning_methods` — quality proxies (`.:R10`).
 
 ## §V INVARIANTS
@@ -46,7 +46,7 @@ V5: ⊥ rule result depends on file content except `mentions`
 ## §T TASKS
 
 id|status|task|cites
-T1|.|template parser + filters + plural rules|V1
+T1|x|template parser + filters + plural rules|V1
 T2|.|`exists` + `orphan`|V4
 T3|.|`mentions` (factory_bot `factory :{stem\|snake}` under `spec/factories/**`)|V2
 T4|.|`changed` over staged diff|V3
