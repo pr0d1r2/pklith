@@ -116,6 +116,7 @@
             pkgs.editorconfig-checker
             pkgs.statix
             pkgs.deadnix
+            pkgs.markdownlint-cli
             itok.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];
           RUST_BACKTRACE = "1";

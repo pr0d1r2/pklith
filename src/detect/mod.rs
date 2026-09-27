@@ -29,7 +29,12 @@ mod tests {
     /// Cases ported from set-and-setting's `tests/detect-fragments.bats`,
     /// for the fragments pklith ships: its expectations, less the dropped
     /// fragments (ruby, rspec, ascii, …).
-    const CASES: [(&str, &[&str], &[&str]); 12] = [
+    const CASES: [(&str, &[&str], &[&str]); 13] = [
+        (
+            "markdown-only repo detects markdown",
+            &["README.md"],
+            &["base", "markdown"],
+        ),
         ("base is always on", &[], &["base"]),
         (
             "nix-only repo detects nix",
@@ -72,7 +77,7 @@ mod tests {
         (
             "spec and rust",
             &["SPEC.md", "src/a.rs"],
-            &["base", "rust", "spec"],
+            &["base", "markdown", "rust", "spec"],
         ),
     ];
 
