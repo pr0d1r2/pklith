@@ -121,6 +121,7 @@
             pkgs.libxml2
             pkgs.gawk
             pkgs.bats
+            pkgs.gnugrep
             itok.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];
           RUST_BACKTRACE = "1";

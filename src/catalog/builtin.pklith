@@ -24,6 +24,7 @@ no-case-conflict|hygiene|-|**/*|hk util check-case-conflict {{files}}|-|-|two pa
 no-broken-symlinks|hygiene|-|-|git ls-files -z \| xargs -0 hk util check-symlinks|-|-|a symlink points nowhere
 no-private-key|secret|-|**/*|hk util detect-private-key {{files}}|-|-|a private key block is staged
 ripsecrets|secret|ripsecrets|**/*|ripsecrets {{files}}|-|-|a token or credential is staged; a false positive goes in .secretsignore
+no-local-paths|secret|gnugrep|**/*|! grep -nHE '/Users/[A-Za-z]\|/home/\|/root/' {{files}} /dev/null \| grep -v nolocalpath|-|-|an absolute home path is staged; make it relative, or end the line with a nolocalpath comment
 nixfmt|format|nixfmt|**/*.nix|nixfmt --check {{files}}|nixfmt {{files}}|-|nix file not formatted
 shfmt|format|shfmt|**/*.sh, **/*.bash|shfmt --diff {{files}}|shfmt --write {{files}}|-|shell script not formatted
 taplo|format|taplo|**/*.toml|taplo fmt --check {{files}}|taplo fmt {{files}}|-|TOML not formatted or not parseable
@@ -58,7 +59,7 @@ itok|spec|itok|**/*, .context-limits|itok check|-|-|a file registered in .contex
 
 ## fragments
 fragment|triggers|checks|seed
-base|always|trailing-whitespace, final-newline, line-endings, no-bom, no-merge-conflict, no-case-conflict, no-broken-symlinks, no-private-key, ripsecrets, typos, editorconfig-checker|-
+base|always|trailing-whitespace, final-newline, line-endings, no-bom, no-merge-conflict, no-case-conflict, no-broken-symlinks, no-private-key, ripsecrets, typos, editorconfig-checker, no-local-paths|-
 actions|.github/workflows/*.yml, .github/workflows/*.yaml|actionlint, zizmor|-
 nix|**/*.nix|nixfmt, statix, deadnix|-
 shell|**/*.sh, **/*.bash|shellcheck, shfmt|-

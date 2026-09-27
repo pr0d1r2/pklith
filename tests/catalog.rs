@@ -223,6 +223,7 @@ proven! {
     no_broken_symlinks => "no-broken-symlinks": [Link("dead", "nowhere")], [file("a.txt", "x\n"), Link("live", "a.txt")];
     no_private_key => "no-private-key": [File("id_rsa", private_key())], [file("a.txt", "x\n")];
     ripsecrets => "ripsecrets": [File("env", format!("aws_access_key_id = AKIA{}\n", "Z7Q3VXJKL5PNR2WT"))], [file("env", "region = eu\n")];
+    no_local_paths => "no-local-paths": [file("a.md", &format!("see {}alice/x\n", "/home/"))], [file("a.md", &format!("see {}alice/x # nolocalpath\nsee ~/x\n", "/home/"))];
     nixfmt => "nixfmt": [file("a.nix", "{a=1;}")], [file("a.nix", "{ a = 1; }\n")];
     statix => "statix": [file("a.nix", "{ a = a; }\n")], [file("a.nix", "{ a = 1; }\n")];
     deadnix => "deadnix": [file("a.nix", "{ x }: 1\n")], [file("a.nix", "{ x }: x\n")];
