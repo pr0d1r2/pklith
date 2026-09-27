@@ -31,7 +31,7 @@ taplo|format|taplo|**/*.toml|taplo fmt --check {{files}}|taplo fmt {{files}}|-|T
 rustfmt|format|rustfmt|**/*.rs|cargo fmt --check|cargo fmt|-|Rust not formatted
 typos|lint|typos|**/*|typos --force-exclude {{files}}|-|-|misspelling; fix it or teach .typos.toml
 shellcheck|lint|shellcheck|**/*.sh, **/*.bash, .envrc|shellcheck {{files}}|-|-|shell script finding
-clippy|lint|clippy|**/*.rs, Cargo.toml, clippy.toml|cargo clippy --all-targets -q -- -D warnings|-|-|clippy finding
+clippy|lint|clippy|**/*.rs, Cargo.toml, clippy.toml|cargo clippy --workspace --all-targets -q -- -D warnings|-|-|clippy finding
 rubocop|lint|rubocop|**/*.rb, **/*.rake, **/*.gemspec, Gemfile, Rakefile|rubocop --force-exclusion {{files}}|rubocop --autocorrect --force-exclusion {{files}}|GEM_HOME=/nonexistent|Ruby style or lint offense
 actionlint|lint|actionlint|.github/workflows/*.yml, .github/workflows/*.yaml|actionlint {{files}}|-|-|workflow does not parse or type-check
 zizmor|lint|zizmor|.github/workflows/*.yml, .github/workflows/*.yaml|zizmor --offline --no-progress {{files}}|-|-|workflow security finding

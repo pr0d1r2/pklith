@@ -171,6 +171,9 @@ fn every_builtin_check_has_a_fixture() -> Result {
     let mut proven: Vec<&str> = PROVEN.to_vec();
     ids.sort();
     proven.sort_unstable();
+    // A check may have several fixtures (rustfmt and clippy also prove a
+    // workspace member); every check needs at least one.
+    proven.dedup();
     assert_eq!(ids, proven);
     Ok(())
 }
@@ -205,6 +208,23 @@ fn crate_with(lib: &str) -> [Entry; 2] {
     ]
 }
 
+/// A workspace whose root crate is clean and whose member `m` holds `lib`:
+/// a check that reads only the root package passes it whatever `lib` says.
+fn workspace_with(lib: &str) -> [Entry; 4] {
+    [
+        file(
+            "Cargo.toml",
+            "[package]\nname = \"fixture\"\nversion = \"0.1.0\"\nedition = \"2024\"\n[workspace]\nmembers = [\"m\"]\n",
+        ),
+        file("src/lib.rs", "pub fn g() {}\n"),
+        file(
+            "m/Cargo.toml",
+            "[package]\nname = \"m\"\nversion = \"0.1.0\"\nedition = \"2024\"\n",
+        ),
+        file("m/src/lib.rs", lib),
+    ]
+}
+
 const EDITORCONFIG: &str = "root = true\n[*]\nindent_style = space\n";
 
 const WORKFLOW: &str = "on: push\npermissions: {}\njobs:\n  a:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo hi\n";
@@ -235,9 +255,11 @@ proven! {
     shfmt => "shfmt": [file("a.sh", "if true;then echo;fi\n")], [file("a.sh", "if true; then echo; fi\n")];
     taplo => "taplo": [file("a.toml", "a=1\n")], [file("a.toml", "a = 1\n")];
     rustfmt => "rustfmt": crate_with("pub fn f(){}\n"), crate_with("pub fn f() {}\n");
+    rustfmt_workspace => "rustfmt": workspace_with("pub fn f(){}\n"), workspace_with("pub fn f() {}\n");
     typos => "typos": [File("a.txt", format!("the t{}h cat\n", "e"))], [file("a.txt", "the cat\n")];
     shellcheck => "shellcheck": [file("a.sh", "#!/bin/sh\necho $1\n")], [file("a.sh", "#!/bin/sh\necho \"$1\"\n")];
     clippy => "clippy": crate_with("pub fn f(v: &Vec<u8>) -> usize {\n    v.len()\n}\n"), crate_with("pub fn f(v: &[u8]) -> usize {\n    v.len()\n}\n");
+    clippy_workspace => "clippy": workspace_with("pub fn f(v: &Vec<u8>) -> usize {\n    v.len()\n}\n"), workspace_with("pub fn f(v: &[u8]) -> usize {\n    v.len()\n}\n");
     rubocop => "rubocop": [file("a.rb", "puts \"x\"\n")], [file("a.rb", "# frozen_string_literal: true\n\nputs 'x'\n")];
     actionlint => "actionlint": [workflow(&format!("{WORKFLOW}    bogus: 1\n"))], [workflow(WORKFLOW)];
     zizmor => "zizmor": [workflow(&WORKFLOW.replace("on: push", "on: issues").replace("echo hi", "echo \"${{ github.event.issue.title }}\""))], [workflow(WORKFLOW)];

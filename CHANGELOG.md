@@ -21,6 +21,10 @@ the bytes pkli emits for the same inputs is at least a minor version
 
 ### Fixed
 
+- The built-in `clippy` check lints every workspace member
+  (`cargo clippy --workspace`), not only the root package; a lint in a
+  member crate used to pass. Consumers see the step's command change in
+  `hk.pklith.pkl`.
 - `pkli check` and `pkli seed --init` no longer take time in the square of
   the file count when suggesting rows: on 10,000 files, 39.5 s became 0.6 s.
 - `pkli seed --init` no longer writes a binary type's row twice when its
