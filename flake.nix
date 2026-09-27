@@ -91,7 +91,10 @@
         }:
         let
           system = pkgs.stdenv.hostPlatform.system;
-          catalog = self.legacyPackages.${system}.catalog;
+          supported =
+            self.legacyPackages.${system}
+              or (throw "pklith: lib.devShell supports ${builtins.concatStringsSep ", " systems}, not ${system}");
+          catalog = supported.catalog;
           generated = src + "/nix/pklith.nix";
         in
         pkgs.mkShell {
