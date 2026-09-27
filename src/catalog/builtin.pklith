@@ -34,8 +34,8 @@ clippy|lint|clippy|**/*.rs, Cargo.toml, clippy.toml|cargo clippy --all-targets -
 rubocop|lint|rubocop|**/*.rb, **/*.rake, **/*.gemspec, Gemfile, Rakefile|rubocop --force-exclusion {{files}}|rubocop --autocorrect --force-exclusion {{files}}|GEM_HOME=/nonexistent|Ruby style or lint offense
 actionlint|lint|actionlint|.github/workflows/*.yml, .github/workflows/*.yaml|actionlint {{files}}|-|-|workflow does not parse or type-check
 zizmor|lint|zizmor|.github/workflows/*.yml, .github/workflows/*.yaml|zizmor --offline --no-progress {{files}}|-|-|workflow security finding
-mth-fmt|spec|microlith|**/SPEC.md|for f in {{files}}; do mth fmt --check "$f" \|\| exit 1; done|for f in {{files}}; do mth fmt "$f" \|\| exit 1; done|-|SPEC.md is hard-wrapped or over the line cap
-mth-check|spec|microlith|**/SPEC.md|for f in {{files}}; do mth check "$f" \|\| exit 1; done|-|-|SPEC.md breaks a structural rule
+mth-fmt|spec|microlith|**/SPEC.md|(for f in {{files}}; do mth fmt --check "$f" \|\| exit 1; done)|(for f in {{files}}; do mth fmt "$f" \|\| exit 1; done)|-|SPEC.md is hard-wrapped or over the line cap
+mth-check|spec|microlith|**/SPEC.md|(for f in {{files}}; do mth check "$f" \|\| exit 1; done)|-|-|SPEC.md breaks a structural rule
 sherd-check|spec|sherd|**/SPEC.md, **/*.rs|sherd check|-|-|a citation across spec nodes does not resolve
 sherd-nav|spec|sherd|**/SPEC.md|sherd sync --check|sherd sync|-|a §N table is stale
 sherd-budget|spec|sherd|**/SPEC.md, .context-limits|sherd budget|-|-|a spec chain is over its ceiling

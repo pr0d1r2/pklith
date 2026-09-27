@@ -55,7 +55,8 @@ fn git(dir: &Path, args: &[&str]) -> Result {
     Ok(())
 }
 
-/// The check's command with `{{files}}` naming every fixture path, run by
+/// The step's command exactly as gen emits it (guard and failure message
+/// included), with `{{files}}` naming every fixture path, run by
 /// `sh` with only PATH, HOME and the check's own env. The real HOME stays,
 /// as it does under hk: what a developer's home holds (user gems, cargo
 /// config) is exactly what a step must survive. Build output goes to the
@@ -64,7 +65,7 @@ fn command(check: &pklith::catalog::Check, dir: &Path, entries: &[Entry]) -> Com
     let files: Vec<&str> = entries.iter().map(Entry::path).collect();
     let mut cmd = Command::new("sh");
     cmd.arg("-c")
-        .arg(check.check.replace("{{files}}", &files.join(" ")))
+        .arg(pklith::r#gen::explained(check).replace("{{files}}", &files.join(" ")))
         .current_dir(dir)
         .env_clear()
         .env("PATH", std::env::var_os("PATH").unwrap_or_default())
@@ -98,9 +99,26 @@ fn proves(id: &str, bad: &[Entry], good: &[Entry]) -> Result {
         let dir = fixture(&format!("{id}-{twin}"), entries)?;
         let (passed, output) = run(command(&check, &dir, entries))?;
         assert_eq!(passed, want, "`{id}` on its {twin} fixture:\n{output}");
+        if !want {
+            explains(&check, &output);
+        }
         std::fs::remove_dir_all(dir)?;
     }
     Ok(())
+}
+
+/// A failure prints the check's message (catalog V1) and does not blame a
+/// missing tool (root V1).
+fn explains(check: &pklith::catalog::Check, output: &str) {
+    let (id, message) = (&check.id, format!("{}: {}", check.id, check.msg));
+    assert!(
+        output.contains(&message),
+        "`{id}` failed without its message:\n{output}"
+    );
+    assert!(
+        !output.contains("MISSING TOOL"),
+        "`{id}` blamed a tool:\n{output}"
+    );
 }
 
 macro_rules! proven {

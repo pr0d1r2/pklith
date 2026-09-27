@@ -71,7 +71,8 @@ fn step(check: &Check) -> String {
 /// The check command, guarded and explained. A missing tool is reported as
 /// missing, never as a finding (root V1); a failure prints the check's
 /// message (catalog V1): what went wrong and what to do.
-fn explained(check: &Check) -> String {
+#[must_use]
+pub fn explained(check: &Check) -> String {
     let failed = shell_quote(&format!("{}: {}", check.id, check.msg));
     format!(
         "{}{} || {{ echo {failed} >&2; exit 1; }}",
