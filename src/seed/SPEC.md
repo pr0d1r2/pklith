@@ -38,7 +38,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 V1: `--init` skip-if-exists; existing file ⊥ touched (`.:V25`)
 V2: `.gitignore` fragments concatenated in fragment order
-V3: seeded `.pklith` parses & cover accepts it on the tree it came from: ⊥ stale row, ⊥ unbacked claim; a type no check reads is left a gap & named, ⊥ silent exempt (`.:V5`, `.:V11`)
+V3: seeded `.pklith` parses & cover accepts it on the tree as seed & gen leave it (their own files included): ⊥ stale row, ⊥ unbacked claim; a type no check reads is left a gap & named, ⊥ silent exempt (`.:V5`, `.:V11`) — except a type ONLY pkli's own files have, exempt w/ reason `written by pkli (seed or gen)` ∴ a fresh repo is green once seeded (92c8953)
 
 ## §T TASKS
 
