@@ -62,6 +62,34 @@ pub fn output(cmd: &mut Command) -> Result<Vec<u8>, Error> {
     let out = cmd
         .output()
         .map_err(|source| Error::Spawn { program, source })?;
+    finished(cmd, out)
+}
+
+/// Run `cmd` with `input` on its stdin, and return its stdout (V3).
+///
+/// # Errors
+///
+/// As [`output`]; a failure to hand over `input` is [`Error::Spawn`].
+pub fn output_with(cmd: &mut Command, input: &[u8]) -> Result<Vec<u8>, Error> {
+    let program = cmd.get_program().to_string_lossy().into_owned();
+    let out = fed(cmd, input).map_err(|source| Error::Spawn { program, source })?;
+    finished(cmd, out)
+}
+
+/// `cmd` run with `input` piped to it, its output captured.
+fn fed(cmd: &mut Command, input: &[u8]) -> std::io::Result<std::process::Output> {
+    use std::io::Write as _;
+    let io = std::process::Stdio::piped;
+    let mut child = cmd.stdin(io()).stdout(io()).stderr(io()).spawn()?;
+    child
+        .stdin
+        .take()
+        .map_or(Ok(()), |mut stdin| stdin.write_all(input))?;
+    child.wait_with_output()
+}
+
+/// Its stdout when it succeeded, else [`Error::Failed`] with its stderr.
+fn finished(cmd: &Command, out: std::process::Output) -> Result<Vec<u8>, Error> {
     if out.status.success() {
         return Ok(out.stdout);
     }

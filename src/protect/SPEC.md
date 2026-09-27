@@ -41,7 +41,7 @@ V2: job rename → context set changes → shown as breaking diff before apply
 
 id|status|task|cites
 T1|x|context derivation from workflows + golden tests|V2,`.:T58`
-T2|.|`gh api` apply + dry-run|V1
+T2|x|`gh api` apply + dry-run|V1
 
 ## §B BUGS
 

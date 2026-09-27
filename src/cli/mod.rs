@@ -12,6 +12,7 @@ mod import;
 mod lay;
 mod map;
 mod migrate;
+mod protect;
 mod report;
 mod seed;
 
@@ -26,6 +27,8 @@ pub const USAGE: &str = "usage: pkli <command> | --version\n
   lay [--dry-run]                        one commit per missing check, through the hooks; --dry-run: list them
   map [--staged | FILE...]               the specs covering a change, one per line; exit 1 when one is missing
   migrate [--drop ID,...]                a lefthook repo onto hk, only if every check survives
+  protect [--dry-run] [--repo O/N] [--branch B] [--accept-removals]
+                                         branch protection's required contexts from CI jobs, through gh (network)
   report [--format text|json|md]         the coverage matrix and findings, always printed; takes --root, --registry
   seed [--init]                          write the seed files the fragments ask for, never over one; --init: and a first .pklith
   import DOC                             a .pklith from a legacy linter coverage document, on stdout
@@ -66,14 +69,22 @@ pub fn run(args: &[String], cwd: &Path) -> Outcome {
     };
     match (verb.as_str(), rest) {
         ("--version", []) => data(version()),
-        ("check", _) => check::run(rest, cwd),
         ("confirm", []) => confirm::run(cwd),
-        ("detect", _) => detect::run(rest, cwd),
-        ("map", _) => map::run(rest, cwd),
-        ("migrate", _) => migrate::run(rest, cwd),
-        ("report", _) => report::run(rest, cwd),
         ("import", [doc]) => import::run(Path::new(doc)),
         ("gen" | "lay" | "seed", [] | [_]) => flagged(verb, rest.first(), cwd),
+        _ => with_arguments(verb, rest, cwd),
+    }
+}
+
+/// The verbs that parse their own arguments.
+fn with_arguments(verb: &str, rest: &[String], cwd: &Path) -> Outcome {
+    match verb {
+        "check" => check::run(rest, cwd),
+        "detect" => detect::run(rest, cwd),
+        "map" => map::run(rest, cwd),
+        "migrate" => migrate::run(rest, cwd),
+        "protect" => protect::run(rest, cwd),
+        "report" => report::run(rest, cwd),
         _ => exit(2, USAGE),
     }
 }
