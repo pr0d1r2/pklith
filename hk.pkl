@@ -44,14 +44,24 @@ local fast = (generated.steps) {
   ["test"] { depends = List("clippy") }
   ["doctest"] { depends = List("test") }
   ["rustdoc"] { depends = List("clippy") }
-  ["pklith-check"] { depends = List("clippy") }
-  ["gen-check"] { depends = List("clippy") }
+  // Every step that runs `cargo run` waits for this build. Started together
+  // on a stale binary, one cargo re-links the executable while another is
+  // starting it, and macOS kills that process (SIGKILL, exit 137) with no
+  // output: a gate step that fails for no reason. Built once first, every
+  // later `cargo run` finds it fresh and links nothing.
+  ["build"] {
+    check = "cargo build -q --workspace --bins"
+    depends = List("clippy")
+  }
+  ["pklith-check"] { depends = List("build") }
+  ["gen-check"] { depends = List("build") }
   ["zizmor"] { depends = List("actionlint") }
   // Not file-type checks, so not in .pklith. The AGENTS.md step table is
   // generated from this file and must stay equal to it (V14).
   ["agents-table"] {
     glob = List("hk.pkl", "hk.pklith.pkl", "AGENTS.md", "dev/**")
     check = "cargo run -q -p pklith-dev -- agents --check"
+    depends = List("build")
     fix = "cargo run -q -p pklith-dev -- agents"
   }
   // V35 (B12): hk's own Pkl evaluator and `pkl eval` must see the same steps,
@@ -62,6 +72,7 @@ local fast = (generated.steps) {
   ["readme-badges"] {
     glob = List("README.md", "Cargo.toml", ".coverage", "hk.pkl", "hk.pklith.pkl", "flake.lock", "**/SPEC.md", "docs/LLM-DISCLAIMER.md", ".github/workflows/ci.yml", "dev/**")
     check = "cargo run -q -p pklith-dev -- readme --check"
+    depends = List("build")
     fix = "cargo run -q -p pklith-dev -- readme"
   }
   // docs/THIRD-PARTY-NOTICES.md: its crate table is what Cargo.lock ships,
@@ -69,18 +80,21 @@ local fast = (generated.steps) {
   ["notices"] {
     glob = List("Cargo.toml", "Cargo.lock", "docs/THIRD-PARTY-NOTICES.md", "dev/**")
     check = "cargo run -q -p pklith-dev -- notices --check"
+    depends = List("build")
     fix = "cargo run -q -p pklith-dev -- notices"
   }
   // docs/CATALOG.md's tables are the built-in catalog pklith compiles in.
   ["catalog-doc"] {
     glob = List("src/catalog/builtin.pklith", "docs/CATALOG.md", "dev/**")
     check = "cargo run -q -p pklith-dev -- catalog --check"
+    depends = List("build")
     fix = "cargo run -q -p pklith-dev -- catalog"
   }
   // docs/CLI.md's usage block is the text pklith prints.
   ["cli-doc"] {
     glob = List("src/cli/mod.rs", "docs/CLI.md", "dev/**")
     check = "cargo run -q -p pklith-dev -- cli --check"
+    depends = List("build")
     fix = "cargo run -q -p pklith-dev -- cli"
   }
   // V28 (T65): the vendored schema is the one the pinned hk ships.
@@ -162,6 +176,9 @@ hooks {
       // change is.
       ["changelog-touched"] {
         check = "cargo run -q -p pklith-dev -- changelog {{commit_msg_file}}"
+        // After commit-msg, never beside it: two `cargo run`s at once can
+        // SIGKILL each other on macOS (see the `build` step).
+        depends = List("commit-msg")
       }
     }
   }
