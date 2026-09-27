@@ -48,13 +48,13 @@ Notes for anyone, human or agent, changing this repository.
 | `sherd-nav` | commit | `**/SPEC.md` | yes |
 | `sherd-budget` | commit | `**/SPEC.md` `.context-limits` | - |
 | `file-ceilings` | commit | `**/*.rs` | - |
-| `pkli-check` | commit | whole tree | - |
-| `gen-check` | commit | `.pklith` `hk.pklith.pkl` | yes |
 | `test` | commit | `**/*.rs` `Cargo.toml` `Cargo.lock` `src/catalog/builtin.pklith` | - |
 | `doctest` | commit | `**/*.rs` `Cargo.toml` | - |
 | `flake-lock-graph` | commit | `flake.lock` | - |
 | `deny` | commit | `Cargo.toml` `Cargo.lock` `deny.toml` | - |
 | `catalog-nix` | commit | `src/catalog/builtin.pklith` `flake.nix` `flake.lock` `scripts/catalog-nix.sh` | - |
+| `gen-check` | commit | `.pklith` `hk.pklith.pkl` | yes |
+| `pkli-check` | commit | whole tree | - |
 | `agents-table` | commit | `hk.pkl` `AGENTS.md` `scripts/agents-table.sh` | yes |
 | `hk-parity` | commit | `hk.pkl` `hk.pklith.pkl` `pkl/**` `scripts/hk-parity.sh` | - |
 | `coverage` | push | `**/*.rs` `Cargo.toml` `.coverage` | - |

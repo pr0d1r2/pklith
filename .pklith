@@ -24,8 +24,8 @@ flake-lock-graph|supply|jq|flake.lock|scripts/flake-lock-graph.sh {{files}}|-|-|
 deny|supply|cargo-deny|Cargo.toml, Cargo.lock, deny.toml|cargo deny check --disable-fetch licenses bans|-|-|a license or ban rule failed
 catalog-nix|supply|nix|src/catalog/builtin.pklith, flake.nix, flake.lock, scripts/catalog-nix.sh|scripts/catalog-nix.sh src/catalog/builtin.pklith|-|-|a built-in catalog row names a nix attribute that does not build, or whose binaries its command never calls
 agents-table|spec|-|hk.pkl, AGENTS.md, scripts/agents-table.sh|scripts/agents-table.sh --check|scripts/agents-table.sh|-|AGENTS.md step table is stale
-pkli-check|spec|cargo|-|cargo run -q --bin pkli -- check|-|-|a tracked file type has no row in .pklith, or a row matches nothing
-gen-check|spec|cargo|.pklith, hk.pklith.pkl|cargo run -q --bin pkli -- gen --check|cargo run -q --bin pkli -- gen|-|hk.pklith.pkl no longer matches .pklith; run `pkli gen`
+gen-check|gate|cargo|.pklith, hk.pklith.pkl|cargo run -q --bin pkli -- gen --check|cargo run -q --bin pkli -- gen|-|a step in hk.pklith.pkl no longer matches .pklith; run `pkli gen`
+pkli-check|gate|cargo|-|cargo run -q --bin pkli -- check|-|-|a tracked file type has no row in .pklith, or a row matches nothing
 
 ## types
 type|checks|min|exempt

@@ -116,14 +116,6 @@ steps: Mapping<String, Config.Step> = new {
     glob = List("**/*.rs")
     check = "command -v scripts/file-ceilings.sh >/dev/null 2>&1 || { echo 'file-ceilings: scripts/file-ceilings.sh is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; scripts/file-ceilings.sh || { echo 'file-ceilings: a Rust file is over its token ceiling' >&2; exit 1; }"
   }
-  ["pkli-check"] {
-    check = "command -v cargo >/dev/null 2>&1 || { echo 'pkli-check: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo run -q --bin pkli -- check || { echo 'pkli-check: a tracked file type has no row in .pklith, or a row matches nothing' >&2; exit 1; }"
-  }
-  ["gen-check"] {
-    glob = List(".pklith", "hk.pklith.pkl")
-    check = "command -v cargo >/dev/null 2>&1 || { echo 'gen-check: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo run -q --bin pkli -- gen --check || { echo 'gen-check: hk.pklith.pkl no longer matches .pklith; run `pkli gen`' >&2; exit 1; }"
-    fix = "cargo run -q --bin pkli -- gen"
-  }
   ["test"] {
     glob = List("**/*.rs", "Cargo.toml", "Cargo.lock", "src/catalog/builtin.pklith")
     check = "command -v cargo >/dev/null 2>&1 || { echo 'test: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo nextest run --no-fail-fast --status-level fail --final-status-level fail || { echo 'test: a test failed, or the suite is empty' >&2; exit 1; }"
@@ -143,6 +135,14 @@ steps: Mapping<String, Config.Step> = new {
   ["catalog-nix"] {
     glob = List("src/catalog/builtin.pklith", "flake.nix", "flake.lock", "scripts/catalog-nix.sh")
     check = "command -v scripts/catalog-nix.sh >/dev/null 2>&1 || { echo 'catalog-nix: scripts/catalog-nix.sh is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; scripts/catalog-nix.sh src/catalog/builtin.pklith || { echo 'catalog-nix: a built-in catalog row names a nix attribute that does not build, or whose binaries its command never calls' >&2; exit 1; }"
+  }
+  ["gen-check"] {
+    glob = List(".pklith", "hk.pklith.pkl")
+    check = "command -v cargo >/dev/null 2>&1 || { echo 'gen-check: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo run -q --bin pkli -- gen --check || { echo 'gen-check: a step in hk.pklith.pkl no longer matches .pklith; run `pkli gen`' >&2; exit 1; }"
+    fix = "cargo run -q --bin pkli -- gen"
+  }
+  ["pkli-check"] {
+    check = "command -v cargo >/dev/null 2>&1 || { echo 'pkli-check: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo run -q --bin pkli -- check || { echo 'pkli-check: a tracked file type has no row in .pklith, or a row matches nothing' >&2; exit 1; }"
   }
 }
 
