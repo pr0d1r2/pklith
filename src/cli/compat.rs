@@ -3,7 +3,7 @@
 //! messages and exit codes (legacy V2, §C), so a consumer swaps the
 //! package and nothing else. Arguments are ignored, as they were.
 
-use super::{Outcome, exit, toplevel};
+use super::{Outcome, exit};
 use crate::legacy::compat::{self, BASE, FULL, UNIT};
 use crate::legacy::unit_coverage;
 use std::path::{Path, PathBuf};
@@ -31,24 +31,54 @@ struct Root {
     walk: bool,
 }
 
+/// The repository's top level, as `git rev-parse --show-toplevel` in the
+/// caller's git environment; `cwd` when there is none, as the legacy
+/// `|| pwd` did. A git that cannot run fails again, loudly, in `listed`.
 fn root(cwd: &Path, walk: Option<&String>) -> Root {
-    let dir = walk.map_or_else(
-        || toplevel(cwd).unwrap_or_else(|_| cwd.to_path_buf()),
-        |r| cwd.join(r),
-    );
+    let top = || {
+        let out = git(cwd, &["rev-parse", "--show-toplevel"]).ok().flatten();
+        out.map_or_else(|| cwd.to_path_buf(), |t| PathBuf::from(t.trim_end()))
+    };
     Root {
-        dir,
+        dir: walk.map_or_else(top, |r| cwd.join(r)),
         walk: walk.is_some(),
     }
 }
 
 /// The files the tool saw: `find . -type f ! -path './.git/*'` when
-/// walking, else `git ls-files`, which lists nothing outside a repository.
+/// walking, else every entry `git ls-files` lists, symlinks and submodules
+/// included, and nothing outside a repository.
 fn listed(root: &Root) -> Result<Vec<String>, String> {
     if root.walk {
         return crate::scan::walked(&root.dir).map_err(|e| e.to_string());
     }
-    Ok(crate::scan::tracked(&root.dir).unwrap_or_default())
+    let text = git(&root.dir, &["ls-files", "-z"])?.unwrap_or_default();
+    Ok(text
+        .split('\0')
+        .filter(|p| !p.is_empty())
+        .map(str::to_owned)
+        .collect())
+}
+
+/// Run git as the legacy tools did: in the caller's git environment, so
+/// `GIT_DIR`, `GIT_WORK_TREE` and a commit's `GIT_INDEX_FILE` are honoured
+/// (pkli's own verbs scrub them; a drop-in must not). `None` outside a
+/// repository; any other failure, git missing included, is an error, never
+/// an empty list that passes (root V1).
+fn git(dir: &Path, args: &[&str]) -> Result<Option<String>, String> {
+    let out = std::process::Command::new("git")
+        .args(args)
+        .current_dir(dir)
+        .output()
+        .map_err(|e| format!("cannot run git: {e}"))?;
+    let stderr = String::from_utf8_lossy(&out.stderr);
+    if out.status.success() {
+        Ok(Some(String::from_utf8_lossy(&out.stdout).into_owned()))
+    } else if stderr.contains("not a git repository") {
+        Ok(None)
+    } else {
+        Err(format!("git {} failed: {}", args.join(" "), stderr.trim()))
+    }
 }
 
 /// How one linter coverage tool was configured and spoke.

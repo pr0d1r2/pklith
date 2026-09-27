@@ -10,12 +10,16 @@ mod unit;
 use common::Result;
 use std::path::{Path, PathBuf};
 
-const VARS: [&str; 5] = [
+/// Cleared for every run: the legacy variables, and the git variables a
+/// hook running this suite sets, which the compat entries honour.
+const VARS: [&str; 7] = [
     "LEFTHOOK_LINTER_COVERAGE_DOC",
     "LEFTHOOK_LINTER_COVERAGE_ROOT",
     "LEFTHOOK_UNIT_COVERAGE_CONFIG",
     "LEFTHOOK_UNIT_COVERAGE_ROOT",
     "GIT_DIR",
+    "GIT_INDEX_FILE",
+    "GIT_WORK_TREE",
 ];
 
 /// A scratch directory with `bin/<tool>` linked to the built `pkli`.
@@ -169,5 +173,79 @@ fn an_unreadable_allowlist_exits_2() -> Result {
     std::fs::write(dir.join("repo/al"), [0xff])?;
     let env = [("LEFTHOOK_UNIT_COVERAGE_ROOT", "repo")];
     assert_eq!(run(&dir, UNIT, &dir, &env)?.0, Some(2));
+    Ok(std::fs::remove_dir_all(dir)?)
+}
+
+const BASE: &str = "lefthook-linter-coverage";
+const LISTED: (&str, &str) = ("docs/linter-coverage.md", "| `.md` |\n");
+
+/// A scratch dir for the base tool whose `repo` holds a listed doc,
+/// an unlisted `x.json` and `d/a.md`, all tracked.
+fn unlisted(name: &str) -> Result<(PathBuf, PathBuf)> {
+    let dir = scratch(name, BASE)?;
+    let repo = dir.join("repo");
+    write(&repo, &[LISTED, ("x.json", ""), ("d/a.md", "")])?;
+    tracked(&repo)?;
+    Ok((dir, repo))
+}
+
+fn text(path: &Path) -> &str {
+    path.to_str().unwrap_or_default()
+}
+
+/// A git that cannot run is exit 2, never an empty list that passes.
+#[test]
+fn a_missing_git_exits_2() -> Result {
+    let (dir, repo) = unlisted("no-git")?;
+    let empty = dir.join("bin-empty");
+    std::fs::create_dir_all(&empty)?;
+    let (code, stderr) = run(&dir, BASE, &repo, &[("PATH", text(&empty))])?;
+    let want = "linter-coverage: docs/linter-coverage.md: cannot run git";
+    assert!(code == Some(2) && stderr.starts_with(want), "{stderr}");
+    Ok(std::fs::remove_dir_all(dir)?)
+}
+
+/// The caller's `GIT_DIR` and `GIT_WORK_TREE` are honoured, as the legacy
+/// tools honoured them: a git dir kept apart still finds the unlisted file.
+#[test]
+fn a_separate_git_dir_is_honoured() -> Result {
+    let (dir, repo) = unlisted("git-dir")?;
+    let store = dir.join("store.git");
+    std::fs::rename(repo.join(".git"), &store)?;
+    let env = [("GIT_DIR", text(&store)), ("GIT_WORK_TREE", text(&repo))];
+    let (code, stderr) = run(&dir, BASE, &repo, &env)?;
+    assert!(
+        code == Some(1) && stderr.contains("\n  .json\n"),
+        "{stderr}"
+    );
+    Ok(std::fs::remove_dir_all(dir)?)
+}
+
+/// Every entry git lists counts, a symlink to a directory too, as it did
+/// for `git ls-files`.
+#[test]
+fn a_tracked_directory_symlink_is_listed() -> Result {
+    let (dir, repo) = unlisted("dirlink")?;
+    std::os::unix::fs::symlink("d", repo.join("dirlink"))?;
+    tracked(&repo)?;
+    let (code, stderr) = run(&dir, BASE, &repo, &[])?;
+    assert!(
+        code == Some(1) && stderr.contains("\n  dirlink\n"),
+        "{stderr}"
+    );
+    Ok(std::fs::remove_dir_all(dir)?)
+}
+
+/// Git failing for any reason but "not a repository" (here a corrupt
+/// index) is exit 2 with git's own words.
+#[test]
+fn a_failing_git_exits_2() -> Result {
+    let (dir, repo) = unlisted("bad-index")?;
+    std::fs::write(repo.join(".git/index"), "garbage")?;
+    let (code, stderr) = run(&dir, BASE, &repo, &[])?;
+    assert!(
+        code == Some(2) && stderr.contains("git ls-files -z failed: "),
+        "{stderr}"
+    );
     Ok(std::fs::remove_dir_all(dir)?)
 }
