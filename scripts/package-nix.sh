@@ -2,8 +2,9 @@
 # pklith root T62 (V10): the package consumers get is tested as built, not
 # only the source tree. It builds lib.devShell's check (T61) and the flake's
 # pkli and compat packages, runs the built binaries on a fixture repository,
-# and refuses a build that still carries an unsubstituted `@name@` or `*_PATH` placeholder (the
-# legacy -full B2 failure: a placeholder left in, every type "uncovered").
+# and refuses a build that still carries an unsubstituted `@name@` or
+# `*_PATH` placeholder (the legacy -full B2 failure: a placeholder left in,
+# every type "uncovered").
 #
 #   scripts/package-nix.sh
 set -euo pipefail
