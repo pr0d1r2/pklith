@@ -35,12 +35,29 @@ pub fn programs(command: &str) -> Vec<String> {
 }
 
 /// The command split into simple commands, each as its words: a new one
-/// starts at `|`, `;`, `&`, a paren, or an opener such as `do`.
+/// starts at `|`, `;`, `&`, a paren, or an opener such as `do`, unless
+/// the separator is quoted.
 fn clauses(command: &str) -> Vec<Vec<String>> {
-    command
-        .split(|c: char| "|;&()".contains(c))
-        .flat_map(opened)
-        .collect()
+    broken(command).split('\0').flat_map(opened).collect()
+}
+
+/// `command` with each separator the shell acts on turned into `\0`; one
+/// inside quotes is text, as in `grep -E 'a|b'`, and stays.
+fn broken(command: &str) -> String {
+    let mut quote: Option<char> = None;
+    let mut mark = |c: char| match (quote, c) {
+        (None, '\'' | '"') => {
+            quote = Some(c);
+            c
+        }
+        (Some(q), _) if c == q => {
+            quote = None;
+            c
+        }
+        (None, _) if "|;&()".contains(c) => '\0',
+        _ => c,
+    };
+    command.chars().map(&mut mark).collect()
 }
 
 /// One separator-free stretch of a command, split again at openers.
@@ -108,7 +125,8 @@ fn cargo(rest: &[String]) -> Vec<String> {
 mod tests {
     use super::programs;
 
-    const CASES: [(&str, &[&str]); 9] = [
+    const CASES: [(&str, &[&str]); 10] = [
+        ("! grep -E 'a|/b/|c' {{files}} | grep -v \"x;y\"", &["grep"]),
         ("typos --force-exclude {{files}}", &["typos"]),
         (
             "(for f in {{files}}; do mth fmt --check \"$f\" || exit 1; done)",
