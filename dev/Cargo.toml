@@ -21,3 +21,7 @@ workspace = true
 # rendered through pklith's own parsers, never a second reading of the
 # format. Same commit, same lock, same gate: nothing to drift.
 pklith = { path = ".." }
+
+# cargo-release acts on every workspace member; this one is never released.
+[package.metadata.release]
+release = false
