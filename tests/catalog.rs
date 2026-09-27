@@ -225,6 +225,7 @@ proven! {
     ripsecrets => "ripsecrets": [File("env", format!("aws_access_key_id = AKIA{}\n", "Z7Q3VXJKL5PNR2WT"))], [file("env", "region = eu\n")];
     nixfmt => "nixfmt": [file("a.nix", "{a=1;}")], [file("a.nix", "{ a = 1; }\n")];
     statix => "statix": [file("a.nix", "{ a = a; }\n")], [file("a.nix", "{ a = 1; }\n")];
+    deadnix => "deadnix": [file("a.nix", "{ x }: 1\n")], [file("a.nix", "{ x }: x\n")];
     shfmt => "shfmt": [file("a.sh", "if true;then echo;fi\n")], [file("a.sh", "if true; then echo; fi\n")];
     taplo => "taplo": [file("a.toml", "a=1\n")], [file("a.toml", "a = 1\n")];
     rustfmt => "rustfmt": crate_with("pub fn f(){}\n"), crate_with("pub fn f() {}\n");

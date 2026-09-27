@@ -35,6 +35,7 @@ rubocop|lint|rubocop|**/*.rb, **/*.rake, **/*.gemspec, Gemfile, Rakefile|rubocop
 actionlint|lint|actionlint|.github/workflows/*.yml, .github/workflows/*.yaml|actionlint {{files}}|-|-|workflow does not parse or type-check
 zizmor|lint|zizmor|.github/workflows/*.yml, .github/workflows/*.yaml|zizmor --offline --no-progress {{files}}|-|-|workflow security finding
 statix|lint|statix|**/*.nix|(for f in {{files}}; do statix check "$f" \|\| exit 1; done)|(for f in {{files}}; do statix fix "$f" \|\| exit 1; done)|-|nix anti-pattern; statix names the lint and its fix
+deadnix|lint|deadnix|**/*.nix|deadnix --fail {{files}}|deadnix --edit {{files}}|-|unused nix binding or argument; remove it, or prefix it with _
 editorconfig-checker|lint|editorconfig-checker|**/*|editorconfig-checker {{files}}|-|-|file breaks its .editorconfig (indent, line ends, final newline)
 mth-fmt|spec|microlith|**/SPEC.md|(for f in {{files}}; do mth fmt --check "$f" \|\| exit 1; done)|(for f in {{files}}; do mth fmt "$f" \|\| exit 1; done)|-|SPEC.md is hard-wrapped or over the line cap
 mth-check|spec|microlith|**/SPEC.md|(for f in {{files}}; do mth check "$f" \|\| exit 1; done)|-|-|SPEC.md breaks a structural rule
@@ -54,7 +55,7 @@ itok|spec|itok|**/*, .context-limits|itok check|-|-|a file registered in .contex
 fragment|triggers|checks|seed
 base|always|trailing-whitespace, final-newline, line-endings, no-bom, no-merge-conflict, no-case-conflict, no-broken-symlinks, no-private-key, ripsecrets, typos, editorconfig-checker|-
 actions|.github/workflows/*.yml, .github/workflows/*.yaml|actionlint, zizmor|-
-nix|**/*.nix|nixfmt, statix|-
+nix|**/*.nix|nixfmt, statix, deadnix|-
 shell|**/*.sh, **/*.bash|shellcheck, shfmt|-
 rubocop|**/.rubocop.yml, **/*.gemspec|rubocop|-
 toml|**/*.toml|taplo|-
