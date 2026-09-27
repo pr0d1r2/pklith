@@ -34,6 +34,7 @@ T1|x|`readme`: README badge block + disclaimer numbers, replacing `scripts/readm
 T2|x|`notices`: the third-party notices' crate table from `cargo tree -p pklith`, its prose counts & all-MIT claim, replacing `scripts/notices.sh`|V1,V5,V6
 T3|x|`agents`: the AGENTS.md step table from hk.pkl's hooks via `pkl -x`, replacing `scripts/agents-table.sh`|V1,V6
 T4|x|`catalog`: docs/CATALOG.md's check & fragment tables from `builtin.pklith`, through pklith's own registry & catalog parsers|V1,V6
+T5|x|`cli`: docs/CLI.md's usage block from `pklith::cli::USAGE`, the text pkli prints|V1,V6
 
 ## §B BUGS
 

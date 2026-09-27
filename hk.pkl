@@ -77,6 +77,12 @@ local fast = (generated.steps) {
     check = "cargo run -q -p pklith-dev -- catalog --check"
     fix = "cargo run -q -p pklith-dev -- catalog"
   }
+  // docs/CLI.md's usage block is the text pkli prints.
+  ["cli-doc"] {
+    glob = List("src/cli/mod.rs", "docs/CLI.md", "dev/**")
+    check = "cargo run -q -p pklith-dev -- cli --check"
+    fix = "cargo run -q -p pklith-dev -- cli"
+  }
   // V28 (T65): the vendored schema is the one the pinned hk ships.
   ["schema-pin"] {
     glob = List("pkl/**", "flake.lock", "scripts/schema-pin.sh")
