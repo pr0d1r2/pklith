@@ -1,4 +1,4 @@
-//! `pkli seed --init`: a first `.pklith` from the active fragments (seed
+//! `pklith seed --init`: a first `.pklith` from the active fragments (seed
 //! T3). The repository owns it afterwards.
 
 use crate::catalog::{Check, Fragment};
@@ -31,8 +31,8 @@ impl Reach<'_> {
 /// run on every file go in `*`; the rest are given to the types whose
 /// files they reach, as a `path:` class where they reach only some files
 /// of a type; binary types are exempt. A type no check reaches gets no
-/// row, so `pkli check` names it until someone decides (root V5), unless
-/// every file of it is one pkli writes itself (`own`: the seed files and
+/// row, so `pklith check` names it until someone decides (root V5), unless
+/// every file of it is one pklith writes itself (`own`: the seed files and
 /// what gen writes, such as the vendored hk schema): that type is exempt,
 /// so a repository is green the moment it is seeded.
 #[must_use]
@@ -46,13 +46,13 @@ pub fn registry(files: &[String], active: &[&Fragment], catalog: &[Check], own: 
     rows.extend(
         owned
             .iter()
-            .map(|k| format!("{k}|-|-|written by pkli (seed or gen)")),
+            .map(|k| format!("{k}|-|-|written by pklith (seed or gen)")),
     );
     rows.sort();
     render(&universal, &rows, &open)
 }
 
-/// Whether every file of type `key` is one pkli writes itself.
+/// Whether every file of type `key` is one pklith writes itself.
 fn only_own(files: &[&String], key: &str, own: &[&str]) -> bool {
     files
         .iter()
@@ -61,7 +61,7 @@ fn only_own(files: &[&String], key: &str, own: &[&str]) -> bool {
 }
 
 /// What `registry` writes, before rendering: the `*` checks, and the type
-/// rows sorted bytewise (root V3). Also what `pkli check` suggests for a
+/// rows sorted bytewise (root V3). Also what `pklith check` suggests for a
 /// fragment `.pklith` does not reflect (cover V9).
 #[must_use]
 pub fn rows(
@@ -274,12 +274,12 @@ fn render(star: &[String], rows: &[String], unreached: &[String]) -> String {
         String::new()
     } else {
         format!(
-            "#\n# No built-in check reads these types yet, so `pkli check` names them\n# until each gets checks or an exempt reason: {}.\n",
+            "#\n# No built-in check reads these types yet, so `pklith check` names them\n# until each gets checks or an exempt reason: {}.\n",
             unreached.join(", ")
         )
     };
     format!(
-        "format 1\n\n# Seeded by `pkli seed --init` from the fragments this repository's\n# files switch on (`pkli detect`). It is yours now: pkli never rewrites it.\n{open}\n## types\ntype|checks|min|exempt\n*|{}|-|-\n{}\n",
+        "format 1\n\n# Seeded by `pklith seed --init` from the fragments this repository's\n# files switch on (`pklith detect`). It is yours now: pklith never rewrites it.\n{open}\n## types\ntype|checks|min|exempt\n*|{}|-|-\n{}\n",
         star.join(", "),
         rows.join("\n")
     )
@@ -311,10 +311,10 @@ mod tests {
 
     const SEEDED: &str = "format 1
 
-# Seeded by `pkli seed --init` from the fragments this repository's
-# files switch on (`pkli detect`). It is yours now: pkli never rewrites it.
+# Seeded by `pklith seed --init` from the fragments this repository's
+# files switch on (`pklith detect`). It is yours now: pklith never rewrites it.
 #
-# No built-in check reads these types yet, so `pkli check` names them
+# No built-in check reads these types yet, so `pklith check` names them
 # until each gets checks or an exempt reason: LICENSE.
 
 ## types

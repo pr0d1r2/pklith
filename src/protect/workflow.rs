@@ -95,7 +95,7 @@ impl Reader {
     fn axis(&mut self, key: &str, v: &str) -> Result<(), String> {
         if key == "include" || key == "exclude" {
             return Err(format!(
-                "a matrix `{key}` changes its combinations in ways pkli cannot read; name the contexts by hand"
+                "a matrix `{key}` changes its combinations in ways pklith cannot read; name the contexts by hand"
             ));
         }
         let values = v.strip_prefix('[').and_then(|l| l.strip_suffix(']'));

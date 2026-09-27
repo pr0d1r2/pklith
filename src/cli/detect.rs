@@ -1,4 +1,4 @@
-//! `pkli detect`: the fragments a repository's files switch on
+//! `pklith detect`: the fragments a repository's files switch on
 //! (src/detect).
 
 use super::{Options, Outcome, USAGE, data, detecting, exit, files, options, toplevel};
@@ -13,7 +13,7 @@ pub(super) fn run(args: &[String], cwd: &Path) -> Outcome {
     };
     match detected(opts, cwd) {
         Ok(ids) => data(ids.into_iter().map(|id| id + "\n").collect()),
-        Err(message) => exit(2, format!("pkli detect: {message}\n")),
+        Err(message) => exit(2, format!("pklith detect: {message}\n")),
     }
 }
 

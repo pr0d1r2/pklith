@@ -1,4 +1,4 @@
-//! `pkli protect [--dry-run] [--repo OWNER/NAME] [--branch B]
+//! `pklith protect [--dry-run] [--repo OWNER/NAME] [--branch B]
 //! [--accept-removals]`: branch protection's required contexts from CI job
 //! names (src/protect). pklith's one network verb, opt-in by name (root
 //! §C): it reaches GitHub through `gh api` and nothing else.
@@ -27,7 +27,7 @@ pub(super) fn run(args: &[String], cwd: &Path) -> Outcome {
     match derived {
         Ok((_, contexts)) if ask.dry_run => data(crate::protect::payload(&contexts)),
         Ok((root, contexts)) => applied(&root, &ask, &contexts),
-        Err(message) => exit(2, format!("pkli protect: {message}\n")),
+        Err(message) => exit(2, format!("pklith protect: {message}\n")),
     }
 }
 
@@ -78,7 +78,7 @@ fn applied(root: &Path, ask: &Ask, contexts: &[String]) -> Outcome {
 
 /// Show the diff, refuse unaccepted removals, then PATCH.
 fn apply(root: &Path, ask: &Ask, contexts: &[String]) -> Result<String, (u8, String)> {
-    let failed = |e: String| (2, format!("pkli protect: {e}\n"));
+    let failed = |e: String| (2, format!("pklith protect: {e}\n"));
     let path = endpoint(root, ask).map_err(failed)?;
     let current: Vec<String> = gh(root, &["api", &path, "--jq", ".contexts[]"], None)
         .map_err(failed)?
@@ -88,7 +88,7 @@ fn apply(root: &Path, ask: &Ask, contexts: &[String]) -> Result<String, (u8, Str
     let (added, removed) = crate::protect::diff(&current, contexts);
     let shown = shown(&added, &removed);
     if !removed.is_empty() && !ask.accept_removals {
-        let why = "pkli protect: applying would stop requiring a context (a renamed or removed job); pass --accept-removals once that is meant\n";
+        let why = "pklith protect: applying would stop requiring a context (a renamed or removed job); pass --accept-removals once that is meant\n";
         return Err((1, shown + why));
     }
     patch(root, &path, contexts).map_err(failed)?;

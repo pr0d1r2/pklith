@@ -59,7 +59,7 @@ pub fn candidates(path: &str) -> Vec<Candidate> {
 
 /// The type a path has when no registry says otherwise: its last candidate,
 /// the extension or, without one, the whole basename. The key a gap is
-/// reported under, and the one `pkli seed --init` writes a row for.
+/// reported under, and the one `pklith seed --init` writes a row for.
 ///
 /// ```
 /// assert_eq!(pklith::scan::key("a/foo.tar.gz"), "gz");

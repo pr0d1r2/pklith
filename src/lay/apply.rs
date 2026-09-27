@@ -134,7 +134,7 @@ fn seen(root: &Path, check: &Check) -> Result<(), String> {
 /// planted-violation proof V32 asks for.
 fn body(check: &Check) -> String {
     format!(
-        "{}: {}\n\nLaid by `pkli lay` from .pklith: one check, one commit, through the\nrepository's own hooks.\n\n{}",
+        "{}: {}\n\nLaid by `pklith lay` from .pklith: one check, one commit, through the\nrepository's own hooks.\n\n{}",
         check.id,
         check.msg,
         super::proof(check)

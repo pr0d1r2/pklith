@@ -1,8 +1,8 @@
-//! `pkli map`, run against the built binary.
+//! `pklith map`, run against the built binary.
 
 mod common;
 
-use common::{OK, Result, pkli, repo};
+use common::{OK, Result, pklith, repo};
 use std::path::Path;
 
 /// Each file under sub/ has its spec under spec/.
@@ -34,10 +34,10 @@ fn specced(name: &str) -> Result<std::path::PathBuf> {
 fn changed_files_print_their_specs() -> Result {
     let dir = specced("map")?;
     let want = (Some(0), "spec/b_spec.rs\n".to_owned(), String::new());
-    assert_eq!(pkli(&dir, &["map", "sub/b.rs", "a.rs"])?, want);
+    assert_eq!(pklith(&dir, &["map", "sub/b.rs", "a.rs"])?, want);
     std::fs::write(dir.join("sub/b.rs"), "// edited\n")?;
     git(&dir, &["add", "sub/b.rs"])?;
-    assert_eq!(pkli(&dir, &["map", "--staged"])?, want);
+    assert_eq!(pklith(&dir, &["map", "--staged"])?, want);
     Ok(std::fs::remove_dir_all(dir)?)
 }
 
@@ -51,10 +51,10 @@ fn a_missing_spec_fails_and_bad_arguments_are_refused() -> Result {
     let want =
         "map: sub/c.rs matches rule `spec`, but its spec spec/c_spec.rs is not tracked; add it\n";
     assert_eq!(
-        pkli(&dir, &["map", "sub/c.rs"])?,
+        pklith(&dir, &["map", "sub/c.rs"])?,
         (Some(1), String::new(), want.to_owned())
     );
-    let (code, _, stderr) = pkli(&dir, &["map", "--staged", "sub/c.rs"])?;
+    let (code, _, stderr) = pklith(&dir, &["map", "--staged", "sub/c.rs"])?;
     assert_eq!(code, Some(2));
     assert!(stderr.contains("give --staged alone"), "{stderr}");
     Ok(std::fs::remove_dir_all(dir)?)

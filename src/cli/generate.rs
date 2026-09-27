@@ -1,4 +1,4 @@
-//! `pkli gen [--check]`: the repository's `hk.pklith.pkl` and
+//! `pklith gen [--check]`: the repository's `hk.pklith.pkl` and
 //! `nix/pklith.nix` from its `.pklith`.
 
 use super::{Outcome, exit, load, toplevel};
@@ -11,7 +11,7 @@ pub(super) fn run(cwd: &Path, check: bool) -> Outcome {
     let loaded = toplevel(cwd).and_then(|root| Ok((load(&root.join(".pklith"))?, root)));
     let (loaded, root) = match loaded {
         Ok(found) => found,
-        Err(message) => return exit(2, format!("pkli gen: {message}\n")),
+        Err(message) => return exit(2, format!("pklith gen: {message}\n")),
     };
     let used = crate::r#gen::used(&loaded.registry, &loaded.catalog);
     if check {
@@ -19,7 +19,7 @@ pub(super) fn run(cwd: &Path, check: bool) -> Outcome {
     }
     match crate::r#gen::write(&root, &used) {
         Ok(_) => exit(0, ""),
-        Err(message) => exit(2, format!("pkli gen: {message}\n")),
+        Err(message) => exit(2, format!("pklith gen: {message}\n")),
     }
 }
 
@@ -28,7 +28,7 @@ fn freshness(root: &Path, used: &[&crate::catalog::Check]) -> Outcome {
         None => exit(0, ""),
         Some(file) => exit(
             1,
-            format!("pkli gen: {file} is stale; run `pkli gen` and stage it\n"),
+            format!("pklith gen: {file} is stale; run `pklith gen` and stage it\n"),
         ),
     }
 }

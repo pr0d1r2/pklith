@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Re-lay reproduction (pklith root T45, V3, V13): `pkli lay` run on a copy of
+# Re-lay reproduction (pklith root T45, V3, V13): `pklith lay` run on a copy of
 # HEAD whose gate holds no steps must commit its way, through the real
 # hooks, back to the very generated files HEAD tracks, byte for byte. It
 # proves that every check this repository runs can be laid one commit at a
@@ -15,7 +15,7 @@ root="$(git rev-parse --show-toplevel)"
 unset GIT_DIR GIT_INDEX_FILE GIT_WORK_TREE GIT_PREFIX
 # The copy lives at a fixed path under the ignored target/, with a target
 # of its own: cargo keys its cache by package path, so a fresh temp dir
-# would rebuild pkli from nothing on every push, and a separate target
+# would rebuild pklith from nothing on every push, and a separate target
 # never races this tree's build. The copy itself is rebuilt each run.
 work="$root/target/relay"
 repo="$work/repo"
@@ -60,12 +60,12 @@ git -C "$repo" add -A
 git -C "$repo" commit -q -m 'relay: the tree with an empty gate'
 git -C "$repo" config core.hooksPath .githooks
 
-cargo build -q --manifest-path "$repo/Cargo.toml" --bin pkli
-(cd "$repo" && "$CARGO_TARGET_DIR/debug/pkli" lay >"$work/laid")
+cargo build -q --manifest-path "$repo/Cargo.toml" --bin pklith
+(cd "$repo" && "$CARGO_TARGET_DIR/debug/pklith" lay >"$work/laid")
 
 for generated in hk.pklith.pkl nix/pklith.nix; do
   if ! git -C "$root" show "HEAD:$generated" | cmp -s - "$repo/$generated"; then
-    echo "relay: pkli lay did not reproduce $generated:" >&2
+    echo "relay: pklith lay did not reproduce $generated:" >&2
     git -C "$root" show "HEAD:$generated" | diff - "$repo/$generated" >&2 || true
     exit 1
   fi

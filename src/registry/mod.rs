@@ -175,7 +175,7 @@ fn version(first: Option<(usize, &str)>) -> Result<(), Error> {
 }
 
 fn newer(n: u32) -> String {
-    format!("format {n} is newer than this pkli reads ({FORMAT}); upgrade pkli")
+    format!("format {n} is newer than this pklith reads ({FORMAT}); upgrade pklith")
 }
 
 #[derive(Default)]
@@ -438,7 +438,7 @@ mod tests {
     const FORMAT_CASES: [(&str, &str); 2] = [
         (
             "format 2",
-            ".pklith:1: format 2 is newer than this pkli reads (1); upgrade pkli",
+            ".pklith:1: format 2 is newer than this pklith reads (1); upgrade pklith",
         ),
         (
             "format 1x",

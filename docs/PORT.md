@@ -10,17 +10,17 @@ disappears silently in the move.
 
 | set-and-setting | pklith | notes |
 |---|---|---|
-| `setting/lib/detect-fragments.sh` | `pkli detect` (src/detect) | Triggers are globs in the catalog, matched the way hk matches. |
+| `setting/lib/detect-fragments.sh` | `pklith detect` (src/detect) | Triggers are globs in the catalog, matched the way hk matches. |
 | `lib/check-fragment-map.nix` | `## fragments` in `src/catalog/builtin.pklith` | See the fragment table below. |
 | `checksFor` and the 24 `mk*Check` helpers | built-in catalog rows | See the check table below. |
-| `linter-coverage`, `coveragePerFileClass` | `pkli check` (src/cover) | Types in `.pklith`, with stale and unbacked claims found too. |
-| `materializationFor`, `assemble-lefthook.sh` | `pkli gen`, `pkli lay` | hk steps in `hk.pklith.pkl` instead of `lefthook.yml`. |
-| `sync-setting-init`, `app-seed.sh`, `canonFor` | `pkli seed` (src/seed) | Seed files are written once and then belong to the repository. |
-| drift checks (`drift-check.sh`, `coverage-drift-check.sh`, `materialize-check.sh`) | `pkli gen --check` | One freshness check for everything gen writes. |
-| `agents-md-compile.sh` | `pkli gen` AGENTS.md block (src/gen) | |
-| `confirm.sh`, `app-confirm.sh` | `pkli confirm` (src/confirm) | |
-| `migrate.sh`, `app-migrate.sh` | `pkli migrate` (src/migrate) | lefthook to hk, gated on the same check set before and after. |
-| `branch-protection.sh` | `pkli protect` (src/protect) | The one command allowed to touch the network. |
+| `linter-coverage`, `coveragePerFileClass` | `pklith check` (src/cover) | Types in `.pklith`, with stale and unbacked claims found too. |
+| `materializationFor`, `assemble-lefthook.sh` | `pklith gen`, `pklith lay` | hk steps in `hk.pklith.pkl` instead of `lefthook.yml`. |
+| `sync-setting-init`, `app-seed.sh`, `canonFor` | `pklith seed` (src/seed) | Seed files are written once and then belong to the repository. |
+| drift checks (`drift-check.sh`, `coverage-drift-check.sh`, `materialize-check.sh`) | `pklith gen --check` | One freshness check for everything gen writes. |
+| `agents-md-compile.sh` | `pklith gen` AGENTS.md block (src/gen) | |
+| `confirm.sh`, `app-confirm.sh` | `pklith confirm` (src/confirm) | |
+| `migrate.sh`, `app-migrate.sh` | `pklith migrate` (src/migrate) | lefthook to hk, gated on the same check set before and after. |
+| `branch-protection.sh` | `pklith protect` (src/protect) | The one command allowed to touch the network. |
 | `mkDevShells` | `lib.devShell` in `flake.nix` | |
 | `lock-graph-check.sh`, `nix-flake-lock-budget.sh` | dropped | pklith's own `flake-lock-graph` step covers its lock; a consumer's lock budget is its own policy. |
 | `graduate-draft.sh`, `chain-ready.sh`, skill checks | stay in set-and-setting | They belong to the set half. |
@@ -72,7 +72,7 @@ pklith adds three fragments of its own: `rust`, `spec` (SPEC.md files) and `cont
 | xmllint | `xmllint` |
 | gawk-lint | `gawk-lint`, which parses without running the script |
 | bats-parse | `bats-parse` |
-| linter-coverage | `pkli check` itself |
+| linter-coverage | `pklith check` itself |
 
 These were dropped:
 

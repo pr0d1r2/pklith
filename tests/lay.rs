@@ -1,8 +1,8 @@
-//! `pkli lay`, run against the built binary.
+//! `pklith lay`, run against the built binary.
 
 mod common;
 
-use common::{HK, OK, Result, pkli, repo};
+use common::{HK, OK, Result, pklith, repo};
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -15,12 +15,12 @@ const PLAN: &str = "ci(lint): add the lint check\n";
 fn dry_run_lists_only_missing_checks() -> Result {
     let dir = repo("lay-plan", Some(OK))?;
     assert_eq!(
-        pkli(&dir, &["lay", "--dry-run"])?,
+        pklith(&dir, &["lay", "--dry-run"])?,
         (Some(0), String::new(), String::new())
     );
     std::fs::write(dir.join("hk.pkl"), HK.replace("\"lint\"", "\"other\""))?;
     assert_eq!(
-        pkli(&dir, &["lay", "--dry-run"])?,
+        pklith(&dir, &["lay", "--dry-run"])?,
         (Some(0), PLAN.to_owned(), String::new())
     );
     Ok(std::fs::remove_dir_all(dir)?)
@@ -31,16 +31,16 @@ fn dry_run_lists_only_missing_checks() -> Result {
 fn dry_run_without_hk_config_exits_2() -> Result {
     let dir = repo("lay-no-hk", Some(OK))?;
     std::fs::remove_file(dir.join("hk.pkl"))?;
-    let (code, _, stderr) = pkli(&dir, &["lay", "--dry-run"])?;
+    let (code, _, stderr) = pklith(&dir, &["lay", "--dry-run"])?;
     assert_eq!(code, Some(2));
     assert!(
-        stderr.starts_with("pkli lay: cannot read hk's steps: "),
+        stderr.starts_with("pklith lay: cannot read hk's steps: "),
         "{stderr}"
     );
     Ok(std::fs::remove_dir_all(dir)?)
 }
 
-/// hk config that runs whatever `pkli gen` or `pkli lay` generated.
+/// hk config that runs whatever `pklith gen` or `pklith lay` generated.
 const IMPORTING: &str = "amends \"pkl/Config.pkl\"\nimport \"hk.pklith.pkl\" as generated\nhooks { [\"check\"] { steps = generated.steps } }\n";
 
 /// A generated module before anything is laid.
@@ -53,9 +53,9 @@ const WHO: [(&str, &str); 4] = [
     ("GIT_COMMITTER_EMAIL", "t@t"),
 ];
 
-/// `pkli` with a git identity, since lay commits.
-fn pkli_as(dir: &Path, args: &[&str]) -> Result<(Option<i32>, String, String)> {
-    let out = Command::new(env!("CARGO_BIN_EXE_pkli"))
+/// `pklith` with a git identity, since lay commits.
+fn pklith_as(dir: &Path, args: &[&str]) -> Result<(Option<i32>, String, String)> {
+    let out = Command::new(env!("CARGO_BIN_EXE_pklith"))
         .args(args)
         .envs(WHO)
         .current_dir(dir)
@@ -104,7 +104,7 @@ fn laying_repo(name: &str, hook_exit: u8) -> Result<PathBuf> {
 #[test]
 fn lay_commits_each_missing_check_once() -> Result {
     let dir = laying_repo("lay-ok", 0)?;
-    let (code, stdout, stderr) = pkli_as(&dir, &["lay"])?;
+    let (code, stdout, stderr) = pklith_as(&dir, &["lay"])?;
     let sha = git(&dir, &["rev-parse", "--short", "HEAD"])?;
     assert_eq!(
         (code, stdout, stderr),
@@ -113,7 +113,7 @@ fn lay_commits_each_missing_check_once() -> Result {
     assert_eq!(git(&dir, &["log", "-1", "--format=%s"])?, PLAN.trim_end());
     assert!(std::fs::read_to_string(dir.join("hk.pklith.pkl"))?.contains("[\"lint\"]"));
     assert_eq!(
-        pkli_as(&dir, &["lay"])?,
+        pklith_as(&dir, &["lay"])?,
         (Some(0), String::new(), String::new())
     );
     Ok(std::fs::remove_dir_all(dir)?)
@@ -125,7 +125,7 @@ fn lay_commits_each_missing_check_once() -> Result {
 fn a_refused_commit_rolls_everything_back() -> Result {
     let dir = laying_repo("lay-refused", 1)?;
     let head = git(&dir, &["rev-parse", "HEAD"])?;
-    let (code, _, stderr) = pkli_as(&dir, &["lay"])?;
+    let (code, _, stderr) = pklith_as(&dir, &["lay"])?;
     assert_eq!(code, Some(1));
     assert!(
         stderr.ends_with("; rolled back to where it started\n"),
@@ -143,13 +143,14 @@ fn lay_refuses_to_start_with_the_file_staged() -> Result {
     let dir = laying_repo("lay-staged", 0)?;
     std::fs::write(dir.join("hk.pklith.pkl"), format!("{EMPTY}// staged\n"))?;
     git(&dir, &["add", "hk.pklith.pkl"])?;
-    let (code, _, stderr) = pkli_as(&dir, &["lay"])?;
+    let (code, _, stderr) = pklith_as(&dir, &["lay"])?;
     assert_eq!((code, stderr.as_str()), (Some(2), STAGED));
     Ok(std::fs::remove_dir_all(dir)?)
 }
 
-const STAGED: &str = "pkli lay: hk.pklith.pkl is already staged; commit or unstage it first\n";
-const NO_HOOKS: &str = "pkli lay: no git hooks are installed, so nothing would check the commits\n";
+const STAGED: &str = "pklith lay: hk.pklith.pkl is already staged; commit or unstage it first\n";
+const NO_HOOKS: &str =
+    "pklith lay: no git hooks are installed, so nothing would check the commits\n";
 
 /// lay V1: with no hooks installed nothing would check the commits, so
 /// lay does not start: exit 2.
@@ -158,7 +159,7 @@ fn lay_refuses_to_start_without_hooks() -> Result {
     let dir = laying_repo("lay-no-hooks", 0)?;
     git(&dir, &["config", "--unset", "core.hooksPath"])?;
     assert_eq!(
-        pkli_as(&dir, &["lay"])?,
+        pklith_as(&dir, &["lay"])?,
         (Some(2), String::new(), NO_HOOKS.to_owned())
     );
     Ok(std::fs::remove_dir_all(dir)?)
@@ -171,7 +172,7 @@ fn a_step_hk_cannot_see_is_not_committed() -> Result {
     let dir = laying_repo("lay-unseen", 0)?;
     std::fs::write(dir.join("hk.pkl"), HK.replace("\"lint\"", "\"hand\""))?;
     std::fs::remove_file(dir.join("hk.pklith.pkl"))?;
-    let (code, _, stderr) = pkli_as(&dir, &["lay"])?;
+    let (code, _, stderr) = pklith_as(&dir, &["lay"])?;
     assert_eq!(code, Some(1));
     assert!(
         stderr.contains("does hk.pkl import hk.pklith.pkl"),
@@ -190,7 +191,7 @@ fn an_incomplete_rollback_is_reported() -> Result {
     let dir = laying_repo("lay-readonly", 0)?;
     let file = dir.join("hk.pklith.pkl");
     std::fs::set_permissions(&file, std::fs::Permissions::from_mode(0o444))?;
-    let (code, _, stderr) = pkli_as(&dir, &["lay"])?;
+    let (code, _, stderr) = pklith_as(&dir, &["lay"])?;
     std::fs::set_permissions(&file, std::fs::Permissions::from_mode(0o644))?;
     assert_eq!(code, Some(1));
     assert!(stderr.contains("; rollback incomplete: "), "{stderr}");
@@ -202,9 +203,9 @@ fn an_incomplete_rollback_is_reported() -> Result {
 fn lay_without_a_registry_exits_2() -> Result {
     let dir = laying_repo("lay-no-registry", 0)?;
     std::fs::remove_file(dir.join(".pklith"))?;
-    let (code, _, stderr) = pkli_as(&dir, &["lay"])?;
+    let (code, _, stderr) = pklith_as(&dir, &["lay"])?;
     assert_eq!(code, Some(2));
-    assert!(stderr.starts_with("pkli lay: cannot read "), "{stderr}");
+    assert!(stderr.starts_with("pklith lay: cannot read "), "{stderr}");
     Ok(std::fs::remove_dir_all(dir)?)
 }
 
@@ -220,7 +221,7 @@ fn path_without_hk() -> Result<String> {
 #[test]
 fn lay_refuses_to_start_without_hk() -> Result {
     let dir = laying_repo("lay-no-hk-binary", 0)?;
-    let out = Command::new(env!("CARGO_BIN_EXE_pkli"))
+    let out = Command::new(env!("CARGO_BIN_EXE_pklith"))
         .arg("lay")
         .envs(WHO)
         .env("PATH", path_without_hk()?)
@@ -229,7 +230,7 @@ fn lay_refuses_to_start_without_hk() -> Result {
     let stderr = String::from_utf8(out.stderr)?;
     assert_eq!(out.status.code(), Some(2));
     assert!(
-        stderr.starts_with("pkli lay: hk is not usable, so no hook would run: "),
+        stderr.starts_with("pklith lay: hk is not usable, so no hook would run: "),
         "{stderr}"
     );
     Ok(std::fs::remove_dir_all(dir)?)
@@ -242,7 +243,7 @@ fn the_operators_staged_change_stays_out_of_laid_commits() -> Result {
     let dir = laying_repo("lay-operator", 0)?;
     std::fs::write(dir.join("a.rs"), "// operator's work\n")?;
     git(&dir, &["add", "a.rs"])?;
-    assert_eq!(pkli_as(&dir, &["lay"])?.0, Some(0));
+    assert_eq!(pklith_as(&dir, &["lay"])?.0, Some(0));
     assert_eq!(
         git(&dir, &["show", "--name-only", "--format=", "HEAD"])?,
         "hk.pklith.pkl\nnix/pklith.nix"
@@ -261,7 +262,7 @@ fn lay_fills_the_agents_block_it_is_given() -> Result {
     std::fs::write(dir.join("AGENTS.md"), AGENTS)?;
     git(&dir, &["add", "AGENTS.md"])?;
     git(&dir, &["commit", "-q", "--no-verify", "-m", "agents"])?;
-    assert_eq!(pkli_as(&dir, &["lay"])?.0, Some(0));
+    assert_eq!(pklith_as(&dir, &["lay"])?.0, Some(0));
     let files = git(&dir, &["show", "--name-only", "--format=", "HEAD"])?;
     assert_eq!(files, "AGENTS.md\nhk.pklith.pkl\nnix/pklith.nix");
     assert!(std::fs::read_to_string(dir.join("AGENTS.md"))?.contains("| `lint` | `*` | - | m |"));
@@ -277,7 +278,7 @@ fn lay_refuses_an_edited_agents_file() -> Result {
     git(&dir, &["add", "AGENTS.md"])?;
     git(&dir, &["commit", "-q", "--no-verify", "-m", "agents"])?;
     std::fs::write(dir.join("AGENTS.md"), format!("{AGENTS}operator's note\n"))?;
-    let (code, _, stderr) = pkli_as(&dir, &["lay"])?;
+    let (code, _, stderr) = pklith_as(&dir, &["lay"])?;
     assert_eq!(code, Some(2));
     assert!(
         stderr.contains("AGENTS.md has uncommitted edits"),
@@ -297,13 +298,13 @@ fn a_check_for_a_generated_file_is_laid_in_one_run() -> Result {
     let dir = laying_repo("lay-generated", 0)?;
     std::fs::write(dir.join(".pklith"), NIX)?;
     git(&dir, &["commit", "-qam", "nix row", "--no-verify"])?;
-    let (code, stdout, _) = pkli_as(&dir, &["lay"])?;
+    let (code, stdout, _) = pklith_as(&dir, &["lay"])?;
     assert!(
         code == Some(0) && stdout.contains("ci(nixlint)"),
         "{stdout}"
     );
     assert_eq!(
-        pkli_as(&dir, &["lay"])?,
+        pklith_as(&dir, &["lay"])?,
         (Some(0), String::new(), String::new())
     );
     Ok(std::fs::remove_dir_all(dir)?)

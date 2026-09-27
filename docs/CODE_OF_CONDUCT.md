@@ -7,7 +7,7 @@ right. That is most of it.
 
 This project has a habit worth naming up front: **claims here are expected to
 carry evidence.** It is the project's subject, not a slogan borrowed for this
-page: `pkli check` refuses a coverage claim no hk step backs, and a new gate
+page: `pklith check` refuses a coverage claim no hk step backs, and a new gate
 step lands only with proof that it rejects a planted violation. The same
 standard applies to the humans. "This is slower" invites a measurement; "this
 check is wrong" invites the case against it. It applies to maintainers exactly

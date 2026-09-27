@@ -23,7 +23,7 @@ fn cli(dir: &Path, check: bool) -> Result<(Option<i32>, String)> {
     Ok((out.status.code(), String::from_utf8(out.stderr)?))
 }
 
-/// The usage renders as pkli prints it; a check passes; a hand edit drifts.
+/// The usage renders as pklith prints it; a check passes; a hand edit drifts.
 #[test]
 fn the_usage_renders_then_checks() -> Result {
     let dir = fixture(

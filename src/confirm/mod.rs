@@ -1,5 +1,5 @@
 //! Acceptance of a materialized repository (`src/confirm/SPEC.md`),
-//! read-only (V1): is what pkli laid complete, faithful, runnable?
+//! read-only (V1): is what pklith laid complete, faithful, runnable?
 
 use crate::catalog::Check;
 use std::path::Path;
@@ -23,7 +23,7 @@ pub struct Inputs<'a> {
     pub root: &'a Path,
     /// The checks the registry uses, in emit order.
     pub used: &'a [&'a Check],
-    /// The checks `pkli lay` would still lay.
+    /// The checks `pklith lay` would still lay.
     pub missing: &'a [&'a Check],
 }
 
@@ -56,21 +56,21 @@ fn completeness(missing: &[&Check]) -> Vec<Finding> {
             "completeness",
             crate::r#gen::FILE,
             what(c),
-            "run `pkli lay`",
+            "run `pklith lay`",
         )
     };
     missing.iter().map(one).collect()
 }
 
-/// The generated files are exactly what `pkli gen` writes.
+/// The generated files are exactly what `pklith gen` writes.
 fn fidelity(root: &Path, used: &[&Check]) -> Option<Finding> {
     let file = crate::r#gen::stale(root, used)?;
-    let what = "differs from what `pkli gen` writes".to_owned();
+    let what = "differs from what `pklith gen` writes".to_owned();
     Some(finding(
         "fidelity",
         file,
         what,
-        "run `pkli gen` and commit the result",
+        "run `pklith gen` and commit the result",
     ))
 }
 
@@ -130,7 +130,7 @@ fn idempotence(render: &dyn Fn() -> Rendered) -> Option<Finding> {
     let (first, second) = (render(), render());
     let (path, _) = first.iter().zip(&second).find(|(a, b)| a != b)?.0;
     let what = "renders differently on a second run".to_owned();
-    let fix = "report it: pkli's output must be deterministic";
+    let fix = "report it: pklith's output must be deterministic";
     Some(finding("idempotence", path, what, fix))
 }
 

@@ -1,8 +1,8 @@
-//! `pkli report`, run against the built binary.
+//! `pklith report`, run against the built binary.
 
 mod common;
 
-use common::{OK, Result, pkli, repo};
+use common::{OK, Result, pklith, repo};
 
 /// The common fixture with an untyped x.py, so there is a gap to report.
 fn gapped(name: &str) -> Result<std::path::PathBuf> {
@@ -23,7 +23,7 @@ fn gapped(name: &str) -> Result<std::path::PathBuf> {
 #[test]
 fn report_prints_the_matrix_and_findings_and_exits_0() -> Result {
     let dir = gapped("report")?;
-    let (code, stdout, stderr) = pkli(&dir, &["report"])?;
+    let (code, stdout, stderr) = pklith(&dir, &["report"])?;
     assert_eq!((code, stderr.as_str()), (Some(0), ""));
     assert!(stdout.starts_with("*       -  ws\n"), "{stdout}");
     assert!(stdout.contains("\nrs      2  lint\n"), "{stdout}");
@@ -39,13 +39,13 @@ fn report_prints_the_matrix_and_findings_and_exits_0() -> Result {
 #[test]
 fn report_speaks_json_and_markdown() -> Result {
     let dir = gapped("report-formats")?;
-    let json = pkli(&dir, &["report", "--format", "json"])?.1;
+    let json = pklith(&dir, &["report", "--format", "json"])?.1;
     assert!(json.starts_with("{\"version\":1,\"ok\":false,"), "{json}");
     assert!(
         json.contains("\"gaps\":[{\"type\":\"py\",\"files\":[\"x.py\"]}]"),
         "{json}"
     );
-    let md = pkli(&dir, &["report", "--format", "md"])?.1;
+    let md = pklith(&dir, &["report", "--format", "md"])?.1;
     assert!(md.contains("| `.rs` | lint | 2 files |\n"), "{md}");
     Ok(std::fs::remove_dir_all(dir)?)
 }
@@ -55,9 +55,9 @@ fn report_speaks_json_and_markdown() -> Result {
 fn a_bad_format_is_a_usage_error() -> Result {
     let dir = gapped("report-usage")?;
     for args in [&["report", "--format", "xml"][..], &["report", "--format"]] {
-        let (code, _, stderr) = pkli(&dir, args)?;
+        let (code, _, stderr) = pklith(&dir, args)?;
         assert_eq!(code, Some(2));
-        assert!(stderr.starts_with("usage: pkli"), "{stderr}");
+        assert!(stderr.starts_with("usage: pklith"), "{stderr}");
     }
     Ok(std::fs::remove_dir_all(dir)?)
 }
@@ -66,12 +66,12 @@ fn a_bad_format_is_a_usage_error() -> Result {
 #[test]
 fn report_outside_a_repository_exits_2() -> Result {
     let outside = common::temp("report-outside")?;
-    let (code, _, stderr) = pkli(&outside, &["report"])?;
+    let (code, _, stderr) = pklith(&outside, &["report"])?;
     assert_eq!(
         (code, stderr.as_str()),
         (
             Some(2),
-            "pkli report: not inside a git repository; pass --root DIR\n"
+            "pklith report: not inside a git repository; pass --root DIR\n"
         )
     );
     Ok(std::fs::remove_dir_all(outside)?)

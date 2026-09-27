@@ -97,13 +97,13 @@ fn ported(fragment: &str) -> Option<bool> {
 }
 
 /// One legacy command of a ported fragment: dropped by name, or mapped
-/// into `fragment`'s checks (`pkli check` stands for the verb itself).
+/// into `fragment`'s checks (`pklith check` stands for the verb itself).
 fn landed(command: &str, fragment: &Fragment, dropped: &[String]) -> Result<(), String> {
     if is_dropped(command, dropped) {
         return Ok(());
     }
     let to = mapped(command).ok_or(format!("{command}: neither mapped nor dropped in PORT.md"))?;
-    if to == "pkli check" || fragment.checks.contains(&to) {
+    if to == "pklith check" || fragment.checks.contains(&to) {
         return Ok(());
     }
     Err(format!(

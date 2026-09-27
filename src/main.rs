@@ -1,4 +1,4 @@
-//! `pkli`, the pklith command line. Wiring only: `pklith::cli` does the work.
+//! `pklith`, the pklith command line. Wiring only: `pklith::cli` does the work.
 //! Installed under a legacy tool's name it behaves as that tool.
 
 use std::io::Write;

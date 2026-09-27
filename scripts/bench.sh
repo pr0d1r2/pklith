@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # pklith V27 (root T64): speed is the port's reason, so it is measured, not
 # assumed. Three generated fixture repositories (small, fleet-sized, 10k
-# files) are timed under pkli; each timing is the best of three runs.
+# files) are timed under pklith; each timing is the best of three runs.
 #
-#   scripts/bench.sh                   time pkli, fail over a budget
+#   scripts/bench.sh                   time pklith, fail over a budget
 #   scripts/bench.sh --compare DIR     also time the legacy tools, for §R
 #
 # Budgets are CPU milliseconds, about three times the measurement recorded
@@ -25,18 +25,18 @@ declare -A budget=(
 )
 
 export CARGO_TARGET_DIR="$root/target"
-cargo build -q --release --bin pkli
-pkli="$root/target/release/pkli"
-stamp="$(sha256sum "$pkli" | cut -c1-16)"
+cargo build -q --release --bin pklith
+pklith="$root/target/release/pklith"
+stamp="$(sha256sum "$pklith" | cut -c1-16)"
 tick=$'\x60'
 work="$root/target/bench"
 mkdir -p "$work/bin"
-ln -sf "$pkli" "$work/bin/lefthook-linter-coverage-full"
+ln -sf "$pklith" "$work/bin/lefthook-linter-coverage-full"
 
 # fixture NAME COUNT: COUNT files over a spread of types, committed.
 fixture() {
   local dir="$work/$1" n="$2" i
-  # Rebuilt whenever pkli changes: what it seeds and generates is part of
+  # Rebuilt whenever pklith changes: what it seeds and generates is part of
   # the fixture, and a stale one would time yesterday's work.
   [ -f "$work/.done-$1-$n-$stamp" ] && return
   rm -rf "$dir" && mkdir -p "$dir/src" "$dir/lib" "$dir/docs" "$dir/nix"
@@ -52,7 +52,7 @@ fixture() {
     esac
   done
   git -C "$dir" add -A
-  (cd "$dir" && "$pkli" seed --init >/dev/null && "$pkli" gen >/dev/null)
+  (cd "$dir" && "$pklith" seed --init >/dev/null && "$pklith" gen >/dev/null)
   git -C "$dir" add -A
   # A doc listing every key the tree has, so the compat run passes and a
   # failing one means something broke.
@@ -102,8 +102,8 @@ for spec in small:50 fleet:1000 large:10000; do
     legacy_detect="$(best "$dir" bash "$compare/set-and-setting/setting/lib/detect-fragments.sh")" || exit 1
     legacy_compat="$(best "$dir" "$compare/nix-lefthook-linter-coverage-full/result/bin/lefthook-linter-coverage-full")" || exit 1
   fi
-  detect="$(best "$dir" "$pkli" detect)" || exit 1
-  check="$(best "$dir" "$pkli" check)" || exit 1
+  detect="$(best "$dir" "$pklith" detect)" || exit 1
+  check="$(best "$dir" "$pklith" check)" || exit 1
   compat="$(best "$dir" "$work/bin/lefthook-linter-coverage-full")" || exit 1
   row "$name" detect "$detect" "$legacy_detect"
   row "$name" check "$check"

@@ -77,11 +77,11 @@
         }
       );
 
-      # The dev shell a pklith consumer enters (root §C): hk, pkl, git and pkli,
+      # The dev shell a pklith consumer enters (root §C): hk, pkl, git and pklith,
       # plus every package its generated `nix/pklith.nix` names, all from
-      # pklith's pinned catalog so the tools are the ones pkli was proven
+      # pklith's pinned catalog so the tools are the ones pklith was proven
       # against. Hooks are switched on only once `hk.pkl` exists, so no stub
-      # config ever gates a commit (V22); `pkli seed` writes the tracked
+      # config ever gates a commit (V22); `pklith seed` writes the tracked
       # `.githooks/` they point at.
       lib.devShell =
         {
@@ -126,7 +126,7 @@
         {
           devshell = pkgs.runCommand "pklith-devshell" { nativeBuildInputs = shell.nativeBuildInputs; } ''
             export HOME="$TMPDIR"
-            for tool in hk pkl git pkli shellcheck sherd; do
+            for tool in hk pkl git pklith shellcheck sherd; do
               command -v "$tool" >/dev/null || { echo "devshell: $tool is not on PATH" >&2; exit 1; }
             done
             cat >hook.sh <<'HOOK'
@@ -144,7 +144,7 @@
       );
 
       packages = forAll (pkgs: rec {
-        # pkli, built from the crate alone: the sources cargo reads and the
+        # pklith, built from the crate alone: the sources cargo reads and the
         # vendored hk schema it embeds. The suite runs in the gate; the
         # binary is tested as built by the package-nix step (V10).
         default = pkgs.rustPlatform.buildRustPackage {
@@ -158,21 +158,21 @@
               ./src
               ./pkl
               # A workspace member cargo must find, though the package
-              # builds only pkli.
+              # builds only pklith.
               ./dev
             ];
           };
           cargoLock.lockFile = ./Cargo.lock;
           doCheck = false;
-          meta.mainProgram = "pkli";
+          meta.mainProgram = "pklith";
         };
-        # Drop-in for the three legacy coverage tools: pkli under each
+        # Drop-in for the three legacy coverage tools: pklith under each
         # legacy name reads the legacy environment and speaks its messages
         # and exit codes (src/legacy V2), so a consumer swaps the package.
         compat = pkgs.runCommand "pklith-compat" { } ''
           mkdir -p $out/bin
           for name in lefthook-linter-coverage lefthook-linter-coverage-full lefthook-unit-coverage; do
-            ln -s ${default}/bin/pkli $out/bin/$name
+            ln -s ${default}/bin/pklith $out/bin/$name
           done
         '';
       });

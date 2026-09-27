@@ -1,8 +1,8 @@
-//! `pkli migrate`, run against the built binary.
+//! `pklith migrate`, run against the built binary.
 
 mod common;
 
-use common::{Result, pkli, repo};
+use common::{Result, pklith, repo};
 use std::path::Path;
 
 const LEFTHOOK: &str = "pre-commit:\n  commands:\n    gitleaks:\n      run: lefthook-gitleaks {staged_files}\n    shellcheck:\n      run: lefthook-shellcheck {staged_files}\n    flake-manifest:\n      run: lefthook-flake-manifest-wrapper\n";
@@ -19,7 +19,7 @@ fn lefthooked(name: &str) -> Result<std::path::PathBuf> {
 }
 
 fn migrate(dir: &Path, args: &[&str]) -> Result<(Option<i32>, String, String)> {
-    pkli(dir, &[&["migrate"][..], args].concat())
+    pklith(dir, &[&["migrate"][..], args].concat())
 }
 
 /// Migrate V1, V3: a command no pklith check stands for is named, and
@@ -77,7 +77,7 @@ fn no_lefthook_is_an_error() -> Result {
     let (code, _, stderr) = migrate(&dir, &[])?;
     assert_eq!(code, Some(2));
     assert!(
-        stderr.starts_with("pkli migrate: cannot read lefthook.yml: "),
+        stderr.starts_with("pklith migrate: cannot read lefthook.yml: "),
         "{stderr}"
     );
     Ok(std::fs::remove_dir_all(dir)?)

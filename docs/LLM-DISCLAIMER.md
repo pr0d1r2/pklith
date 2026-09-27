@@ -49,7 +49,7 @@ tarball, the API against the last release, and the benchmark.
 [`ci.yml`](../.github/workflows/ci.yml) calls that same definition on
 three platforms, so a laptop and a runner cannot disagree. Line coverage
 has a floor of 100% that may only rise, `unsafe` is forbidden, and the
-only command that touches the network is `pkli protect`.
+only command that touches the network is `pklith protect`.
 
 ## The record is deliberately unflattering
 
@@ -57,12 +57,12 @@ Five defects, chosen because each was green before it was found. They are
 the reason to trust the process somewhat and the numbers above rather
 less. Each names the commit that fixed it.
 
-**`08de36a`: `pkli check` took 39.5 seconds on 10,000 files.** Every test
+**`08de36a`: `pklith check` took 39.5 seconds on 10,000 files.** Every test
 passed; no test had 10,000 files. The rows it suggests came from a loop
 that rescanned every file for every file. It was found only when the
 benchmark the spec demanded was first run.
 
-**`92c8953`: a freshly seeded repository failed its first `pkli check`.**
+**`92c8953`: a freshly seeded repository failed its first `pklith check`.**
 `seed --init` typed the files present before seeding and forgot the ones
 it was about to write. Nearly three hundred tests were green; it showed
 the first time the built binary was run on an empty repository.

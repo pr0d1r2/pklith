@@ -1,9 +1,9 @@
 format 1
 
-# pklith's built-in catalog (src/catalog T2), compiled into `pkli`. Rows are
+# pklith's built-in catalog (src/catalog T2), compiled into `pklith`. Rows are
 # seeded from the sibling gates (root R6). A repository's own `.pklith`
 # `## checks` row with the same id replaces one of these; a new id extends
-# them. Order within a category is the order `pkli lay` lays them (V4).
+# them. Order within a category is the order `pklith lay` lays them (V4).
 #
 # `nix` is a nixpkgs attribute, or the name of a flake input for tools
 # nixpkgs does not ship (microlith, sherd, itok). `-` means hk runs the check

@@ -1,4 +1,4 @@
-//! `pkli check`: the gate verdict.
+//! `pklith check`: the gate verdict.
 
 use super::{Loaded, Options, Outcome, USAGE, exit, files, load, options, toplevel};
 use crate::scan::Diff;
@@ -14,7 +14,7 @@ pub(super) fn run(args: &[String], cwd: &Path) -> Outcome {
             let text = crate::report::text(&coverage) + &crate::report::unbacked(&unbacked);
             exit(u8::from(!coverage.ok() || !unbacked.is_empty()), text)
         }
-        Err(message) => exit(2, format!("pkli check: {message}\n")),
+        Err(message) => exit(2, format!("pklith check: {message}\n")),
     }
 }
 
@@ -143,7 +143,7 @@ fn rules(s: &Scope) -> Vec<crate::rule::Failure> {
 }
 
 /// Cover V9: fragments the gaps switch on that `.pklith` does not
-/// reflect, each with the rows `pkli seed --init` would add for those
+/// reflect, each with the rows `pklith seed --init` would add for those
 /// files. A registry that claims nothing (a legacy import) is not asked.
 fn reflect(s: &Scope, gaps: &[crate::cover::Gap]) -> Vec<crate::cover::Unreflected> {
     if !crate::cover::claims_any(&s.loaded.registry) {

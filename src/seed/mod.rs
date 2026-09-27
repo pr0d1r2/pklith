@@ -178,7 +178,7 @@ mod tests {
         assert_eq!(write(&dir, &seeded(&["base"])?)?, Vec::<&str>::new());
         Ok(std::fs::remove_dir_all(dir)?)
     }
-    /// A fragment naming a seed pkli lacks is an error naming both; a seed
+    /// A fragment naming a seed pklith lacks is an error naming both; a seed
     /// that cannot be written names its path.
     #[test]
     fn unknown_seeds_and_failed_writes_are_errors() -> Result<(), Box<dyn std::error::Error>> {

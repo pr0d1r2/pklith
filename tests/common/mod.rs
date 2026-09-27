@@ -1,4 +1,4 @@
-//! Helpers shared by the `pkli` integration tests: throwaway repositories
+//! Helpers shared by the `pklith` integration tests: throwaway repositories
 //! and a way to run the built binary. Each test file uses a subset.
 #![allow(dead_code)]
 
@@ -15,8 +15,8 @@ pub const HK: &str = "amends \"pkl/Config.pkl\"\nhooks { [\"check\"] { steps { [
 /// A registry covering the fixture: `rs` linted, `.pklith` itself exempt.
 pub const OK: &str = "format 1\n## checks\nid|category|nix|glob|check|fix|env|msg\nlint|lint|-|*|true|-|-|m\n## types\ntype|checks|min|exempt\nrs|lint|-|-\npklith|-|-|the registry itself\npkl|-|-|hk config\n";
 
-pub fn pkli(dir: &Path, args: &[&str]) -> Result<(Option<i32>, String, String)> {
-    let out = Command::new(env!("CARGO_BIN_EXE_pkli"))
+pub fn pklith(dir: &Path, args: &[&str]) -> Result<(Option<i32>, String, String)> {
+    let out = Command::new(env!("CARGO_BIN_EXE_pklith"))
         .args(args)
         .current_dir(dir)
         .output()?;
@@ -51,7 +51,7 @@ pub fn repo(name: &str, pklith: Option<&str>) -> Result<PathBuf> {
 }
 
 pub fn check_in(dir: &Path) -> Result<(Option<i32>, String)> {
-    let (code, stdout, stderr) = pkli(dir, &["check"])?;
+    let (code, stdout, stderr) = pklith(dir, &["check"])?;
     assert_eq!(stdout, "", "stdout carries data only");
     Ok((code, stderr))
 }

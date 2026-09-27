@@ -1,4 +1,4 @@
-//! `pkli protect` against a fake `gh`, so no test touches the network.
+//! `pklith protect` against a fake `gh`, so no test touches the network.
 
 mod common;
 
@@ -25,11 +25,11 @@ fn protected(name: &str) -> Result<PathBuf> {
     Ok(dir)
 }
 
-/// `pkli protect` with the fake gh first on PATH and `current` as the
+/// `pklith protect` with the fake gh first on PATH and `current` as the
 /// contexts GitHub requires now.
 fn protect(dir: &Path, args: &[&str], current: &str) -> Result<(Option<i32>, String, String)> {
     let path = format!("{}:{}", dir.join("bin").display(), std::env::var("PATH")?);
-    let mut cmd = std::process::Command::new(env!("CARGO_BIN_EXE_pkli"));
+    let mut cmd = std::process::Command::new(env!("CARGO_BIN_EXE_pklith"));
     cmd.arg("protect").args(args).current_dir(dir);
     let out = cmd
         .env("PATH", path)
@@ -79,7 +79,7 @@ fn a_removal_is_refused() -> Result {
     let dir = protected("protect-remove")?;
     let (code, _, stderr) = protect(&dir, &["--branch", "trunk"], CURRENT)?;
     assert_eq!(code, Some(1));
-    let want = "protect: - old\npkli protect: applying would stop requiring";
+    let want = "protect: - old\npklith protect: applying would stop requiring";
     assert!(stderr.starts_with(want), "{stderr}");
     assert!(!dir.join("gh.body").exists());
     Ok(std::fs::remove_dir_all(dir)?)
@@ -114,7 +114,7 @@ fn protect_outside_a_repository_exits_2() -> Result {
         (code, stderr.as_str()),
         (
             Some(2),
-            "pkli protect: not inside a git repository; pass --root DIR\n"
+            "pklith protect: not inside a git repository; pass --root DIR\n"
         )
     );
     Ok(std::fs::remove_dir_all(outside)?)
@@ -125,13 +125,13 @@ fn protect_outside_a_repository_exits_2() -> Result {
 fn a_failing_gh_is_named() -> Result {
     let dir = protected("protect-gh-fails")?;
     let path = format!("{}:{}", dir.join("bin").display(), std::env::var("PATH")?);
-    let mut cmd = std::process::Command::new(env!("CARGO_BIN_EXE_pkli"));
+    let mut cmd = std::process::Command::new(env!("CARGO_BIN_EXE_pklith"));
     cmd.arg("protect").current_dir(&dir).env("PATH", path);
     let out = cmd.env("FAKE_GH_FAIL", "boom").output()?;
     let stderr = String::from_utf8(out.stderr)?;
     assert_eq!(out.status.code(), Some(2));
     assert!(
-        stderr.starts_with("pkli protect: `gh repo view") && stderr.contains("gh: boom"),
+        stderr.starts_with("pklith protect: `gh repo view") && stderr.contains("gh: boom"),
         "{stderr}"
     );
     Ok(std::fs::remove_dir_all(dir)?)
@@ -145,7 +145,7 @@ fn an_unreadable_workflow_is_an_error() -> Result {
     let (code, _, stderr) = protect(&dir, &["--dry-run"], "")?;
     assert_eq!(code, Some(2));
     assert!(
-        stderr.starts_with("pkli protect: cannot read a workflow: "),
+        stderr.starts_with("pklith protect: cannot read a workflow: "),
         "{stderr}"
     );
     Ok(std::fs::remove_dir_all(dir)?)

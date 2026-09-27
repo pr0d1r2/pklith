@@ -22,12 +22,12 @@ as code, the same as a Makefile:
 
 - `.pklith`: a `## checks` row's `check` and `fix` columns become hk step
   commands, which run on every commit.
-- `hk.pkl` and `hk.pklith.pkl`: hk runs their steps; `pkli` evaluates
+- `hk.pkl` and `hk.pklith.pkl`: hk runs their steps; `pklith` evaluates
   `hk.pkl` with `pkl`.
-- `pkli seed` writes git hooks into `.githooks/`, and `lib.devShell`
+- `pklith seed` writes git hooks into `.githooks/`, and `lib.devShell`
   points git at them once `hk.pkl` exists.
 
-Only `pkli protect` reaches the network, through `gh api`, and only when
+Only `pklith protect` reaches the network, through `gh api`, and only when
 you run it. A report that one of these runs something it was not told
-to, or that a file pkli generates can be made to run commands its inputs
+to, or that a file pklith generates can be made to run commands its inputs
 did not name, is in scope.

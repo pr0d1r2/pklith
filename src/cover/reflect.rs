@@ -10,7 +10,7 @@ use crate::registry::Registry;
 pub struct Unreflected {
     /// Fragment id.
     pub fragment: String,
-    /// Rows to add, as `pkli seed --init` would write them.
+    /// Rows to add, as `pklith seed --init` would write them.
     pub rows: Vec<String>,
 }
 

@@ -1,11 +1,11 @@
 # The built-in catalog
 
-`pkli` ships a catalog of checks, compiled in from
+`pklith` ships a catalog of checks, compiled in from
 [`src/catalog/builtin.pklith`](../src/catalog/builtin.pklith). A check is
 one hk step: the command, the files it runs on, the nix package that
 provides it, and what its failure means. Fragments group checks by the
-files that switch them on: `pkli detect` prints which fragments a
-repository's tracked files switch on, and `pkli seed --init` writes a
+files that switch them on: `pklith detect` prints which fragments a
+repository's tracked files switch on, and `pklith seed --init` writes a
 first `.pklith` claiming their checks.
 
 Every check here was proven, when it was added, to reject a planted
@@ -16,7 +16,7 @@ adds one ([REGISTRY.md](REGISTRY.md)). The tables below are rendered
 from the catalog by `pklith-dev catalog` (dev/), and the `catalog-doc`
 step fails when they differ.
 
-Categories are laid in this order by `pkli lay`, cheapest and broadest
+Categories are laid in this order by `pklith lay`, cheapest and broadest
 first: `hygiene`, `secret`, `format`, `lint`, `spec`, `test`, `coverage`,
 `supply`, `gate`.
 

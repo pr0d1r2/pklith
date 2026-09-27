@@ -1,4 +1,4 @@
-//! `pkli report [--format text|json|md]`: the coverage matrix and
+//! `pklith report [--format text|json|md]`: the coverage matrix and
 //! findings (src/report), always printed.
 
 use super::{Options, Outcome, USAGE, data, exit, options};
@@ -17,7 +17,7 @@ pub(super) fn run(args: &[String], cwd: &Path) -> Outcome {
     };
     match rendered(render, opts, cwd) {
         Ok(text) => data(text),
-        Err(message) => exit(2, format!("pkli report: {message}\n")),
+        Err(message) => exit(2, format!("pklith report: {message}\n")),
     }
 }
 

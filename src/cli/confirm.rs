@@ -1,4 +1,4 @@
-//! `pkli confirm`: accept or reject the materialized gate (src/confirm).
+//! `pklith confirm`: accept or reject the materialized gate (src/confirm).
 
 use super::{Outcome, exit, files, load, toplevel};
 use std::path::Path;
@@ -11,7 +11,7 @@ pub(super) fn run(cwd: &Path) -> Outcome {
             let lines: String = found.iter().map(line).collect();
             exit(u8::from(!found.is_empty()), lines)
         }
-        Err(message) => exit(2, format!("pkli confirm: {message}\n")),
+        Err(message) => exit(2, format!("pklith confirm: {message}\n")),
     }
 }
 
