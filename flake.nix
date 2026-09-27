@@ -113,6 +113,7 @@
             # test suite can prove each one against a planted violation (V30).
             pkgs.shfmt
             pkgs.rubocop
+            pkgs.editorconfig-checker
             itok.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];
           RUST_BACKTRACE = "1";

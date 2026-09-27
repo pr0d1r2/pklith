@@ -205,6 +205,8 @@ fn crate_with(lib: &str) -> [Entry; 2] {
     ]
 }
 
+const EDITORCONFIG: &str = "root = true\n[*]\nindent_style = space\n";
+
 const WORKFLOW: &str = "on: push\npermissions: {}\njobs:\n  a:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo hi\n";
 
 fn workflow(text: &str) -> Entry {
@@ -231,6 +233,7 @@ proven! {
     rubocop => "rubocop": [file("a.rb", "puts \"x\"\n")], [file("a.rb", "# frozen_string_literal: true\n\nputs 'x'\n")];
     actionlint => "actionlint": [workflow(&format!("{WORKFLOW}    bogus: 1\n"))], [workflow(WORKFLOW)];
     zizmor => "zizmor": [workflow(&WORKFLOW.replace("on: push", "on: issues").replace("echo hi", "echo \"${{ github.event.issue.title }}\""))], [workflow(WORKFLOW)];
+    editorconfig_checker => "editorconfig-checker": [file(".editorconfig", EDITORCONFIG), file("a.txt", "a\n\tb\n")], [file(".editorconfig", EDITORCONFIG), file("a.txt", "a\n  b\n")];
     mth_fmt => "mth-fmt": [spec("- one greeting.", "- one\n  greeting.")], [good_spec()];
     mth_check => "mth-check": [spec("V1: greeting", "V1: dup\nV1: greeting")], [good_spec()];
     sherd_check => "sherd-check": [spec("T1|.|greet|V1", "T1|.|greet|V9")], [good_spec()];
