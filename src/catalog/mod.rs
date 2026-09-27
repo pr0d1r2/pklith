@@ -4,6 +4,8 @@
 
 use crate::registry::{Error, Registry, Row};
 
+mod fetch;
+
 /// Kinds of check, in the order `lay` lays them: cheapest and broadest
 /// first (catalog §C).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -160,7 +162,7 @@ fn pinned(check: Check) -> Result<Check, Error> {
     let fetched = [Some(&check.check), check.fix.as_ref()]
         .into_iter()
         .flatten()
-        .find_map(|c| fetcher(c));
+        .find_map(|c| fetch::fetcher(c));
     match fetched {
         Some(tool) => Err(error(
             check.line,
@@ -171,22 +173,6 @@ fn pinned(check: Check) -> Result<Check, Error> {
         )),
         None => Ok(check),
     }
-}
-
-/// The run-time fetcher a shell command invokes, if any, matched as whole
-/// words so `curlie` or `--npx` are not mistaken for one.
-fn fetcher(command: &str) -> Option<&'static str> {
-    let words: Vec<&str> = command
-        .split(|c: char| c.is_whitespace() || "|;&()`".contains(c))
-        .filter(|w| !w.is_empty())
-        .collect();
-    let at = |i: usize, word: &str| words.get(i).is_some_and(|w| *w == word);
-    (0..words.len()).find_map(|i| match () {
-        () if at(i, "npx") => Some("npx"),
-        () if at(i, "curl") => Some("curl"),
-        () if at(i, "pipx") && at(i + 1, "run") => Some("pipx run"),
-        () => None,
-    })
 }
 
 fn list(cell: &str) -> Vec<String> {
