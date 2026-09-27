@@ -50,13 +50,16 @@ pub struct Coverage {
     pub stale: Vec<Stale>,
     /// Rows matching files, checked or exempt.
     pub covered: Vec<Covered>,
+    /// Companion rules a file fails (V7).
+    pub failed: Vec<crate::rule::Failure>,
 }
 
 impl Coverage {
-    /// The gate verdict: no gap and nothing stale. An empty tree passes (V5).
+    /// The gate verdict: no gap, nothing stale, no failed rule. An empty
+    /// tree passes (V5).
     #[must_use]
     pub fn ok(&self) -> bool {
-        self.gaps.is_empty() && self.stale.is_empty()
+        self.gaps.is_empty() && self.stale.is_empty() && self.failed.is_empty()
     }
 }
 

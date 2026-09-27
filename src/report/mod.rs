@@ -1,6 +1,7 @@
 //! Render a coverage verdict (`src/report/SPEC.md`).
 
 use crate::cover::{Coverage, Gap, Stale, Unbacked};
+use crate::rule::Failure;
 
 /// The verdict as text for a person or a hook log: one line per finding,
 /// each saying what to do. Empty when the verdict passes, so a passing check
@@ -10,7 +11,11 @@ use crate::cover::{Coverage, Gap, Stale, Unbacked};
 pub fn text(coverage: &Coverage) -> String {
     let gaps = coverage.gaps.iter().map(gap_line);
     let stale = coverage.stale.iter().map(stale_line);
-    gaps.chain(stale).map(|line| line + "\n").collect()
+    let failed = coverage.failed.iter().map(rule_line);
+    gaps.chain(stale)
+        .chain(failed)
+        .map(|line| line + "\n")
+        .collect()
 }
 
 /// Claims no hk step backs (cover V3), one line per check and reason.
@@ -34,6 +39,11 @@ fn gap_line(gap: &Gap) -> String {
     format!(
         "gap: `{key}` has no row in .pklith ({n} {noun}: {files}); add its checks, or an exemption reason"
     )
+}
+
+fn rule_line(failure: &Failure) -> String {
+    let (rule, source, missing) = (&failure.rule, &failure.source, &failure.missing);
+    format!("rule: `{rule}` wants {missing} for {source}; add it, or except the file in the rule")
 }
 
 fn stale_line(stale: &Stale) -> String {

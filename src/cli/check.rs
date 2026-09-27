@@ -24,7 +24,34 @@ fn judge(opts: Options, cwd: &Path) -> Result<Verdict, String> {
     let (registry, _) = load(&opts.registry.unwrap_or_else(|| root.join(".pklith")))?;
     let files = files(&root, walk)?;
     let unbacked = backing(&root, &files, &registry)?;
-    Ok((crate::cover::judge(&files, &registry), unbacked))
+    let mut coverage = crate::cover::judge(&files, &registry);
+    coverage.failed = rules(&root, &files, &registry)?;
+    Ok((coverage, unbacked))
+}
+
+/// cover V7: the companion rules the tree fails. Without a diff, `changed`
+/// rules do not run (rule V3).
+fn rules(
+    root: &Path,
+    files: &[String],
+    registry: &crate::registry::Registry,
+) -> Result<Vec<crate::rule::Failure>, String> {
+    let rules = crate::rule::parse(&registry.rules).map_err(|e| e.to_string())?;
+    let plurals: Vec<(String, String)> = registry.plural.iter().map(pair).collect();
+    let read = |path: &str| std::fs::read_to_string(root.join(path)).ok();
+    let input = crate::rule::Input {
+        files,
+        diff: None,
+        read: &read,
+        plurals: &plurals,
+    };
+    Ok(crate::rule::evaluate(&rules, &input))
+}
+
+/// A `## plural` row, which the registry keeps at its header's two cells.
+fn pair(row: &crate::registry::Row) -> (String, String) {
+    let [one, many] = <[String; 2]>::try_from(row.cells.clone()).unwrap_or_default();
+    (one, many)
 }
 
 /// cover V3: claims no hk step backs. hk.pkl is read only when something
