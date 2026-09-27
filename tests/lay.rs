@@ -250,3 +250,38 @@ fn the_operators_staged_change_stays_out_of_laid_commits() -> Result {
     assert_eq!(git(&dir, &["diff", "--cached", "--name-only"])?, "a.rs");
     Ok(std::fs::remove_dir_all(dir)?)
 }
+
+const AGENTS: &str = "# Agents\n<!-- BEGIN pklith -->\n<!-- END pklith -->\n";
+
+/// Gen T3 through lay: with the block's markers in AGENTS.md, each laid
+/// commit carries the table too.
+#[test]
+fn lay_fills_the_agents_block_it_is_given() -> Result {
+    let dir = laying_repo("lay-agents", 0)?;
+    std::fs::write(dir.join("AGENTS.md"), AGENTS)?;
+    git(&dir, &["add", "AGENTS.md"])?;
+    git(&dir, &["commit", "-q", "--no-verify", "-m", "agents"])?;
+    assert_eq!(pkli_as(&dir, &["lay"])?.0, Some(0));
+    let files = git(&dir, &["show", "--name-only", "--format=", "HEAD"])?;
+    assert_eq!(files, "AGENTS.md\nhk.pklith.pkl\nnix/pklith.nix");
+    assert!(std::fs::read_to_string(dir.join("AGENTS.md"))?.contains("| `lint` | `*` | - | m |"));
+    Ok(std::fs::remove_dir_all(dir)?)
+}
+
+/// lay V8: an uncommitted edit to AGENTS.md would ride along with the
+/// table, so lay does not start.
+#[test]
+fn lay_refuses_an_edited_agents_file() -> Result {
+    let dir = laying_repo("lay-agents-dirty", 0)?;
+    std::fs::write(dir.join("AGENTS.md"), AGENTS)?;
+    git(&dir, &["add", "AGENTS.md"])?;
+    git(&dir, &["commit", "-q", "--no-verify", "-m", "agents"])?;
+    std::fs::write(dir.join("AGENTS.md"), format!("{AGENTS}operator's note\n"))?;
+    let (code, _, stderr) = pkli_as(&dir, &["lay"])?;
+    assert_eq!(code, Some(2));
+    assert!(
+        stderr.contains("AGENTS.md has uncommitted edits"),
+        "{stderr}"
+    );
+    Ok(std::fs::remove_dir_all(dir)?)
+}

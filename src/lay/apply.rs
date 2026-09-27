@@ -35,7 +35,11 @@ pub enum Failure {
 pub fn lay(ctx: &Context, plan: &[&Check]) -> Result<String, Failure> {
     preconditions(ctx.root).map_err(Failure::NotReady)?;
     let start = git(ctx.root, &["rev-parse", "HEAD"]).map_err(Failure::NotReady)?;
-    let before = crate::r#gen::FILES.map(|p| std::fs::read_to_string(ctx.root.join(p)).ok());
+    let read = |p: &'static str| (p, std::fs::read_to_string(ctx.root.join(p)).ok());
+    let before: Vec<Before> = crate::r#gen::files(ctx.root)
+        .into_iter()
+        .map(read)
+        .collect();
     lay_all(ctx, plan).map_err(|e| Failure::RolledBack(rollback(ctx.root, &start, &before, &e)))
 }
 
@@ -49,7 +53,8 @@ fn lay_all(ctx: &Context, plan: &[&Check]) -> Result<String, String> {
     Ok(out)
 }
 
-/// V1: hk on PATH and hooks installed; V6: no generated file staged.
+/// V1: hk on PATH and hooks installed; V6: no file lay writes already
+/// changed.
 fn preconditions(root: &Path) -> Result<(), String> {
     output(command("hk", root).arg("--version"))
         .map_err(|e| format!("hk is not usable, so no hook would run: {e}"))?;
@@ -58,13 +63,30 @@ fn preconditions(root: &Path) -> Result<(), String> {
     if !configured && !root.join(&hooks).is_file() {
         return Err("no git hooks are installed, so nothing would check the commits".into());
     }
+    untouched(root, &crate::r#gen::files(root))
+}
+
+/// A generated file and its text before lay ran, if it existed.
+type Before = (&'static str, Option<String>);
+
+/// V6: no file lay writes is staged, and AGENTS.md, which holds the
+/// operator's prose around the block, has no uncommitted edit lay would
+/// sweep into its commit (V8).
+fn untouched(root: &Path, files: &[&str]) -> Result<(), String> {
     let staged = git(root, &["diff", "--cached", "--name-only"])?;
-    match staged.lines().find(|l| crate::r#gen::FILES.contains(l)) {
-        Some(file) => Err(format!(
+    if let Some(file) = staged.lines().find(|l| files.contains(l)) {
+        return Err(format!(
             "{file} is already staged; commit or unstage it first"
-        )),
-        None => Ok(()),
+        ));
     }
+    let edited = git(root, &["diff", "--name-only"])?;
+    let agents = crate::r#gen::AGENTS;
+    if files.contains(&agents) && edited.lines().any(|l| l == agents) {
+        return Err(format!(
+            "{agents} has uncommitted edits lay would commit with its table; commit or stash them first"
+        ));
+    }
+    Ok(())
 }
 
 /// Write the generated module with every check laid so far, prove hk now
@@ -78,7 +100,7 @@ fn lay_one(ctx: &Context, check: &Check, laid: &[String]) -> Result<String, Stri
 /// Commit only the generated file (V8), through the hooks (root V12).
 fn commit(root: &Path, check: &Check) -> Result<String, String> {
     let (subject, body) = (super::subject(check), body(check));
-    let files = crate::r#gen::FILES;
+    let files = crate::r#gen::files(root);
     git(root, &[&["add", "--"][..], &files].concat())?;
     let args = [
         &["commit", "-q", "-m", &subject, "-m", &body, "--"][..],
@@ -121,11 +143,10 @@ fn body(check: &Check) -> String {
 
 /// V3: back to the HEAD the run started from, keeping the operator's work
 /// (`--mixed`, never `--hard`), and each generated file as it was.
-fn rollback(root: &Path, start: &str, before: &[Option<String>], why: &str) -> String {
+fn rollback(root: &Path, start: &str, before: &[Before], why: &str) -> String {
     let reset = git(root, &["reset", "-q", "--mixed", start]).err();
-    let restored = crate::r#gen::FILES
+    let restored = before
         .iter()
-        .zip(before)
         .filter_map(|(p, b)| restore(root, p, b.as_deref()));
     let trouble: Vec<String> = reset.into_iter().chain(restored).collect();
     let tail = if trouble.is_empty() {

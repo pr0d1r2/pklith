@@ -51,7 +51,7 @@ V7: whole-tree steps (`pkli check`, coverage) ⊥ glob-gated: a deletion | renam
 id|status|task|cites
 T1|x|pkl emitter + golden tests|V1,V4
 T2|x|nix emitter + golden tests|V1,V5
-T3|.|AGENTS.md block emitter|V1,`.:V14`
+T3|x|AGENTS.md block emitter (opt-in: only between the repo's markers)|V1,`.:V14`
 T4|x|write-if-changed + `--check`|V2,V3,B1
 T5|x|golden test: emitted files carry ⊥ system literal|`.:V21`
 T6|.|confirm hk schema has a step timeout field; emit it or wrap. FOUND hk 1.58: ⊥ field; wrap `timeout N sh -c '…'` re-quotes hk's `{{files}}` ∴ breaks paths w/ spaces or quotes. open: decide wrapper|V6

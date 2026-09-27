@@ -158,3 +158,36 @@ fn gen_writes_and_checks_the_nix_list() -> Result {
     );
     Ok(std::fs::remove_dir_all(dir)?)
 }
+
+const MARKED: &str = "# Agents\n<!-- BEGIN pklith -->\n<!-- END pklith -->\n";
+
+/// Gen T3: with its markers AGENTS.md gets the table, in lay order, and
+/// --check names it once it drifts.
+#[test]
+fn gen_fills_and_guards_the_agents_block() -> Result {
+    let dir = repo("gen-agents", Some(TWO))?;
+    std::fs::write(dir.join("AGENTS.md"), MARKED)?;
+    assert_eq!(pkli(&dir, &["gen"])?.0, Some(0));
+    let agents = std::fs::read_to_string(dir.join("AGENTS.md"))?;
+    assert!(
+        agents.contains("| `fmt` | `*` | - | m |\n| `lint` | `*` | - | m |\n"),
+        "{agents}"
+    );
+    std::fs::write(dir.join("AGENTS.md"), agents.replace("| m |", "| edited |"))?;
+    let stale = "pkli gen: AGENTS.md is stale; run `pkli gen` and stage it\n";
+    assert_eq!(pkli(&dir, &["gen", "--check"])?.2, stale);
+    Ok(std::fs::remove_dir_all(dir)?)
+}
+
+/// Without the markers AGENTS.md is the repository's alone.
+#[test]
+fn gen_leaves_an_unmarked_agents_file_alone() -> Result {
+    let dir = repo("gen-agents-plain", Some(TWO))?;
+    std::fs::write(dir.join("AGENTS.md"), "# Agents\nno markers\n")?;
+    assert_eq!(pkli(&dir, &["gen"])?.0, Some(0));
+    assert_eq!(
+        std::fs::read_to_string(dir.join("AGENTS.md"))?,
+        "# Agents\nno markers\n"
+    );
+    Ok(std::fs::remove_dir_all(dir)?)
+}

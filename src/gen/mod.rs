@@ -10,9 +10,11 @@ use crate::catalog::{Category, Check};
 use crate::registry::Registry;
 use std::fmt::Write as _;
 
+mod agents;
 mod guard;
 mod nix;
 
+pub use agents::AGENTS;
 pub use nix::{NIX, nix};
 
 /// The generated file, next to `hk.pkl`.
@@ -138,13 +140,32 @@ fn literal(text: &str) -> String {
     format!("{hashes}\"{text}\"{hashes}")
 }
 
-/// Every file gen writes, from the repository root.
+/// The files gen always writes, from the repository root.
 pub const FILES: [&str; 2] = [FILE, NIX];
 
-/// Each generated file and its text for `checks`.
+/// Each always-generated file and its text for `checks`.
 #[must_use]
 pub fn outputs(checks: &[&Check]) -> [(&'static str, String); 2] {
     [(FILE, pkl(checks)), (NIX, nix(checks))]
+}
+
+/// Every file gen owns under `root`: the two it always writes, and
+/// AGENTS.md when the repository placed the block's markers (gen T3).
+#[must_use]
+pub fn files(root: &std::path::Path) -> Vec<&'static str> {
+    generated(root, &[])
+        .into_iter()
+        .map(|(path, _)| path)
+        .collect()
+}
+
+/// Each file gen owns under `root` and its text for `checks`.
+fn generated(root: &std::path::Path, checks: &[&Check]) -> Vec<(&'static str, String)> {
+    let agents = read(root, AGENTS).and_then(|doc| agents::splice(&doc, checks));
+    outputs(checks)
+        .into_iter()
+        .chain(agents.map(|text| (AGENTS, text)))
+        .collect()
 }
 
 /// Write each generated file for `checks` under `root` that differs from
@@ -155,7 +176,7 @@ pub fn outputs(checks: &[&Check]) -> [(&'static str, String); 2] {
 /// The file that could not be written, with the I/O error.
 pub fn write(root: &std::path::Path, checks: &[&Check]) -> Result<Vec<&'static str>, String> {
     let mut written = Vec::new();
-    for (path, text) in outputs(checks) {
+    for (path, text) in generated(root, checks) {
         if read(root, path).as_deref() == Some(text.as_str()) {
             continue;
         }
@@ -179,7 +200,7 @@ pub fn stale(root: &std::path::Path, used: &[&Check]) -> Option<&'static str> {
         return Some(FILE);
     };
     let held = held(&module, used);
-    outputs(&held)
+    generated(root, &held)
         .into_iter()
         .find(|(path, text)| read(root, path).as_deref() != Some(text.as_str()))
         .map(|(p, _)| p)
