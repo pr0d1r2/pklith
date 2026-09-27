@@ -52,10 +52,16 @@ fn mapping(name: &str, checks: &[&Check]) -> String {
     format!("{name}: Mapping<String, Config.Step> = new {{\n{body}}}\n")
 }
 
+/// The line that opens a step. `held` finds steps by it, so writing and
+/// reading the generated file cannot disagree on its shape.
+fn header(id: &str) -> String {
+    format!("  [{}] {{\n", literal(id))
+}
+
 /// One step. No glob means whole-tree (V7); env is emitted with the step
 /// that needs it (root V19).
 fn step(check: &Check) -> String {
-    let mut out = format!("  [{}] {{\n", literal(&check.id));
+    let mut out = header(&check.id);
     if !check.globs.is_empty() {
         let globs: Vec<String> = check.globs.iter().map(|g| literal(g)).collect();
         let _ = writeln!(out, "    glob = List({})", globs.join(", "));
@@ -163,7 +169,7 @@ pub fn fresh(root: &std::path::Path, used: &[&Check]) -> bool {
 
 /// The checks among `used` whose step the generated `text` holds.
 fn held<'a>(text: &str, used: &[&'a Check]) -> Vec<&'a Check> {
-    let holds = |c: &&&Check| text.contains(&format!("\n  [{}] {{\n", literal(&c.id)));
+    let holds = |c: &&&Check| text.contains(&format!("\n{}", header(&c.id)));
     used.iter().filter(holds).copied().collect()
 }
 
