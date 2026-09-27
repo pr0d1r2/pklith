@@ -109,6 +109,11 @@
             microlith.packages.${pkgs.stdenv.hostPlatform.system}.default
             # Federation checks (check, sync, budget), from the pinned sherd.
             sherd.packages.${pkgs.stdenv.hostPlatform.system}.default
+            # Built-in catalog tools pklith's own gate does not run, so its
+            # test suite can prove each one against a planted violation (V30).
+            pkgs.shfmt
+            pkgs.rubocop
+            itok.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];
           RUST_BACKTRACE = "1";
           LLVM_COV = "${pkgs.llvmPackages.llvm}/bin/llvm-cov";

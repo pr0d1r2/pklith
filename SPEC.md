@@ -195,7 +195,7 @@ T62|.|`package-nix` step: `nix build` → run built `pkli` on fixture repo; grep
 T63|x|one process-spawn helper scrubbing `GIT_DIR` `GIT_INDEX_FILE` `GIT_WORK_TREE` (done: `src/proc`); test: pkli run from inside a real hook on a 2nd repo leaves both intact (waits for a pkli verb)|V20
 T64|.|bench: fixture repos (small, 10k files, fleet-sized) × set-and-setting shell vs pkli → §R row; `bench` step w/ budgets from it|V27
 T65|.|`schema-pin` step: vendored `pkl/Config.pkl` matches pinned hk's schema|V28
-T66|.|fixture per built-in catalog check: planted violation → step red, clean twin → green|V30,V2
+T66|x|fixture per built-in catalog check: planted violation → step red, clean twin → green|V30,V2
 T67|.|pre-publish audit: ∀ committed file & message ⊥ names an unpublished fleet repo (ashlar today); publish it or anonymize|R12,R14
 T68|.|`CHANGELOG.md` (keep-a-changelog) + `changelog-touched` step: golden or `src/` change w/o `[Unreleased]` entry → red|V33
 T69|.|release: version bump PR → tag → crates.io publish → cachix push of `pklith` for 3 tier-1 systems; `cargo semver-checks` gates the bump|V33,V10
