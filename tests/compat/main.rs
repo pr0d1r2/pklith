@@ -106,7 +106,9 @@ fn outside_a_repository_nothing_is_listed() -> Result {
         &repo,
         &[("docs/linter-coverage.md", "| `.md` |\n"), ("a.sh", "")],
     )?;
-    let (code, stderr) = run(&dir, "lefthook-linter-coverage", &repo, &[])?;
+    // A temp dir inside some repository must not make this one tracked.
+    let ceiling = [("GIT_CEILING_DIRECTORIES", text(&dir))];
+    let (code, stderr) = run(&dir, "lefthook-linter-coverage", &repo, &ceiling)?;
     assert_eq!((code, stderr.as_str()), (Some(0), ""));
     Ok(std::fs::remove_dir_all(dir)?)
 }
