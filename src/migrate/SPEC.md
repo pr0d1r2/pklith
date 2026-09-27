@@ -30,7 +30,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 ## §C CONSTRAINTS
 
-- input: `lefthook.yml` (+ overrides, local) → check set; output: `.pklith` + generated `hk.pkl` fragment.
+- input: `lefthook.yml` (+ `lefthook-local.yml` skips) → check set; output: `.pklith`, the seeded hk gate, the generated files. `--drop ID,…` lets go of named commands on purpose, recorded in `.pklith`. writes only where ⊥ `.pklith` | an identical one.
 - lefthook parsed only here; ⊥ elsewhere.
 
 ## §V INVARIANTS
@@ -43,7 +43,7 @@ V3: unmapped lefthook command → named in refusal, ⊥ dropped
 
 id|status|task|cites
 T1|x|lefthook check-set reader|V3
-T2|.|equivalence gate + writer|V1,V2,`.:T57`
+T2|x|equivalence gate + writer (`--drop` = explicit, recorded loss)|V1,V2,`.:T57`
 
 ## §B BUGS
 

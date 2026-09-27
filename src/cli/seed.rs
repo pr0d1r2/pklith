@@ -31,7 +31,7 @@ fn seeded(cwd: &Path, init: bool) -> Result<Vec<String>, String> {
 }
 
 /// The repository's directory name, for the README stub.
-fn name(root: &Path) -> String {
+pub(super) fn name(root: &Path) -> String {
     root.file_name()
         .map(|n| n.to_string_lossy().into_owned())
         .unwrap_or_default()

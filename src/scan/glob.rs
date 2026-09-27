@@ -26,6 +26,12 @@ impl Globs {
         set.build().map(Self).map_err(Error::from)
     }
 
+    /// Globs that match nothing.
+    #[must_use]
+    pub fn none() -> Self {
+        Self(globset::GlobSet::empty())
+    }
+
     /// Whether any pattern matches `path`.
     #[must_use]
     pub fn matches(&self, path: &str) -> bool {

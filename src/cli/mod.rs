@@ -11,6 +11,7 @@ mod generate;
 mod import;
 mod lay;
 mod map;
+mod migrate;
 mod report;
 mod seed;
 
@@ -24,6 +25,7 @@ pub const USAGE: &str = "usage: pkli <command> | --version\n
   gen [--check]                          write hk.pklith.pkl from .pklith; --check: fail when it is stale
   lay [--dry-run]                        one commit per missing check, through the hooks; --dry-run: list them
   map [--staged | FILE...]               the specs covering a change, one per line; exit 1 when one is missing
+  migrate [--drop ID,...]                a lefthook repo onto hk, only if every check survives
   report [--format text|json|md]         the coverage matrix and findings, always printed; takes --root, --registry
   seed [--init]                          write the seed files the fragments ask for, never over one; --init: and a first .pklith
   import DOC                             a .pklith from a legacy linter coverage document, on stdout
@@ -68,6 +70,7 @@ pub fn run(args: &[String], cwd: &Path) -> Outcome {
         ("confirm", []) => confirm::run(cwd),
         ("detect", _) => detect::run(rest, cwd),
         ("map", _) => map::run(rest, cwd),
+        ("migrate", _) => migrate::run(rest, cwd),
         ("report", _) => report::run(rest, cwd),
         ("import", [doc]) => import::run(Path::new(doc)),
         ("gen" | "lay" | "seed", [] | [_]) => flagged(verb, rest.first(), cwd),
@@ -157,12 +160,17 @@ struct Loaded {
 fn load(path: &Path) -> Result<Loaded, String> {
     let text = std::fs::read_to_string(path)
         .map_err(|e| format!("cannot read {}: {e}", path.display()))?;
-    let registry = crate::registry::parse(&text).map_err(|e| e.to_string())?;
-    resolved(registry)
+    parsed(&text)
 }
 
-fn resolved(registry: crate::registry::Registry) -> Result<Loaded, String> {
-    resolve(registry).map_err(|e| e.to_string())
+/// A registry that adds nothing: the built-in catalog and fragments alone.
+const BUILTIN_ONLY: &str = "format 1\n";
+
+/// Registry `text`, parsed and resolved.
+fn parsed(text: &str) -> Result<Loaded, String> {
+    crate::registry::parse(text)
+        .and_then(resolve)
+        .map_err(|e| e.to_string())
 }
 
 /// Every type row and fragment naming a known check (registry V2, root
@@ -193,6 +201,6 @@ fn detecting(named: Option<PathBuf>, root: &Path) -> Result<Loaded, String> {
     match named {
         Some(path) => load(&path),
         None if default.exists() => load(&default),
-        None => resolved(crate::registry::Registry::default()),
+        None => parsed(BUILTIN_ONLY),
     }
 }
