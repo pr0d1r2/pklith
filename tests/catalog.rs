@@ -14,14 +14,18 @@ use std::process::Command;
 enum Entry {
     File(&'static str, String),
     Link(&'static str, &'static str),
+    /// A path staged in the index only, with the blob of the file named
+    /// second: how a case twin exists on a case-insensitive filesystem.
+    Staged(&'static str, &'static str),
 }
 
-use Entry::{File, Link};
+use Entry::{File, Link, Staged};
 
 impl Entry {
-    fn path(&self) -> &'static str {
+    fn staged(&self) -> Option<(&'static str, &'static str)> {
         match self {
-            File(path, _) | Link(path, _) => path,
+            Staged(path, like) => Some((path, like)),
+            _ => None,
         }
     }
 }
@@ -30,42 +34,64 @@ fn file(path: &'static str, text: &str) -> Entry {
     File(path, text.to_owned())
 }
 
-/// A throwaway git repository holding `entries`, all staged. Its git runs
+/// A throwaway git repository holding `entries`, all staged, and the paths
+/// its index holds, which is what hk passes as `{{files}}`. Its git runs
 /// without the hook's `GIT_DIR` and `GIT_INDEX_FILE`: inside a commit from a
 /// linked worktree those would stage the fixture into the real index.
-fn fixture(name: &str, entries: &[Entry]) -> Result<std::path::PathBuf> {
+fn fixture(name: &str, entries: &[Entry]) -> Result<(std::path::PathBuf, String)> {
     let dir = std::env::temp_dir().join(format!("pklith-catalog-{}-{name}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir)?;
-    for entry in entries {
-        let path = dir.join(entry.path());
-        std::fs::create_dir_all(path.parent().unwrap_or(&dir))?;
-        match entry {
-            File(_, text) => std::fs::write(path, text)?,
-            Link(_, target) => std::os::unix::fs::symlink(target, path)?,
-        }
-    }
+    entries.iter().try_for_each(|e| write(&dir, e))?;
     git(&dir, &["init", "-q"])?;
     git(&dir, &["add", "-A"])?;
-    Ok(dir)
+    for (path, like) in entries.iter().filter_map(Entry::staged) {
+        stage(&dir, path, like)?;
+    }
+    let files = git(&dir, &["ls-files"])?
+        .lines()
+        .collect::<Vec<_>>()
+        .join(" ");
+    Ok((dir, files))
 }
 
-fn git(dir: &Path, args: &[&str]) -> Result {
-    pklith::proc::command("git", dir).args(args).output()?;
+/// Stage `path` in the index with the blob already staged at `like`.
+fn stage(dir: &Path, path: &str, like: &str) -> Result {
+    let blob = git(dir, &["rev-parse", &format!(":{like}")])?;
+    let info = format!("100644,{blob},{path}");
+    git(dir, &["update-index", "--add", "--cacheinfo", &info])?;
     Ok(())
 }
 
+fn write(dir: &Path, entry: &Entry) -> Result {
+    let path = |p: &str| -> Result<std::path::PathBuf> {
+        let path = dir.join(p);
+        std::fs::create_dir_all(path.parent().unwrap_or(dir))?;
+        Ok(path)
+    };
+    match entry {
+        File(p, text) => std::fs::write(path(p)?, text)?,
+        Link(p, target) => std::os::unix::fs::symlink(target, path(p)?)?,
+        Staged(..) => {}
+    }
+    Ok(())
+}
+
+fn git(dir: &Path, args: &[&str]) -> Result<String> {
+    let out = pklith::proc::command("git", dir).args(args).output()?;
+    Ok(String::from_utf8(out.stdout)?.trim_end().to_owned())
+}
+
 /// The step's command exactly as gen emits it (guard and failure message
-/// included), with `{{files}}` naming every fixture path, run by
+/// included), with `{{files}}` naming every staged path, run by
 /// `sh` with only PATH, HOME and the check's own env. The real HOME stays,
 /// as it does under hk: what a developer's home holds (user gems, cargo
 /// config) is exactly what a step must survive. Build output goes to the
 /// fixture, not the developer's cargo target.
-fn command(check: &pklith::catalog::Check, dir: &Path, entries: &[Entry]) -> Command {
-    let files: Vec<&str> = entries.iter().map(Entry::path).collect();
+fn command(check: &pklith::catalog::Check, dir: &Path, files: &str) -> Command {
     let mut cmd = Command::new("sh");
     cmd.arg("-c")
-        .arg(pklith::r#gen::explained(check).replace("{{files}}", &files.join(" ")))
+        .arg(pklith::r#gen::explained(check).replace("{{files}}", files))
         .current_dir(dir)
         .env_clear()
         .env("PATH", std::env::var_os("PATH").unwrap_or_default())
@@ -96,8 +122,8 @@ fn proves(id: &str, bad: &[Entry], good: &[Entry]) -> Result {
         .find(|c| c.id == id)
         .ok_or_else(|| format!("no built-in check `{id}`"))?;
     for (twin, entries, want) in [("bad", bad, false), ("good", good, true)] {
-        let dir = fixture(&format!("{id}-{twin}"), entries)?;
-        let (passed, output) = run(command(&check, &dir, entries))?;
+        let (dir, files) = fixture(&format!("{id}-{twin}"), entries)?;
+        let (passed, output) = run(command(&check, &dir, &files))?;
         assert_eq!(passed, want, "`{id}` on its {twin} fixture:\n{output}");
         if !want {
             explains(&check, &output);
@@ -191,7 +217,7 @@ proven! {
     line_endings => "line-endings": [file("a.txt", "a\r\nb\n")], [file("a.txt", "a\nb\n")];
     no_bom => "no-bom": [file("a.txt", "\u{feff}x\n")], [file("a.txt", "x\n")];
     no_merge_conflict => "no-merge-conflict": [File("a.txt", conflict())], [file("a.txt", "a\n")];
-    no_case_conflict => "no-case-conflict": [file("a.txt", "x\n"), file("A.txt", "x\n")], [file("a.txt", "x\n")];
+    no_case_conflict => "no-case-conflict": [file("a.txt", "x\n"), Staged("A.txt", "a.txt")], [file("a.txt", "x\n")];
     no_broken_symlinks => "no-broken-symlinks": [Link("dead", "nowhere")], [file("a.txt", "x\n"), Link("live", "a.txt")];
     no_private_key => "no-private-key": [File("id_rsa", private_key())], [file("a.txt", "x\n")];
     ripsecrets => "ripsecrets": [File("env", format!("aws_access_key_id = AKIA{}\n", "Z7Q3VXJKL5PNR2WT"))], [file("env", "region = eu\n")];
