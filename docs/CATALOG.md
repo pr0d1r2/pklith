@@ -12,9 +12,9 @@ Every check here was proven, when it was added, to reject a planted
 violation and to pass its clean twin (root V30); `scripts/catalog-nix.sh`
 proves each `nix` package builds and provides the binary its command
 calls. A `.pklith` `## checks` row with the same id replaces one; a new id
-adds one. The tables below are rendered from the catalog by
-`pklith-dev catalog` (dev/), and the `catalog-doc` step fails when they
-differ.
+adds one ([REGISTRY.md](REGISTRY.md)). The tables below are rendered
+from the catalog by `pklith-dev catalog` (dev/), and the `catalog-doc`
+step fails when they differ.
 
 Categories are laid in this order by `pkli lay`, cheapest and broadest
 first: `hygiene`, `secret`, `format`, `lint`, `spec`, `test`, `coverage`,
