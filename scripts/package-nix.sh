@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # pklith root T62 (V10): the package consumers get is tested as built, not
-# only the source tree. It builds the flake's pkli and compat packages, runs
-# the built binaries on a fixture repository, and refuses a build that
-# still carries an unsubstituted `@name@` or `*_PATH` placeholder (the
+# only the source tree. It builds lib.devShell's check (T61) and the flake's
+# pkli and compat packages, runs the built binaries on a fixture repository,
+# and refuses a build that still carries an unsubstituted `@name@` or `*_PATH` placeholder (the
 # legacy -full B2 failure: a placeholder left in, every type "uncovered").
 #
 #   scripts/package-nix.sh
@@ -16,6 +16,9 @@ fail() {
   exit 1
 }
 
+system="$(nix eval --raw --impure --expr builtins.currentSystem)"
+# lib.devShell's own check (T61) builds alongside; it prints no path.
+nix build "$root#checks.$system.devshell" --no-link
 mapfile -t outs < <(nix build "$root#default" "$root#compat" --no-link --print-out-paths)
 [ "${#outs[@]}" -eq 2 ] || fail "nix build printed ${#outs[@]} outputs, expected 2"
 pkli="${outs[0]}/bin/pkli"

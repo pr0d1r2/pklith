@@ -39,6 +39,7 @@
 
   outputs =
     {
+      self,
       nixpkgs,
       nix-hk,
       microlith,
@@ -73,6 +74,69 @@
             sherd = input sherd;
             itok = input itok;
           };
+        }
+      );
+
+      # The dev shell a pklith consumer enters (root §C): hk, pkl, git and pkli,
+      # plus every package its generated `nix/pklith.nix` names, all from
+      # pklith's pinned catalog so the tools are the ones pkli was proven
+      # against. Hooks are switched on only once `hk.pkl` exists, so no stub
+      # config ever gates a commit (V22); `pkli seed` writes the tracked
+      # `.githooks/` they point at.
+      lib.devShell =
+        {
+          pkgs,
+          src,
+          packages ? [ ],
+        }:
+        let
+          system = pkgs.stdenv.hostPlatform.system;
+          catalog = self.legacyPackages.${system}.catalog;
+          generated = src + "/nix/pklith.nix";
+        in
+        pkgs.mkShell {
+          packages = [
+            catalog.hk
+            catalog.pkl
+            catalog.git
+            self.packages.${system}.default
+          ]
+          ++ (if builtins.pathExists generated then import generated catalog else [ ])
+          ++ packages;
+          shellHook = ''
+            if [ -f hk.pkl ] && [ -d .githooks ] && [ "$(git config --local core.hooksPath)" != .githooks ]; then
+              git config --local core.hooksPath .githooks
+            fi
+          '';
+        };
+
+      # lib.devShell on this repository: its tools are on PATH, and its hook
+      # rule holds on a repository with and without `hk.pkl` (T61).
+      checks = forAll (
+        pkgs:
+        let
+          shell = self.lib.devShell {
+            inherit pkgs;
+            src = ./.;
+          };
+        in
+        {
+          devshell = pkgs.runCommand "pklith-devshell" { nativeBuildInputs = shell.nativeBuildInputs; } ''
+            export HOME="$TMPDIR"
+            for tool in hk pkl git pkli shellcheck sherd; do
+              command -v "$tool" >/dev/null || { echo "devshell: $tool is not on PATH" >&2; exit 1; }
+            done
+            cat >hook.sh <<'HOOK'
+            ${shell.shellHook}
+            HOOK
+            git init -q bare && mkdir bare/.githooks
+            (cd bare && . ../hook.sh)
+            [ -z "$(git -C bare config --local core.hooksPath)" ] || { echo "devshell: hooks on without hk.pkl (V22)" >&2; exit 1; }
+            touch bare/hk.pkl
+            (cd bare && . ../hook.sh)
+            [ "$(git -C bare config --local core.hooksPath)" = .githooks ] || { echo "devshell: hooks off with hk.pkl" >&2; exit 1; }
+            touch $out
+          '';
         }
       );
 

@@ -63,7 +63,7 @@ self|.|-
 - file: `.pklith` → registry: types, checks, rules, plural, exempt (src/registry)
 - file: `hk.pkl`, `pkl/Config.pkl`, `.githooks/*`, `.context-limits`, `.typos.toml`, `flake.nix`, `AGENTS.md` → this repo's guardrails
 - env: `LEFTHOOK_LINTER_COVERAGE_DOC`, `LEFTHOOK_LINTER_COVERAGE_ROOT`, `LEFTHOOK_UNIT_COVERAGE_CONFIG`, `LEFTHOOK_UNIT_COVERAGE_ROOT` → compat entries only
-- nix: `lib.devShell { pkgs, src }` → devShell w/ hk, pkl, git, pkli & packages from `nix/pklith.nix`; shellHook runs `hk install` only when `hk.pkl` exists (V22). replaces set-and-setting `mkDevShells`
+- nix: `lib.devShell { pkgs, src, packages ? [] }` → devShell w/ hk, pkl, git, pkli & packages from `nix/pklith.nix`, all from pklith's catalog; shellHook points `core.hooksPath` at seeded `.githooks/` only when `hk.pkl` exists (V22). replaces set-and-setting `mkDevShells`
 - nix: `packages.<system>.default` = `pklith` (bin `pkli`); `packages.<system>.compat` = legacy entry names
 
 ## §R RESEARCH
@@ -190,7 +190,7 @@ T57|x|migrate port: lefthook repo → hk|V24
 T58|x|protect port: required contexts from CI job names|`src/protect:V2`
 T59|.|raise set-and-setting issues for D1, D2, D3|R15
 T60|.|set-and-setting consumes pklith via flake input; its setting shell retired|V4
-T61|.|`lib.devShell` for consumers + test: shell entered on repo w/o `hk.pkl` installs no hooks|V22,V12
+T61|x|`lib.devShell` for consumers + test: shell entered on repo w/o `hk.pkl` installs no hooks|V22,V12
 T62|x|`package-nix` step: `nix build` → run built `pkli` on fixture repo; grep built outputs for `@…@` \| `*_PATH` placeholders|V10
 T63|x|one process-spawn helper scrubbing `GIT_DIR` `GIT_INDEX_FILE` `GIT_WORK_TREE` (done: `src/proc`); test: pkli run from inside a real hook on a 2nd repo leaves both intact (waits for a pkli verb)|V20
 T64|.|bench: fixture repos (small, 10k files, fleet-sized) × set-and-setting shell vs pkli → §R row; `bench` step w/ budgets from it|V27
