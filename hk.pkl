@@ -63,6 +63,13 @@ local fast = (generated.steps) {
     glob = List("src/**", "CHANGELOG.md", "scripts/changelog-touched.sh")
     check = "scripts/changelog-touched.sh"
   }
+  // T43 (V6): README badges are generated from Cargo.toml, .coverage and
+  // this file, never typed.
+  ["readme-badges"] {
+    glob = List("README.md", "Cargo.toml", ".coverage", "hk.pkl", "scripts/readme-badges.sh")
+    check = "scripts/readme-badges.sh --check"
+    fix = "scripts/readme-badges.sh"
+  }
   // V28 (T65): the vendored schema is the one the pinned hk ships.
   ["schema-pin"] {
     glob = List("pkl/**", "flake.lock", "scripts/schema-pin.sh")
