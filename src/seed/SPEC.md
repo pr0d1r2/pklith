@@ -30,7 +30,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 ## §C CONSTRAINTS
 
-- seed set per fragment from catalog `seed` cell: base `.editorconfig` `.gitattributes` README stub · nix `.envrc` · rubocop `.rubocop.yml` · `.gitignore` parts (nix, rust, ruby). ⊥ LICENSE: a license is the owner's choice & its year needs a clock (`.:C`). ⊥ size limits, ⊥ `.typos.toml`: tools run fine w/o them. exemptions live in `.pklith` `exempt` cells, ⊥ separate ledger.
+- seed set per fragment from catalog `seed` cell: base `.editorconfig` `.gitattributes` README stub & an hk gate (`hk.pkl` running `hk.pklith.pkl`, that module empty, vendored `pkl/Config.pkl`, `.githooks/pre-commit` & `pre-push` executable, refusing w/o hk: `.:V1`) · nix `.envrc` · rubocop `.rubocop.yml` · `.gitignore` parts (nix, rust, ruby). ⊥ LICENSE: a license is the owner's choice & its year needs a clock (`.:C`). ⊥ size limits, ⊥ `.typos.toml`: tools run fine w/o them. exemptions live in `.pklith` `exempt` cells, ⊥ separate ledger.
 - templates embedded in binary; ⊥ network.
 - `--init` also writes `.pklith` from detected fragments: their checks per type, & binary types (images, fonts, archives) as exempt w/ reason `binary asset`. repo edits it after.
 

@@ -22,7 +22,7 @@ fn grown(name: &str) -> Result<std::path::PathBuf> {
 #[test]
 fn seed_writes_only_what_is_missing() -> Result {
     let dir = grown("seed")?;
-    let want = ".editorconfig\n.gitattributes\n.envrc\n.gitignore\n";
+    let want = ".editorconfig\n.gitattributes\nhk.pklith.pkl\n.githooks/pre-commit\n.githooks/pre-push\n.envrc\n.gitignore\n";
     assert_eq!(
         pkli(&dir, &["seed"])?,
         (Some(0), want.to_owned(), String::new())
@@ -60,4 +60,35 @@ fn seed_outside_a_repository_exits_2() -> Result {
     );
     assert!(!outside.join(".pklith").exists());
     Ok(std::fs::remove_dir_all(outside)?)
+}
+
+/// A repository holding one shell script and nothing else: no gate, no
+/// registry.
+fn bare(name: &str) -> Result<std::path::PathBuf> {
+    let dir = std::env::temp_dir().join(format!("pklith-cli-{}-{name}", std::process::id()));
+    std::fs::create_dir_all(&dir)?;
+    std::fs::write(dir.join("run.sh"), "#!/bin/sh\necho hi\n")?;
+    for args in [&["init", "-q"][..], &["add", "-A"]] {
+        pklith::proc::command("git", &dir).args(args).output()?;
+    }
+    Ok(dir)
+}
+
+/// The bootstrap path on a repository with no gate at all: `pkli seed
+/// --init` writes an hk gate whose hooks are executable and whose hk.pkl
+/// evaluates, so `pkli lay` can plan the first commits right away.
+#[test]
+fn seed_init_bootstraps_a_repository_lay_can_plan() -> Result {
+    use std::os::unix::fs::PermissionsExt as _;
+    let dir = bare("bootstrap")?;
+    assert_eq!(pkli(&dir, &["seed", "--init"])?.0, Some(0));
+    let mode = std::fs::metadata(dir.join(".githooks/pre-commit"))?
+        .permissions()
+        .mode();
+    assert_eq!(mode & 0o111, 0o111);
+    let (code, plan, stderr) = pkli(&dir, &["lay", "--dry-run"])?;
+    assert_eq!(code, Some(0), "{stderr}");
+    assert!(plan.starts_with("ci(trailing-whitespace): "), "{plan}");
+    assert!(plan.contains("ci(shellcheck): "), "{plan}");
+    Ok(std::fs::remove_dir_all(dir)?)
 }

@@ -22,10 +22,7 @@ fn seeded(cwd: &Path, init: bool) -> Result<Vec<String>, String> {
     let mut seeds = crate::seed::files(&active, &name(&root))?;
     if init {
         let text = crate::seed::init::registry(&files, &active, &catalog);
-        seeds.push(crate::seed::Seed {
-            path: ".pklith",
-            text,
-        });
+        seeds.push(crate::seed::Seed::file(".pklith", text));
     }
     let written = crate::seed::write(&root, &seeds)?;
     Ok(written.into_iter().map(str::to_owned).collect())
