@@ -32,25 +32,41 @@ calls() {
   return 1
 }
 
-checked=0
+ids=() attrs=() commands=() files=()
 for file in "$@"; do
   while IFS=$'\t' read -r id attr command; do
     [ "$attr" = - ] && continue
-    out=''
-    for path in $(nix build --no-link --print-out-paths ".#legacyPackages.$system.catalog.$attr" 2>/dev/null); do
-      [ -d "$path/bin" ] && out="$path" && break
-    done
-    if [ -z "$out" ]; then
-      echo "catalog-nix: $file: \`$id\` names nix attribute \`$attr\`, which does not build to a package with binaries; run \`nix build .#legacyPackages.$system.catalog.$attr\` to see why" >&2
-      exit 1
-    fi
-    if ! calls "$out" "$command"; then
-      echo "catalog-nix: $file: \`$id\` runs \`$command\`, but \`$attr\` provides none of its binaries ($(find "$out/bin" -mindepth 1 -maxdepth 1 -printf '%f ' 2>/dev/null || basename -a "$out"/bin/*))" >&2
-      exit 1
-    fi
-    checked=$((checked + 1))
+    ids+=("$id") attrs+=("$attr") commands+=("$command") files+=("$file")
   done < <(rows "$file")
 done
 # Nothing checked must not pass (V1).
-[ "$checked" -gt 0 ] || { echo 'catalog-nix: no row with a nix attribute was found, so nothing was checked.' >&2; exit 1; }
-echo "catalog-nix: $checked rows resolve to their nix binaries"
+[ "${#ids[@]}" -gt 0 ] || { echo 'catalog-nix: no row with a nix attribute was found, so nothing was checked.' >&2; exit 1; }
+
+# One evaluation and one build for every row: each nix call re-evaluates
+# the flake and copies the tree into the store, which is the slow part.
+catalog=".#legacyPackages.$system.catalog"
+names="$(printf '"%s" ' "${attrs[@]}")"
+if ! bins="$(nix eval --json "$catalog" --apply "c: builtins.listToAttrs (map (n: { name = n; value = let p = c.\${n}; in (p.bin or p.out or p).outPath; }) [ $names ])")"; then
+  echo "catalog-nix: a row's nix attribute does not evaluate in $catalog; nix names it above" >&2
+  exit 1
+fi
+installables=()
+for attr in "${attrs[@]}"; do installables+=("$catalog.$attr^*"); done
+if ! nix build --no-link "${installables[@]}"; then
+  echo "catalog-nix: a row's nix attribute does not build; nix names it above" >&2
+  exit 1
+fi
+
+for i in "${!ids[@]}"; do
+  id="${ids[$i]}" attr="${attrs[$i]}" command="${commands[$i]}" file="${files[$i]}"
+  out="$(jq -r --arg a "$attr" '.[$a]' <<<"$bins")"
+  if [ ! -d "$out/bin" ]; then
+    echo "catalog-nix: $file: \`$id\` names nix attribute \`$attr\`, which has no binaries ($out)" >&2
+    exit 1
+  fi
+  if ! calls "$out" "$command"; then
+    echo "catalog-nix: $file: \`$id\` runs \`$command\`, but \`$attr\` provides none of its binaries ($(basename -a "$out"/bin/* | tr '\n' ' '))" >&2
+    exit 1
+  fi
+done
+echo "catalog-nix: ${#ids[@]} rows resolve to their nix binaries"
