@@ -14,6 +14,7 @@ pub mod legacy;
 pub mod map;
 pub mod migrate;
 pub mod proc;
+pub mod protect;
 pub mod registry;
 pub mod report;
 pub mod rule;
