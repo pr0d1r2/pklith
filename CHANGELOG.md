@@ -8,6 +8,8 @@ the bytes pklith emits for the same inputs is at least a minor version
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-09-27
+
 ### Changed
 
 - The command is `pklith`, the same name as the crate, not `pkli`: every
