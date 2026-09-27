@@ -57,6 +57,12 @@ local fast = (generated.steps) {
   // V35 (B12): hk's own Pkl evaluator and `pkl eval` must see the same steps,
   // each with a command. Hand-written, so it does not depend on the
   // generated module it guards.
+  // V33 (T68): product code changed under src/ → a new CHANGELOG entry.
+  // It judges what is staged, so outside a commit it has nothing to judge.
+  ["changelog-touched"] {
+    glob = List("src/**", "CHANGELOG.md", "scripts/changelog-touched.sh")
+    check = "scripts/changelog-touched.sh"
+  }
   // V28 (T65): the vendored schema is the one the pinned hk ships.
   ["schema-pin"] {
     glob = List("pkl/**", "flake.lock", "scripts/schema-pin.sh")
