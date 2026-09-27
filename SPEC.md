@@ -170,7 +170,7 @@ T37|x|`actionlint`|V2,V15
 T38|x|`zizmor`|V2,V15
 T39|x|`deny` (licenses, bans) + `deny.toml`|V2
 T40|x|`deny-advisories`|V2
-T41|.|`semver` (cargo semver-checks)|V2
+T41|x|`semver` (cargo semver-checks)|V2
 T42|x|`package` / must-package|V2
 T43|.|README badges generated + `readme-badges` step|V6
 T44|x|dogfood swap: T33 legacy step → `pkli check` + `gen --check`; drop legacy input after parallel run. DONE: legacy step, input & doc dropped after T70 (R18); `pkli-check` gates. `gen-check` step keeps committed hk.pklith.pkl fresh. hk.pkl imports the generated steps; only repo-specific amendments stay hand-written|V4,V6,V34

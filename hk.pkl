@@ -99,6 +99,12 @@ local all = (fast) {
     glob = List("Cargo.toml", "Cargo.lock", "src/**", "pkl/**")
     check = "cargo package --locked --allow-dirty -q"
   }
+  // T41: the public API changes no more than the version says, against the
+  // last release tag. Proven red on a narrowed pub fn at 0.1.0.
+  ["semver"] {
+    glob = List("Cargo.toml", "src/**", "scripts/semver.sh")
+    check = "scripts/semver.sh"
+  }
   // T62 (V10): the flake's packages built by nix and run on a fixture, and
   // no placeholder left in what was built.
   ["package-nix"] {
