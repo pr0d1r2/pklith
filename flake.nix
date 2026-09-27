@@ -203,6 +203,10 @@
             pkgs.zizmor
             pkgs.cargo-deny
             pkgs.cargo-semver-checks
+            # The release runner, as in sherd, itok, microlith and rekall: clean
+            # tree, tag scheme, dry run first, verify, publish, push, rather
+            # than a release script of our own.
+            pkgs.cargo-release
             # Coverage: cargo-llvm-cov plus llvm-cov/llvm-profdata, which nixpkgs
             # rustc does not ship; wired through the env vars it looks for.
             pkgs.cargo-llvm-cov
