@@ -280,3 +280,15 @@ fn walking_finds_regular_files_as_find_did() -> Result {
     assert!(code == Some(1) && stderr.starts_with(want), "{stderr}");
     Ok(std::fs::remove_dir_all(dir)?)
 }
+
+/// A `*_ROOT` naming no directory fails first, exit 1, as the legacy
+/// `cd "$ROOT" || exit 1` did, before the doc or config is looked at.
+#[test]
+fn a_missing_root_fails_as_cd_did() -> Result {
+    let dir = scratch("no-root", UNIT)?;
+    let env = [("LEFTHOOK_UNIT_COVERAGE_ROOT", "gone")];
+    let (code, stderr) = run(&dir, UNIT, &dir, &env)?;
+    let want = "lefthook-unit-coverage: cd: gone: No such file or directory\n";
+    assert_eq!((code, stderr.as_str()), (Some(1), want));
+    Ok(std::fs::remove_dir_all(dir)?)
+}

@@ -42,3 +42,5 @@ the bytes pkli emits for the same inputs is at least a minor version
   multi-line strings and inline tables are refused, by line.
 - A `[[rules]]` entry without `test_dir` is a config error (exit 2),
   where tests were looked for at the filesystem root.
+- A `*_ROOT` naming no directory fails first with exit 1, as the legacy
+  `cd "$ROOT" || exit 1` did.

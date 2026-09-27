@@ -16,12 +16,26 @@ pub(super) fn run(program: &str, cwd: &Path, env: Env) -> Option<Outcome> {
     // `${VAR:-default}`: an empty variable is an unset one.
     let var = |k: &str| env(k).filter(|v| !v.is_empty());
     let name = Path::new(program).file_name()?.to_str()?;
-    Some(match name {
-        BASE => linter(&BASE_TOOL, cwd, &var),
-        FULL => linter(&FULL_TOOL, cwd, &var),
-        UNIT => unit(cwd, &var),
+    let tool = match name {
+        BASE => |cwd: &Path, var: Env| linter(&BASE_TOOL, cwd, var),
+        FULL => |cwd: &Path, var: Env| linter(&FULL_TOOL, cwd, var),
+        UNIT => unit,
         _ => return None,
-    })
+    };
+    Some(no_root(name, cwd, &var).unwrap_or_else(|| tool(cwd, &var)))
+}
+
+/// The legacy tools began with `cd "$ROOT" || exit 1`: a `*_ROOT` naming no
+/// directory fails first, as bash's cd did.
+fn no_root(name: &str, cwd: &Path, var: Env) -> Option<Outcome> {
+    let key = match name {
+        FULL => "LEFTHOOK_LINTER_COVERAGE_ROOT",
+        UNIT => "LEFTHOOK_UNIT_COVERAGE_ROOT",
+        _ => return None,
+    };
+    let dir = var(key)?;
+    let gone = format!("{name}: cd: {dir}: No such file or directory\n");
+    (!cwd.join(&dir).is_dir()).then(|| exit(1, gone))
 }
 
 /// The root the tool works in, and whether it walks the tree there
