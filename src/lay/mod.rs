@@ -47,9 +47,31 @@ pub fn subject(check: &Check) -> String {
     }
 }
 
+/// The planted-violation proof a laid commit cites (root V32): a built-in
+/// row run as shipped has a fixture in pklith's own tests (root V30); a
+/// local row, or an override that changes what runs, has none yet.
+#[must_use]
+pub fn proof(check: &Check) -> &'static str {
+    let runs_as_shipped = |b: &Check| {
+        (&b.id, &b.nix, &b.globs, &b.check, &b.fix, &b.env)
+            == (
+                &check.id,
+                &check.nix,
+                &check.globs,
+                &check.check,
+                &check.fix,
+                &check.env,
+            )
+    };
+    if crate::catalog::builtin().is_ok_and(|b| b.iter().any(runs_as_shipped)) {
+        return "Planted-violation proof: pklith's tests/catalog.rs fails this built-in\ncheck on a planted violation and passes it on a clean twin (pklith V30).";
+    }
+    "Planted-violation proof: none yet; this row is not a built-in check as\nshipped, so no catalog fixture covers it (pklith V30)."
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{plan, subject};
+    use super::{plan, proof, subject};
     use crate::catalog::Check;
     use crate::registry::{Error, parse};
 
@@ -96,6 +118,27 @@ mod tests {
             subject(&check),
             "ci(a-check-id-long-enough-to-break): add this check"
         );
+        Ok(())
+    }
+
+    /// V32: a built-in row as shipped cites its fixture; the same id with a
+    /// changed command, or a local id, admits it has none.
+    #[test]
+    fn the_proof_cites_a_fixture_only_for_a_shipped_row() -> Result<(), Error> {
+        let mut shipped = crate::catalog::builtin()?
+            .into_iter()
+            .find(|c| c.id == "shellcheck")
+            .ok_or_else(|| Error {
+                line: 0,
+                message: "no shellcheck".into(),
+            })?;
+        shipped.msg = "a local message changes nothing that runs".into();
+        assert!(proof(&shipped).contains("tests/catalog.rs"));
+        shipped.check.push_str(" --shell=bash");
+        assert!(proof(&shipped).contains("none yet"));
+        let registry = parse(REGISTRY)?;
+        let local = crate::catalog::parse(&registry.checks)?.remove(0);
+        assert!(proof(&local).contains("none yet"));
         Ok(())
     }
 }

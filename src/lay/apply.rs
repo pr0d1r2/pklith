@@ -118,11 +118,13 @@ fn seen(root: &Path, check: &Check) -> Result<(), String> {
 }
 
 /// The commit body: what the check guards, where it came from, and the
-/// planted-violation proof V32 asks for, which needs a catalog fixture.
+/// planted-violation proof V32 asks for.
 fn body(check: &Check) -> String {
     format!(
-        "{}: {}\n\nLaid by `pkli lay` from .pklith: one check, one commit, through the\nrepository's own hooks.\n\nPlanted-violation proof: none yet; the catalog has no fixture for\nthis check (pklith V30).",
-        check.id, check.msg
+        "{}: {}\n\nLaid by `pkli lay` from .pklith: one check, one commit, through the\nrepository's own hooks.\n\n{}",
+        check.id,
+        check.msg,
+        super::proof(check)
     )
 }
 
