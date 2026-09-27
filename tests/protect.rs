@@ -9,7 +9,7 @@ const CI: &str = "on: pull_request\njobs:\n  lint:\n    runs-on: x\n  test:\n   
 
 /// A `gh` that logs its arguments, answers `repo view`, prints the
 /// current contexts, and keeps a PATCH body.
-const GH: &str = "#!/bin/sh\necho \"$*\" >> \"$PWD/gh.log\"\ncase \"$*\" in\n  \"repo view\"*) echo acme/app ;;\n  *\"--jq .contexts[]\"*) printf '%b' \"$FAKE_GH_CURRENT\" ;;\n  *PATCH*) cat > \"$PWD/gh.body\" ;;\nesac\n";
+const GH: &str = "#!/bin/sh\necho \"$*\" >> \"$PWD/gh.log\"\n[ -n \"$FAKE_GH_FAIL\" ] && { echo \"gh: $FAKE_GH_FAIL\" >&2; exit 1; }\ncase \"$*\" in\n  \"repo view\"*) echo acme/app ;;\n  *\"--jq .contexts[]\"*) printf '%b' \"$FAKE_GH_CURRENT\" ;;\n  *PATCH*) cat > \"$PWD/gh.body\" ;;\nesac\n";
 
 fn protected(name: &str) -> Result<PathBuf> {
     use std::os::unix::fs::PermissionsExt as _;
@@ -102,5 +102,51 @@ fn an_accepted_removal_is_applied() -> Result {
 fn an_unknown_flag_is_a_usage_error() -> Result {
     let dir = protected("protect-usage")?;
     assert_eq!(protect(&dir, &["--bogus"], "")?.0, Some(2));
+    Ok(std::fs::remove_dir_all(dir)?)
+}
+
+/// Outside a repository protect exits 2 naming the cause.
+#[test]
+fn protect_outside_a_repository_exits_2() -> Result {
+    let outside = common::temp("protect-outside")?;
+    let (code, _, stderr) = protect(&outside, &["--dry-run"], "")?;
+    assert_eq!(
+        (code, stderr.as_str()),
+        (
+            Some(2),
+            "pkli protect: not inside a git repository; pass --root DIR\n"
+        )
+    );
+    Ok(std::fs::remove_dir_all(outside)?)
+}
+
+/// When gh fails, protect exits 2 with gh's own words.
+#[test]
+fn a_failing_gh_is_named() -> Result {
+    let dir = protected("protect-gh-fails")?;
+    let path = format!("{}:{}", dir.join("bin").display(), std::env::var("PATH")?);
+    let mut cmd = std::process::Command::new(env!("CARGO_BIN_EXE_pkli"));
+    cmd.arg("protect").current_dir(&dir).env("PATH", path);
+    let out = cmd.env("FAKE_GH_FAIL", "boom").output()?;
+    let stderr = String::from_utf8(out.stderr)?;
+    assert_eq!(out.status.code(), Some(2));
+    assert!(
+        stderr.starts_with("pkli protect: `gh repo view") && stderr.contains("gh: boom"),
+        "{stderr}"
+    );
+    Ok(std::fs::remove_dir_all(dir)?)
+}
+
+/// A tracked workflow that cannot be read stops protect: exit 2.
+#[test]
+fn an_unreadable_workflow_is_an_error() -> Result {
+    let dir = protected("protect-unreadable")?;
+    std::fs::remove_file(dir.join(".github/workflows/ci.yml"))?;
+    let (code, _, stderr) = protect(&dir, &["--dry-run"], "")?;
+    assert_eq!(code, Some(2));
+    assert!(
+        stderr.starts_with("pkli protect: cannot read a workflow: "),
+        "{stderr}"
+    );
     Ok(std::fs::remove_dir_all(dir)?)
 }

@@ -48,16 +48,25 @@ fn ask(args: &[String]) -> Option<Ask> {
 
 /// The contexts the tracked workflows report.
 fn derived(root: &Path) -> Result<Vec<String>, String> {
-    let patterns = [".github/workflows/*.yml", ".github/workflows/*.yaml"].map(str::to_owned);
-    let globs = crate::scan::Globs::new(&patterns).map_err(|e| e.to_string())?;
     let read = |f: &String| std::fs::read_to_string(root.join(f)).map(|t| (f.clone(), t));
     let tracked = files(root, false)?;
     let workflows = tracked
         .iter()
-        .filter(|f| globs.matches(f))
+        .filter(|f| workflow(f))
         .map(read)
         .collect::<Result<Vec<_>, _>>();
     crate::protect::contexts(&workflows.map_err(|e| format!("cannot read a workflow: {e}"))?)
+}
+
+/// A file GitHub runs as a workflow: YAML directly in .github/workflows.
+fn workflow(path: &str) -> bool {
+    let name = path
+        .strip_prefix(".github/workflows/")
+        .filter(|n| !n.contains('/'));
+    let ext = name
+        .and_then(|n| Path::new(n).extension())
+        .and_then(|e| e.to_str());
+    ext.is_some_and(|e| e.eq_ignore_ascii_case("yml") || e.eq_ignore_ascii_case("yaml"))
 }
 
 fn applied(root: &Path, ask: &Ask, contexts: &[String]) -> Outcome {

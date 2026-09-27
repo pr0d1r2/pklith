@@ -110,7 +110,7 @@ fn describe(cmd: &Command) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{Error, HOOK_VARS, command, output};
+    use super::{Error, HOOK_VARS, command, output, output_with};
     use std::ffi::OsStr;
     use std::path::Path;
 
@@ -157,5 +157,18 @@ mod tests {
             e.to_string()
                 .starts_with("pklith-no-such-program: could not start")
         }));
+    }
+    /// `output_with` hands its input to the program's stdin, and fails as
+    /// output does: a program that exits non-zero, or one that is not there.
+    #[test]
+    fn input_reaches_stdin_and_failures_are_named() -> Result<(), Error> {
+        assert_eq!(output_with(&mut sh("cat"), b"body")?, b"body");
+        assert!(matches!(
+            output_with(&mut sh("cat; exit 3"), b"x"),
+            Err(Error::Failed { .. })
+        ));
+        let missing = output_with(&mut command("pklith-no-such-program", Path::new(".")), b"x");
+        assert!(matches!(missing, Err(Error::Spawn { .. })));
+        Ok(())
     }
 }

@@ -9,7 +9,7 @@ fn files(pairs: &[(&str, &str)]) -> Vec<(String, String)> {
         .collect()
 }
 
-const CI: &str = "name: ci\non:\n  pull_request:\njobs:\n  lint:\n    runs-on: ubuntu-latest\n    steps:\n      - run: true\n  test:\n    name: \"unit tests\"\n    strategy:\n      fail-fast: false\n      matrix:\n        os: [ubuntu-latest, macos-latest]\n        rust:\n          - stable\n          - '1.95'\n    runs-on: ${{ matrix.os }}\n  gate:\n    uses: ./.github/workflows/guard.yml\n";
+const CI: &str = "name: ci\non:\n  pull_request:\njobs:\n  lint:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          persist-credentials: false\n      - run: true\n  test:\n    name: \"unit tests\"\n    strategy:\n      fail-fast: false\n      matrix:\n        os: [ubuntu-latest, macos-latest]\n        rust:\n          - stable\n          - '1.95'\n    runs-on: ${{ matrix.os }}\n  gate:\n    uses: ./.github/workflows/guard.yml\n";
 
 const GUARD: &str = "on:\n  workflow_call:\njobs:\n  check:\n    runs-on: ubuntu-latest\n";
 

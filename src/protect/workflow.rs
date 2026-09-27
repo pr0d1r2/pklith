@@ -84,14 +84,11 @@ impl Reader {
 
     fn setting(&mut self, key: &str, v: &str) {
         (self.strategy, self.matrix) = (key == "strategy", false);
-        let Some(job) = self.jobs.last_mut() else {
-            return;
-        };
-        match key {
+        self.jobs.last_mut().into_iter().for_each(|job| match key {
             "name" => job.name = value(v),
             "uses" => job.uses = Some(value(v)),
             _ => {}
-        }
+        });
     }
 
     /// A matrix key: `key: [a, b]`, or `key:` with `- a` items below.
