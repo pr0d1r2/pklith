@@ -125,17 +125,15 @@ mod tests {
     /// changed command, or a local id, admits it has none.
     #[test]
     fn the_proof_cites_a_fixture_only_for_a_shipped_row() -> Result<(), Error> {
-        let mut shipped = crate::catalog::builtin()?
-            .into_iter()
-            .find(|c| c.id == "shellcheck")
-            .ok_or_else(|| Error {
-                line: 0,
-                message: "no shellcheck".into(),
-            })?;
-        shipped.msg = "a local message changes nothing that runs".into();
-        assert!(proof(&shipped).contains("tests/catalog.rs"));
-        shipped.check.push_str(" --shell=bash");
-        assert!(proof(&shipped).contains("none yet"));
+        let mut shipped = crate::catalog::builtin()?;
+        shipped.retain(|c| c.id == "shellcheck");
+        assert_eq!(shipped.len(), 1);
+        for mut shipped in shipped {
+            shipped.msg = "a local message changes nothing that runs".into();
+            assert!(proof(&shipped).contains("tests/catalog.rs"));
+            shipped.check.push_str(" --shell=bash");
+            assert!(proof(&shipped).contains("none yet"));
+        }
         let registry = parse(REGISTRY)?;
         let local = crate::catalog::parse(&registry.checks)?.remove(0);
         assert!(proof(&local).contains("none yet"));
