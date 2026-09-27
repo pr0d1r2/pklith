@@ -30,7 +30,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 ## §C CONSTRAINTS
 
-- seed set per fragment from catalog: `.editorconfig`, `.gitattributes`, `.gitignore` fragments, size limits, exemptions ledger, `.typos.toml`, LICENSE, README stub.
+- seed set per fragment from catalog `seed` cell: base `.editorconfig` `.gitattributes` README stub · nix `.envrc` · rubocop `.rubocop.yml` · `.gitignore` parts (nix, rust, ruby). ⊥ LICENSE: a license is the owner's choice & its year needs a clock (`.:C`). ⊥ size limits, ⊥ `.typos.toml`: tools run fine w/o them. exemptions live in `.pklith` `exempt` cells, ⊥ separate ledger.
 - templates embedded in binary; ⊥ network.
 - `--init` also writes `.pklith` from detected fragments: their checks per type, & binary types (images, fonts, archives) as exempt w/ reason `binary asset`. repo edits it after.
 
@@ -43,8 +43,8 @@ V3: seeded exemptions ledger = empty list, valid (`.:V11`, `.:V23`)
 ## §T TASKS
 
 id|status|task|cites
-T1|.|seed writer + skip-if-exists + empty ledger valid|V1,V3,`.:T55`
-T2|.|`.gitignore` composition|V2
+T1|x|seed writer + skip-if-exists + empty ledger valid|V1,V3,`.:T55`
+T2|x|`.gitignore` composition|V2
 T3|.|`.pklith` from detected fragments + binary-asset exemptions|V1,`.:V11`
 
 ## §B BUGS

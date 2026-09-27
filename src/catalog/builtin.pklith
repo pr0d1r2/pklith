@@ -59,17 +59,17 @@ itok|spec|itok|**/*, .context-limits|itok check|-|-|a file registered in .contex
 
 ## fragments
 fragment|triggers|checks|seed
-base|always|trailing-whitespace, final-newline, line-endings, no-bom, no-merge-conflict, no-case-conflict, no-broken-symlinks, no-private-key, ripsecrets, typos, editorconfig-checker, no-local-paths|-
+base|always|trailing-whitespace, final-newline, line-endings, no-bom, no-merge-conflict, no-case-conflict, no-broken-symlinks, no-private-key, ripsecrets, typos, editorconfig-checker, no-local-paths|editorconfig, gitattributes, readme
 actions|.github/workflows/*.yml, .github/workflows/*.yaml|actionlint, zizmor|-
-nix|**/*.nix|nixfmt, statix, deadnix|-
+nix|**/*.nix|nixfmt, statix, deadnix|envrc, ignore-nix
 shell|**/*.sh, **/*.bash|shellcheck, shfmt|-
-rubocop|**/.rubocop.yml, **/*.gemspec|rubocop|-
+rubocop|**/.rubocop.yml, **/*.gemspec|rubocop|rubocop, ignore-ruby
 xml|**/*.xml|xmllint|-
 awk|**/*.awk|gawk-lint|-
 bats|**/*.bats|bats-parse|-
 markdown|**/*.md|markdownlint|-
 yaml|**/*.yml, **/*.yaml|yamllint|-
 toml|**/*.toml|taplo|-
-rust|**/Cargo.toml, **/*.rs|rustfmt, clippy|-
+rust|**/Cargo.toml, **/*.rs|rustfmt, clippy|ignore-rust
 spec|**/SPEC.md|mth-fmt, mth-check, sherd-check, sherd-nav, sherd-budget|-
 context|.context-limits|itok|-
