@@ -137,7 +137,6 @@ steps: Mapping<String, Config.Step> = new {
     check = "command -v scripts/catalog-nix.sh >/dev/null 2>&1 || { echo 'catalog-nix: scripts/catalog-nix.sh is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; scripts/catalog-nix.sh src/catalog/builtin.pklith || { echo 'catalog-nix: a built-in catalog row names a nix attribute that does not build, or whose binaries its command never calls' >&2; exit 1; }"
   }
   ["gen-check"] {
-    glob = List(".pklith", "hk.pklith.pkl")
     check = "command -v cargo >/dev/null 2>&1 || { echo 'gen-check: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo run -q --bin pkli -- gen --check || { echo 'gen-check: a step in hk.pklith.pkl no longer matches .pklith; run `pkli gen`' >&2; exit 1; }"
   }
   ["pkli-check"] {

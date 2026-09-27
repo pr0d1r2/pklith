@@ -53,7 +53,7 @@ Notes for anyone, human or agent, changing this repository.
 | `flake-lock-graph` | commit | `flake.lock` | - |
 | `deny` | commit | `Cargo.toml` `Cargo.lock` `deny.toml` | - |
 | `catalog-nix` | commit | `src/catalog/builtin.pklith` `flake.nix` `flake.lock` `scripts/catalog-nix.sh` | - |
-| `gen-check` | commit | `.pklith` `hk.pklith.pkl` | - |
+| `gen-check` | commit | whole tree | - |
 | `pkli-check` | commit | whole tree | - |
 | `agents-table` | commit | `hk.pkl` `AGENTS.md` `scripts/agents-table.sh` | yes |
 | `hk-parity` | commit | `hk.pkl` `hk.pklith.pkl` `pkl/**` `scripts/hk-parity.sh` | - |
