@@ -43,7 +43,7 @@ V3: globs matched by src shared engine, same as catalog
 
 id|status|task|cites
 T1|x|`pkl eval` driver + json → step map|V1,V2
-T2|.|fixture `hk.pkl` files: fast/all split, `depends`, excludes|V3
+T2|x|fixture `hk.pkl` files: fast/all split, `depends`, excludes|V3
 
 ## §B BUGS
 

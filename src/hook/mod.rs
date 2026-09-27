@@ -134,6 +134,59 @@ hooks {
         Ok(std::fs::remove_dir_all(dir)?)
     }
 
+    /// A generated module as `pkli gen` writes one: commit steps and push
+    /// steps apart.
+    const GENERATED: &str = r#"import "pkl/Config.pkl"
+steps: Mapping<String, Config.Step> = new {
+  ["fmt"] { glob = List("**/*.rs"); check = "fmt" }
+  ["ws"] { glob = List("**/*"); check = "ws" }
+}
+push: Mapping<String, Config.Step> = new {
+  ["cov"] { glob = List("**/*.rs"); check = "cov" }
+}
+"#;
+
+    /// The shape pklith's own hk.pkl and a consumer's take (T2): the
+    /// generated steps amended with excludes and `depends`, own steps
+    /// added, a `fast` set for commits and an `all` set for push and check.
+    const SPLIT: &str = r#"amends "pkl/Config.pkl"
+import "gen.pkl" as generated
+local vendored = List("pkl/**")
+local fast = (generated.steps) {
+  ["ws"] { exclude = vendored }
+  ["fmt"] { depends = List("ws") }
+  ["own"] { check = "own" }
+}
+local all = (fast) {
+  ["cov"] = (generated.push["cov"]) { depends = List("fmt") }
+  ["relay"] { check = "relay" }
+}
+hooks {
+  ["pre-commit"] { steps = fast }
+  ["pre-push"] { steps = all }
+  ["check"] { steps = all }
+}
+"#;
+
+    /// T2: the `check` hook holds push steps too; an amended exclude is
+    /// read, `depends` changes nothing pklith reads, a step with no glob
+    /// covers the whole tree.
+    #[test]
+    fn a_fast_all_split_reads_every_step() -> Result<(), Box<dyn std::error::Error>> {
+        let dir = dir("split", Some(SPLIT))?;
+        std::fs::write(dir.join("gen.pkl"), GENERATED)?;
+        let got: Vec<String> = steps(&dir)?.iter().map(show).collect();
+        let want = [
+            r#"fmt ["**/*.rs"] [] true"#,
+            r#"ws ["**/*"] ["pkl/**"] true"#,
+            "own [] [] true",
+            r#"cov ["**/*.rs"] [] true"#,
+            "relay [] [] true",
+        ];
+        assert_eq!(got, want);
+        Ok(std::fs::remove_dir_all(dir)?)
+    }
+
     const EMPTY: &str = "amends \"pkl/Config.pkl\"\nhooks { [\"check\"] { steps {} } }\n";
 
     /// V1: an hk.pkl that does not evaluate is an error; V2: one with no
