@@ -10,6 +10,7 @@ mod generate;
 mod import;
 mod lay;
 mod map;
+mod report;
 mod seed;
 
 /// Printed on stderr for a usage error (V2).
@@ -21,6 +22,7 @@ pub const USAGE: &str = "usage: pkli <command>\n
   gen [--check]                          write hk.pklith.pkl from .pklith; --check: fail when it is stale
   lay [--dry-run]                        one commit per missing check, through the hooks; --dry-run: list them
   map [--staged | FILE...]               the specs covering a change, one per line; exit 1 when one is missing
+  report [--format text|json|md]         the coverage matrix and findings, always printed; takes --root, --registry
   seed [--init]                          write the seed files the fragments ask for, never over one; --init: and a first .pklith
   import DOC                             a .pklith from a legacy linter coverage document, on stdout
 ";
@@ -64,6 +66,7 @@ pub fn run(args: &[String], cwd: &Path) -> Outcome {
         ("gen", []) => generate::run(cwd, false),
         ("lay", []) => lay::run(cwd),
         ("map", _) => map::run(rest, cwd),
+        ("report", _) => report::run(rest, cwd),
         ("seed", []) => seed::run(cwd, false),
         ("import", [doc]) => import::run(Path::new(doc)),
         ("gen" | "lay" | "seed", [flag]) => flagged(verb, flag, cwd),

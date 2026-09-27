@@ -3,6 +3,41 @@
 use crate::cover::{Coverage, Gap, Stale, Unbacked, Unreflected};
 use crate::rule::Failure;
 
+pub mod json;
+pub mod md;
+
+/// Everything a report renders: the coverage, the claims no step backs,
+/// and the universal `*` checks.
+pub struct Verdict<'a> {
+    /// Types, gaps, stale rows, rule and fragment findings.
+    pub coverage: &'a Coverage,
+    /// Claims no hk step backs.
+    pub unbacked: &'a [Unbacked],
+    /// Checks every type gets.
+    pub universal: &'a [String],
+}
+
+/// `pkli report`'s text: the matrix of declared types, their file counts
+/// and checks, always printed (V3), then the findings `pkli check` would
+/// print.
+#[must_use]
+pub fn matrix(v: &Verdict<'_>) -> String {
+    let covered = &v.coverage.covered;
+    let width = covered.iter().map(|c| c.key.len()).max().unwrap_or(1);
+    let star = format!("{:width$}  -  {}\n", "*", v.universal.join(", "));
+    let rows: String = covered.iter().map(|c| matrix_row(c, width)).collect();
+    star + &rows + &text(v.coverage) + &unbacked(v.unbacked)
+}
+
+/// One declared type: key, file count, and its checks or exemption.
+fn matrix_row(c: &crate::cover::Covered, width: usize) -> String {
+    let what = match &c.exempt {
+        Some(reason) => format!("exempt: {reason}"),
+        None => c.checks.join(", "),
+    };
+    format!("{:width$}  {}  {what}\n", c.key, c.files)
+}
+
 /// The verdict as text for a person or a hook log: one line per finding,
 /// each saying what to do. Empty when the verdict passes, so a passing check
 /// is silent (V3). Findings are in coverage order, which is registry and

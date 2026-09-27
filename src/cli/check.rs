@@ -10,7 +10,7 @@ pub(super) fn run(args: &[String], cwd: &Path) -> Outcome {
         return exit(2, USAGE);
     };
     match judge(opts, diff, cwd) {
-        Ok((coverage, unbacked)) => {
+        Ok((coverage, unbacked, _)) => {
             let text = crate::report::text(&coverage) + &crate::report::unbacked(&unbacked);
             exit(u8::from(!coverage.ok() || !unbacked.is_empty()), text)
         }
@@ -39,7 +39,7 @@ fn take_flag(args: &mut Vec<String>, flag: &str) -> bool {
 
 /// Remove `flag` and its value from `args`; a flag without its value is an
 /// error.
-fn take_value(args: &mut Vec<String>, flag: &str) -> Result<Option<String>, String> {
+pub(super) fn take_value(args: &mut Vec<String>, flag: &str) -> Result<Option<String>, String> {
     let Some(i) = args.iter().position(|a| a == flag) else {
         return Ok(None);
     };
@@ -77,11 +77,16 @@ fn scope(opts: Options, diff: Option<Diff>, cwd: &Path) -> Result<Scope, String>
     })
 }
 
-type Verdict = (crate::cover::Coverage, Vec<crate::cover::Unbacked>);
+/// The coverage, the claims no step backs, and the universal `*` checks.
+pub(super) type Verdict = (
+    crate::cover::Coverage,
+    Vec<crate::cover::Unbacked>,
+    Vec<String>,
+);
 
 /// The full verdict, or with `--staged` only what the commit touches
 /// (cover V8, root V26). A diff also feeds `changed` rules (rule V3).
-fn judge(opts: Options, diff: Option<Diff>, cwd: &Path) -> Result<Verdict, String> {
+pub(super) fn judge(opts: Options, diff: Option<Diff>, cwd: &Path) -> Result<Verdict, String> {
     let s = scope(opts, diff, cwd)?;
     let unbacked = backing(&s)?;
     let mut coverage = match &s.changed {
@@ -90,7 +95,9 @@ fn judge(opts: Options, diff: Option<Diff>, cwd: &Path) -> Result<Verdict, Strin
     };
     coverage.failed = rules(&s);
     coverage.unreflected = reflect(&s, &coverage.gaps);
-    Ok((coverage, unbacked))
+    let star = s.loaded.registry.types.iter().filter(|t| t.key == "*");
+    let universal = star.flat_map(|t| t.checks.clone()).collect();
+    Ok((coverage, unbacked, universal))
 }
 
 /// The files judged: the changed ones still in the tree when staged (a

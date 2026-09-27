@@ -44,8 +44,8 @@ V4: json carries top-level `version`; breaking field change → version bump, ol
 
 id|status|task|cites
 T1|x|text renderer|V1,V3
-T2|.|json renderer + schema test|V1,V2,V4
-T3|.|md matrix (drop-in for legacy `docs/linter-coverage.md`)|V1
+T2|x|json renderer + schema test|V1,V2,V4
+T3|x|md matrix (drop-in for legacy `docs/linter-coverage.md`)|V1
 
 ## §B BUGS
 

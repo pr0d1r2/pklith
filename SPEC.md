@@ -49,7 +49,7 @@ self|.|-
 ## §I INTERFACES
 
 - cmd: `pkli check [--root DIR] [--registry FILE] [--staged|--range A..B]` → gate verdict; `--registry` judges a repo w/o writing into it; `--staged` judges only what the commit changes (cover V8); any diff feeds `changed` rules: type gaps, stale, claim ⊥ backed by runner, rule gaps. 0 ok / 1 finding / 2 usage | unreadable
-- cmd: `pkli report [--format text|json|md]` → matrix file type × check w/ file counts + rule results. exit 0 unless usage
+- cmd: `pkli report [--root DIR] [--registry FILE] [--format text|json|md]` → matrix file type × check w/ file counts + findings (json versioned, md = legacy linter-coverage table). exit 0 unless usage
 - cmd: `pkli gen [--check]` → write `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md step table block, & shared tool configs of active fragments (gitignored, V25). `--check` writes ⊥, exit 1 if stale
 - cmd: `pkli lay [--only ID,…] [--dry-run]` → 1 commit per missing check, fixed order, hooks ON, red → rollback (src/lay)
 - cmd: `pkli map [--staged|FILE…]` → specs covering changed paths, 1 per line (guard mode); FILE paths from repo root; changed impl w/ 0 mapped specs → exit 1
