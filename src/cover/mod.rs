@@ -6,7 +6,9 @@ use crate::registry::{Registry, TypeRow};
 use crate::scan::{Globs, candidates};
 
 mod claims;
+mod staged;
 pub use claims::{Unbacked, claimed_somewhere, claims_any, unbacked};
+pub use staged::judge_staged;
 
 /// A type found on disk with no registry row (V1, V6): every file is
 /// judged, none silently dropped.

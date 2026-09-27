@@ -27,6 +27,7 @@ fn run(
         diff: diff.as_deref(),
         read: &read,
         plurals: &[],
+        only_changed: false,
     };
     let show = |f: Failure| format!("{} {} -> {}", f.rule, f.source, f.missing);
     Ok(evaluate(&rules(rows)?, &input)
@@ -124,5 +125,28 @@ fn a_malformed_rule_is_refused_by_line() {
     ] {
         let got = rules(row).err().map(|e| e.to_string()).unwrap_or_default();
         assert!(got.starts_with(want), "{row}: {got}");
+    }
+}
+
+/// Staged mode (cover V8): only changed, still-tracked files are sources,
+/// so an unchanged file missing its companion waits for the full check.
+#[test]
+fn staged_rules_judge_only_changed_files() -> Result<(), Error> {
+    let files = owned(&["app/models/user.rb", "app/models/post.rb"]);
+    let diff = owned(&["app/models/post.rb", "app/models/gone.rb"]);
+    let failed = evaluate(&rules(SPEC)?, &staged(&files, &diff));
+    let sources: Vec<&str> = failed.iter().map(|f| f.source.as_str()).collect();
+    assert_eq!(sources, ["app/models/post.rb"]);
+    Ok(())
+}
+
+/// Input for staged mode over `files` and `diff`, reading nothing.
+fn staged<'a>(files: &'a [String], diff: &'a [String]) -> Input<'a> {
+    Input {
+        files,
+        diff: Some(diff),
+        read: &|_| None,
+        plurals: &[],
+        only_changed: true,
     }
 }

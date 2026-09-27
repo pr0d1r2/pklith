@@ -51,7 +51,7 @@ id|status|task|cites
 T1|~|Coverage type + gap/stale|V1,V2,V4,V5,V6
 T2|x|claim-vs-runner join via src/hook|V3
 T3|x|fold rule results|V7
-T4|.|staged mode: changed + deleted paths only; test: deleting the last `.sh` flags its row stale|V8,`.:V26`
+T4|x|staged mode: changed + deleted paths only; test: deleting the last `.sh` flags its row stale|V8,`.:V26`
 T5|.|test: first `.rb` file in a repo → finding names rubocop rows to add|V9
 
 ## §B BUGS

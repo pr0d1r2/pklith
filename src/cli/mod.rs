@@ -13,7 +13,9 @@ mod seed;
 
 /// Printed on stderr for a usage error (V2).
 pub const USAGE: &str = "usage: pkli <command>\n
-  check [--root DIR] [--registry FILE]   every tracked file has a type in .pklith with its checks
+  check [--root DIR] [--registry FILE] [--staged | --range A..B]
+                                         every tracked file has a type in .pklith with its checks;
+                                         --staged: only what the commit changes; a diff feeds `changed` rules
   detect [--root DIR] [--registry FILE]  the fragments the tracked files switch on, one per line
   gen [--check]                          write hk.pklith.pkl from .pklith; --check: fail when it is stale
   lay [--dry-run]                        one commit per missing check, through the hooks; --dry-run: list them

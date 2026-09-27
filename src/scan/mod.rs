@@ -3,7 +3,9 @@
 
 use std::path::Path;
 
+mod diff;
 mod glob;
+pub use diff::{Diff, changed};
 pub use glob::Globs;
 
 /// How a candidate key was derived from a basename (scan §C).

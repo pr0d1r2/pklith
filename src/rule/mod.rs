@@ -57,6 +57,9 @@ pub struct Input<'a> {
     pub read: &'a dyn Fn(&str) -> Option<String>,
     /// Irregular plurals from `## plural`.
     pub plurals: &'a Plurals,
+    /// Staged mode (cover V8): only changed files still tracked are
+    /// sources, not the whole tree.
+    pub only_changed: bool,
 }
 
 /// Typed rules from `## rules` rows.
@@ -138,11 +141,12 @@ fn failures(rule: &Rule, input: &Input<'_>, tracked: &HashSet<&str>) -> Vec<Fail
     let pool = match (&rule.kind, input.diff) {
         (Kind::Changed, None) => return Vec::new(),
         (Kind::Changed, Some(diff)) => diff,
+        (_, Some(diff)) if input.only_changed => diff,
         _ => input.files,
     };
-    let selected = pool
-        .iter()
-        .filter(|f| rule.select.matches(f) && !rule.except.matches(f));
+    let live = |f: &&String| matches!(rule.kind, Kind::Changed) || tracked.contains(f.as_str());
+    let picked = |f: &&String| rule.select.matches(f) && !rule.except.matches(f);
+    let selected = pool.iter().filter(live).filter(picked);
     selected
         .filter_map(|source| missing(rule, source, input, tracked))
         .collect()
