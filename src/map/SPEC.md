@@ -43,7 +43,7 @@ V3: output deterministic & deduped
 ## §T TASKS
 
 id|status|task|cites
-T1|.|map fn + `--staged` input|V1,V2,V3
+T1|x|map fn + `--staged` input|V1,V2,V3
 
 ## §B BUGS
 

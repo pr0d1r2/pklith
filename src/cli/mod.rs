@@ -9,6 +9,7 @@ mod detect;
 mod generate;
 mod import;
 mod lay;
+mod map;
 mod seed;
 
 /// Printed on stderr for a usage error (V2).
@@ -19,6 +20,7 @@ pub const USAGE: &str = "usage: pkli <command>\n
   detect [--root DIR] [--registry FILE]  the fragments the tracked files switch on, one per line
   gen [--check]                          write hk.pklith.pkl from .pklith; --check: fail when it is stale
   lay [--dry-run]                        one commit per missing check, through the hooks; --dry-run: list them
+  map [--staged | FILE...]               the specs covering a change, one per line; exit 1 when one is missing
   seed [--init]                          write the seed files the fragments ask for, never over one; --init: and a first .pklith
   import DOC                             a .pklith from a legacy linter coverage document, on stdout
 ";
@@ -61,6 +63,7 @@ pub fn run(args: &[String], cwd: &Path) -> Outcome {
         ("detect", _) => detect::run(rest, cwd),
         ("gen", []) => generate::run(cwd, false),
         ("lay", []) => lay::run(cwd),
+        ("map", _) => map::run(rest, cwd),
         ("seed", []) => seed::run(cwd, false),
         ("import", [doc]) => import::run(Path::new(doc)),
         ("gen" | "lay" | "seed", [flag]) => flagged(verb, flag, cwd),
@@ -110,6 +113,11 @@ fn files(root: &Path, walk: bool) -> Result<Vec<String>, String> {
     listed.map_err(|e| e.to_string())
 }
 
+/// The paths `diff` changes under `root`.
+fn changed(root: &Path, diff: &crate::scan::Diff) -> Result<Vec<String>, String> {
+    crate::scan::changed(root, diff).map_err(|e| e.to_string())
+}
+
 /// V5: the repository root, from any subdirectory; outside a repository
 /// without `--root` is an error.
 fn toplevel(cwd: &Path) -> Result<PathBuf, String> {
@@ -126,6 +134,8 @@ struct Loaded {
     registry: crate::registry::Registry,
     catalog: Vec<crate::catalog::Check>,
     fragments: Vec<crate::catalog::Fragment>,
+    rules: Vec<crate::rule::Rule>,
+    plurals: Vec<(String, String)>,
 }
 
 /// Read and resolve the registry at `path`. Root V11: no `.pklith` is an
@@ -142,17 +152,22 @@ fn resolved(registry: crate::registry::Registry) -> Result<Loaded, String> {
 }
 
 /// Every type row and fragment naming a known check (registry V2, root
-/// V17), so every verb refuses the same malformed registry.
+/// V17) and every rule parsed (rule V1), so every verb refuses the same
+/// malformed registry.
 fn resolve(registry: crate::registry::Registry) -> Result<Loaded, crate::registry::Error> {
     let local = crate::catalog::parse(&registry.checks)?;
     // The built-in catalog cannot fail to parse: its own tests keep it so.
     let catalog = crate::catalog::merge(crate::catalog::builtin()?, local)?;
     crate::catalog::known(&registry, &catalog)?;
     let fragments = crate::catalog::fragment::resolved(&registry.fragments, &catalog)?;
+    let rules = crate::rule::parse(&registry.rules)?;
+    let plurals = crate::rule::plurals(&registry.plural);
     Ok(Loaded {
         registry,
         catalog,
         fragments,
+        rules,
+        plurals,
     })
 }
 

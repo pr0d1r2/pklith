@@ -52,7 +52,7 @@ self|.|-
 - cmd: `pkli report [--format text|json|md]` → matrix file type × check w/ file counts + rule results. exit 0 unless usage
 - cmd: `pkli gen [--check]` → write `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md step table block, & shared tool configs of active fragments (gitignored, V25). `--check` writes ⊥, exit 1 if stale
 - cmd: `pkli lay [--only ID,…] [--dry-run]` → 1 commit per missing check, fixed order, hooks ON, red → rollback (src/lay)
-- cmd: `pkli map [--staged|FILE…]` → specs covering changed paths (guard mode); changed impl w/ 0 mapped specs → exit 1
+- cmd: `pkli map [--staged|FILE…]` → specs covering changed paths, 1 per line (guard mode); FILE paths from repo root; changed impl w/ 0 mapped specs → exit 1
 - cmd: `pkli import <linter-doc.md|.unit-coverage.toml|fragment-map.json>` → `.pklith` rows on stdout. fragment map = `nix eval --json --file lib/check-fragment-map.nix` output; pkli ⊥ evaluates nix
 - cmd: `pkli detect [--root DIR] [--registry FILE]` → ordered active fragment list from tracked files, 1 per line; ⊥ `.pklith` = built-in fragments (src/detect)
 - cmd: `pkli seed [--init]` → repo-owned seed files of active fragments, ⊥ over an existing file; `--init` + first `.pklith`; paths written on stdout (src/seed)

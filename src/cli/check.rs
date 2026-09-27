@@ -67,8 +67,7 @@ fn scope(opts: Options, diff: Option<Diff>, cwd: &Path) -> Result<Scope, String>
     let loaded = load(&opts.registry.unwrap_or_else(|| root.join(".pklith")))?;
     let files = files(&root, walk)?;
     let staged = diff == Some(Diff::Staged);
-    let changed = diff.map(|d| crate::scan::changed(&root, &d));
-    let changed = changed.transpose().map_err(|e| e.to_string())?;
+    let changed = diff.map(|d| super::changed(&root, &d)).transpose()?;
     Ok(Scope {
         root,
         loaded,
@@ -89,7 +88,7 @@ fn judge(opts: Options, diff: Option<Diff>, cwd: &Path) -> Result<Verdict, Strin
         Some(paths) if s.staged => crate::cover::judge_staged(&s.files, paths, &s.loaded.registry),
         _ => crate::cover::judge(&s.files, &s.loaded.registry),
     };
-    coverage.failed = rules(&s)?;
+    coverage.failed = rules(&s);
     coverage.unreflected = reflect(&s, &coverage.gaps);
     Ok((coverage, unbacked))
 }
@@ -124,18 +123,16 @@ fn backing(s: &Scope) -> Result<Vec<crate::cover::Unbacked>, String> {
 /// cover V7: the companion rules the tree fails; `changed` rules run only
 /// with a diff (rule V3), and in staged mode only changed files are
 /// sources.
-fn rules(s: &Scope) -> Result<Vec<crate::rule::Failure>, String> {
-    let rules = crate::rule::parse(&s.loaded.registry.rules).map_err(|e| e.to_string())?;
-    let plurals: Vec<(String, String)> = s.loaded.registry.plural.iter().map(pair).collect();
+fn rules(s: &Scope) -> Vec<crate::rule::Failure> {
     let read = |path: &str| std::fs::read_to_string(s.root.join(path)).ok();
     let input = crate::rule::Input {
         files: &s.files,
         diff: s.changed.as_deref(),
         read: &read,
-        plurals: &plurals,
+        plurals: &s.loaded.plurals,
         only_changed: s.staged,
     };
-    Ok(crate::rule::evaluate(&rules, &input))
+    crate::rule::evaluate(&s.loaded.rules, &input)
 }
 
 /// Cover V9: fragments the gaps switch on that `.pklith` does not
@@ -170,10 +167,4 @@ fn suggest(
         fragment: fragment.id.clone(),
         rows,
     }
-}
-
-/// A `## plural` row, which the registry keeps at its header's two cells.
-fn pair(row: &crate::registry::Row) -> (String, String) {
-    let [one, many] = <[String; 2]>::try_from(row.cells.clone()).unwrap_or_default();
-    (one, many)
 }

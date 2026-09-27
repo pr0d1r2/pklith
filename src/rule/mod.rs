@@ -126,6 +126,28 @@ fn globs(cell: &str) -> Result<Globs, String> {
     Globs::new(&list).map_err(|e| e.to_string())
 }
 
+/// The irregular plurals of a `## plural` table, which the registry keeps
+/// at its header's two cells.
+#[must_use]
+pub fn plurals(rows: &[Row]) -> Vec<(String, String)> {
+    let pair = |row: &Row| <[String; 2]>::try_from(row.cells.clone()).unwrap_or_default();
+    rows.iter()
+        .map(pair)
+        .map(|[one, many]| (one, many))
+        .collect()
+}
+
+impl Rule {
+    /// The companion an `exists` rule wants for `source`, when the rule
+    /// selects it; `None` for other kinds and unselected files. What
+    /// src/map follows from a changed file to its spec.
+    #[must_use]
+    pub fn companion(&self, source: &str, plurals: &Plurals) -> Option<String> {
+        let selects = self.select.matches(source) && !self.except.matches(source);
+        (matches!(self.kind, Kind::Exists) && selects).then(|| self.target.render(source, plurals))
+    }
+}
+
 /// Every failure of `rules` over `input`, rule by rule, sources in the
 /// order given. `changed` rules run only when there is a diff (V3).
 #[must_use]

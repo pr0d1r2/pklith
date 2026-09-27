@@ -10,6 +10,7 @@ pub mod r#gen;
 pub mod hook;
 pub mod lay;
 pub mod legacy;
+pub mod map;
 pub mod proc;
 pub mod registry;
 pub mod report;
