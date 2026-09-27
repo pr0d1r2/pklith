@@ -14,6 +14,10 @@
 
 use std::fmt;
 
+mod format;
+
+pub use format::format;
+
 /// The newest `.pklith` format this build reads (root V31).
 pub const FORMAT: u32 = 1;
 
@@ -28,14 +32,25 @@ enum Section {
 }
 
 impl Section {
+    const ALL: [Self; 5] = [
+        Self::Types,
+        Self::Checks,
+        Self::Rules,
+        Self::Plural,
+        Self::Fragments,
+    ];
+
     fn named(name: &str) -> Option<Self> {
-        match name {
-            "types" => Some(Self::Types),
-            "checks" => Some(Self::Checks),
-            "rules" => Some(Self::Rules),
-            "plural" => Some(Self::Plural),
-            "fragments" => Some(Self::Fragments),
-            _ => None,
+        Self::ALL.into_iter().find(|s| s.name() == name)
+    }
+
+    fn name(self) -> &'static str {
+        match self {
+            Self::Types => "types",
+            Self::Checks => "checks",
+            Self::Rules => "rules",
+            Self::Plural => "plural",
+            Self::Fragments => "fragments",
         }
     }
 

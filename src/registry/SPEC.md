@@ -50,7 +50,7 @@ V6: absent optional section = empty, ⊥ error (`.:V11`)
 id|status|task|cites
 T1|x|parser + errors w/ line numbers|V1,V2,V3,V6
 T2|x|`*` spread + `min` accounting|V5,B1
-T3|.|formatter + roundtrip proptest|V4
+T3|x|formatter + roundtrip property test (xorshift cases, ⊥ proptest dep)|V4
 T4|x|format version line + refusal of newer versions|`.:V31`
 T5|x|test: exempt row w/ reason only registers as covered|`.:V23`
 
