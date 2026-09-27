@@ -23,3 +23,6 @@ the bytes pkli emits for the same inputs is at least a minor version
 
 - `pkli check` and `pkli seed --init` no longer take time in the square of
   the file count when suggesting rows: on 10,000 files, 39.5 s became 0.6 s.
+- `pkli seed --init` no longer writes a binary type's row twice when its
+  files are interleaved with another binary type's, which left a
+  `.pklith` pkli could not read.

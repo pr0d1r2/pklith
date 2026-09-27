@@ -226,6 +226,7 @@ fn binary_rows(files: &[String]) -> Vec<String> {
         .filter(|f| binary(f))
         .map(|f| crate::scan::key(f))
         .collect();
+    keys.sort();
     keys.dedup();
     keys.into_iter()
         .map(|k| format!("{k}|-|-|binary asset"))
@@ -343,6 +344,20 @@ yml|yamllint|-|-
         let steps: Vec<crate::hook::Step> =
             crate::catalog::builtin()?.into_iter().map(step).collect();
         assert!(crate::cover::unbacked(&files, &parsed, &steps).is_empty());
+        Ok(())
+    }
+
+    /// Binary files of one type, interleaved with another, still seed one
+    /// row per type: a repeated row would make the registry unreadable.
+    #[test]
+    fn interleaved_binary_types_seed_one_row_each() -> Result<(), Error> {
+        let files: Vec<String> = ["a.png", "b.gz", "c.png"].map(str::to_owned).into();
+        let text = registry(&files, &[], &crate::catalog::builtin()?);
+        assert!(
+            text.ends_with("gz|-|-|binary asset\npng|-|-|binary asset\n"),
+            "{text}"
+        );
+        crate::registry::parse(&text)?;
         Ok(())
     }
 
