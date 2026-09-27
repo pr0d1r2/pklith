@@ -120,7 +120,7 @@ fn literal_prefix(glob: &str) -> usize {
 }
 
 fn gap(gaps: &mut Vec<Gap>, file: &str) {
-    let key = candidates(file).pop().map(|c| c.key).unwrap_or_default();
+    let key = crate::scan::key(file);
     match gaps.iter_mut().find(|g| g.key == key) {
         Some(g) => g.files.push(file.to_owned()),
         None => gaps.push(Gap {

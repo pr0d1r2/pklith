@@ -55,6 +55,19 @@ pub fn candidates(path: &str) -> Vec<Candidate> {
     std::iter::once(whole).chain(parts).collect()
 }
 
+/// The type a path has when no registry says otherwise: its last candidate,
+/// the extension or, without one, the whole basename. The key a gap is
+/// reported under, and the one `pkli seed --init` writes a row for.
+///
+/// ```
+/// assert_eq!(pklith::scan::key("a/foo.tar.gz"), "gz");
+/// assert_eq!(pklith::scan::key("justfile"), "justfile");
+/// ```
+#[must_use]
+pub fn key(path: &str) -> String {
+    candidates(path).pop().map(|c| c.key).unwrap_or_default()
+}
+
 fn whole_kind(base: &str, name: &str) -> Kind {
     match (name.contains('.'), base.starts_with('.')) {
         (true, _) => Kind::Name,
