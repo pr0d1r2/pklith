@@ -87,7 +87,7 @@ fn an_edited_badge_drifts() -> Result {
     )?;
     let (code, stderr) = dev(&dir, &["readme", "--check"], None)?;
     assert!(
-        code == Some(1) && stderr.contains("README.md badges drifted"),
+        code == Some(1) && stderr.contains("README.md drifted from its sources"),
         "{stderr}"
     );
     Ok(std::fs::remove_dir_all(dir)?)
@@ -155,6 +155,7 @@ fn broken_sources_exit_2() -> Result {
 fn usage_and_missing_inputs_exit_2() -> Result {
     let dir = fixture("io")?;
     assert_eq!(dev(&dir, &["bogus"], None)?.0, Some(2));
+    assert_eq!(dev(&dir, &[], None)?.0, Some(2));
     let (code, stderr) = dev(&dir, &["readme"], Some("/nonexistent"))?;
     assert!(
         code == Some(2) && stderr.contains("cannot run pkl"),

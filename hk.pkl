@@ -67,9 +67,9 @@ local fast = (generated.steps) {
   // docs/THIRD-PARTY-NOTICES.md: its crate table is what Cargo.lock ships,
   // and its prose holds the counts and the licence claim.
   ["notices"] {
-    glob = List("Cargo.toml", "Cargo.lock", "docs/THIRD-PARTY-NOTICES.md", "scripts/notices.sh")
-    check = "scripts/notices.sh --check"
-    fix = "scripts/notices.sh"
+    glob = List("Cargo.toml", "Cargo.lock", "docs/THIRD-PARTY-NOTICES.md", "dev/**")
+    check = "cargo run -q -p pklith-dev -- notices --check"
+    fix = "cargo run -q -p pklith-dev -- notices"
   }
   // V28 (T65): the vendored schema is the one the pinned hk ships.
   ["schema-pin"] {

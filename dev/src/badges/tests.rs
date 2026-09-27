@@ -1,4 +1,4 @@
-use super::{Facts, render, splice, stale_prose};
+use super::{Facts, render, stale_prose};
 use crate::facts::Nixpkgs;
 
 fn nixpkgs() -> Nixpkgs {
@@ -53,18 +53,6 @@ fn an_empty_fact_is_refused() {
         empty.checked().err().as_deref(),
         Some("Cargo.toml [dependencies] read empty or zero; fix the source")
     );
-}
-
-#[test]
-fn splicing_replaces_only_the_block() {
-    let readme = "# t\n\n<!-- BEGIN badges -->\nold\n<!-- END badges -->\n\nbody\n";
-    assert_eq!(
-        splice(readme, "NEW\n").as_deref(),
-        Some("# t\n\nNEW\n\nbody\n")
-    );
-    let end = "<!-- BEGIN badges -->\nold\n<!-- END badges -->";
-    assert_eq!(splice(end, "NEW\n").as_deref(), Some("NEW\n"));
-    assert_eq!(splice("no block", "x"), None);
 }
 
 /// The disclaimer's numbers must be the facts', across wrapped lines.

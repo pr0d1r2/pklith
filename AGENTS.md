@@ -57,7 +57,7 @@ Notes for anyone, human or agent, changing this repository.
 | `pkli-check` | commit | whole tree | - |
 | `agents-table` | commit | `hk.pkl` `AGENTS.md` `scripts/agents-table.sh` | yes |
 | `readme-badges` | commit | `README.md` `Cargo.toml` `.coverage` `hk.pkl` `hk.pklith.pkl` `flake.lock` `**/SPEC.md` `docs/LLM-DISCLAIMER.md` `.github/workflows/ci.yml` `dev/**` | yes |
-| `notices` | commit | `Cargo.toml` `Cargo.lock` `docs/THIRD-PARTY-NOTICES.md` `scripts/notices.sh` | yes |
+| `notices` | commit | `Cargo.toml` `Cargo.lock` `docs/THIRD-PARTY-NOTICES.md` `dev/**` | yes |
 | `schema-pin` | commit | `pkl/**` `flake.lock` `scripts/schema-pin.sh` | - |
 | `hk-parity` | commit | `hk.pkl` `hk.pklith.pkl` `pkl/**` `scripts/hk-parity.sh` | - |
 | `coverage` | push | `**/*.rs` `Cargo.toml` `.coverage` | - |
