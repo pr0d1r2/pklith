@@ -1,6 +1,6 @@
 [package]
 name = "pklith"
-version = "0.0.0"
+version = "0.1.0"
 edition = "2024"
 rust-version = "1.95"
 license = "MIT"
@@ -9,8 +9,6 @@ repository = "https://github.com/pr0d1r2/pklith"
 readme = "README.md"
 keywords = ["git-hooks", "hk", "linter", "coverage", "nix"]
 categories = ["development-tools", "command-line-utilities"]
-# Unpublished until the first release (root T69).
-publish = false
 
 [[bin]]
 name = "pklith"
