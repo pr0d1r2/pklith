@@ -30,7 +30,9 @@ fn file(path: &'static str, text: &str) -> Entry {
     File(path, text.to_owned())
 }
 
-/// A throwaway git repository holding `entries`, all staged.
+/// A throwaway git repository holding `entries`, all staged. Its git runs
+/// without the hook's `GIT_DIR` and `GIT_INDEX_FILE`: inside a commit from a
+/// linked worktree those would stage the fixture into the real index.
 fn fixture(name: &str, entries: &[Entry]) -> Result<std::path::PathBuf> {
     let dir = std::env::temp_dir().join(format!("pklith-catalog-{}-{name}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
@@ -49,7 +51,7 @@ fn fixture(name: &str, entries: &[Entry]) -> Result<std::path::PathBuf> {
 }
 
 fn git(dir: &Path, args: &[&str]) -> Result {
-    Command::new("git").args(args).current_dir(dir).output()?;
+    pklith::proc::command("git", dir).args(args).output()?;
     Ok(())
 }
 

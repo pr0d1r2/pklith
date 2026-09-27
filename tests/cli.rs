@@ -37,9 +37,8 @@ fn a_covered_repository_passes_silently() -> Result {
 fn an_uncovered_type_is_a_finding() -> Result {
     let dir = repo("gap", Some(OK))?;
     std::fs::write(dir.join("x.py"), "")?;
-    Command::new("git")
+    pklith::proc::command("git", &dir)
         .args(["add", "x.py"])
-        .current_dir(&dir)
         .output()?;
     let want =
         "gap: `py` has no row in .pklith (1 file: x.py); add its checks, or an exemption reason\n";
@@ -133,9 +132,8 @@ fn an_unreadable_directory_is_an_error() -> Result {
 fn hook_variables_from_another_repository_do_not_leak() -> Result {
     let b = repo("leak-b", Some(OK))?;
     std::fs::write(b.join("only-in-b.py"), "")?;
-    Command::new("git")
+    pklith::proc::command("git", &b)
         .args(["add", "only-in-b.py"])
-        .current_dir(&b)
         .output()?;
     let a = repo("leak-a", None)?;
     let (code, _, stderr) = pkli_with_hook_env(&b, &a)?;

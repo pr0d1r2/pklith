@@ -68,10 +68,9 @@ fn pkli_as(dir: &Path, args: &[&str]) -> Result<(Option<i32>, String, String)> {
 }
 
 fn git(dir: &Path, args: &[&str]) -> Result<String> {
-    let out = Command::new("git")
+    let out = pklith::proc::command("git", dir)
         .args(args)
         .envs(WHO)
-        .current_dir(dir)
         .output()?;
     Ok(String::from_utf8(out.stdout)?.trim_end().to_owned())
 }

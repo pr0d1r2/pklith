@@ -45,7 +45,7 @@ pub fn repo(name: &str, pklith: Option<&str>) -> Result<PathBuf> {
         std::fs::write(dir.join(".pklith"), text)?;
     }
     for args in [&["init", "-q"][..], &["add", "-A"]] {
-        Command::new("git").args(args).current_dir(&dir).output()?;
+        pklith::proc::command("git", &dir).args(args).output()?;
     }
     Ok(dir)
 }
