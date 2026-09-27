@@ -10,6 +10,8 @@ use crate::catalog::{Category, Check};
 use crate::registry::Registry;
 use std::fmt::Write as _;
 
+mod guard;
+
 /// The generated file, next to `hk.pkl`.
 pub const FILE: &str = "hk.pklith.pkl";
 
@@ -70,16 +72,38 @@ fn step(check: &Check) -> String {
 /// missing, never as a finding (root V1); a failure prints the check's
 /// message (catalog V1): what went wrong and what to do.
 fn explained(check: &Check) -> String {
-    let tool = check.check.split_whitespace().next().unwrap_or_default();
-    let missing = shell_quote(&format!(
-        "{}: {tool} is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.",
-        check.id
-    ));
     let failed = shell_quote(&format!("{}: {}", check.id, check.msg));
     format!(
-        "command -v {tool} >/dev/null 2>&1 || {{ echo {missing} >&2; exit 1; }}; {} || {{ echo {failed} >&2; exit 1; }}",
+        "{}{} || {{ echo {failed} >&2; exit 1; }}",
+        guards(check),
         check.check
     )
+}
+
+/// One `command -v` per program the command runs (src/gen/guard.rs), each
+/// naming the program it found missing.
+fn guards(check: &Check) -> String {
+    let guard = |tool: String| {
+        let missing = shell_quote(&format!(
+            "{}: {tool} is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.",
+            check.id
+        ));
+        let tool = word(tool);
+        format!("command -v {tool} >/dev/null 2>&1 || {{ echo {missing} >&2; exit 1; }}; ")
+    };
+    guard::programs(&check.check)
+        .into_iter()
+        .map(guard)
+        .collect()
+}
+
+/// `text` as one sh word: bare when nothing in it is special, else quoted.
+fn word(text: String) -> String {
+    let plain = |c: char| c.is_ascii_alphanumeric() || "_./+-".contains(c);
+    if text.chars().all(plain) {
+        return text;
+    }
+    shell_quote(&text)
 }
 
 /// Single-quote `text` for sh.
@@ -173,7 +197,7 @@ import "pkl/Config.pkl"
 steps: Mapping<String, Config.Step> = new {
   ["fmt"] {
     glob = List("**/*.rs", "build.rs")
-    check = "command -v cargo >/dev/null 2>&1 || { echo 'fmt: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo fmt --check || { echo 'fmt: m' >&2; exit 1; }"
+    check = "command -v cargo >/dev/null 2>&1 || { echo 'fmt: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; command -v cargo-fmt >/dev/null 2>&1 || { echo 'fmt: cargo-fmt is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo fmt --check || { echo 'fmt: m' >&2; exit 1; }"
     fix = "cargo fmt"
   }
   ["typos"] {

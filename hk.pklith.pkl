@@ -30,7 +30,7 @@ steps: Mapping<String, Config.Step> = new {
     check = "command -v hk >/dev/null 2>&1 || { echo 'no-case-conflict: hk is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; hk util check-case-conflict {{files}} || { echo 'no-case-conflict: two paths differ only by case' >&2; exit 1; }"
   }
   ["no-broken-symlinks"] {
-    check = "command -v git >/dev/null 2>&1 || { echo 'no-broken-symlinks: git is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; git ls-files -z | xargs -0 hk util check-symlinks || { echo 'no-broken-symlinks: a symlink points nowhere' >&2; exit 1; }"
+    check = "command -v git >/dev/null 2>&1 || { echo 'no-broken-symlinks: git is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; command -v hk >/dev/null 2>&1 || { echo 'no-broken-symlinks: hk is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; git ls-files -z | xargs -0 hk util check-symlinks || { echo 'no-broken-symlinks: a symlink points nowhere' >&2; exit 1; }"
   }
   ["no-large-files"] {
     glob = List("**/*")
@@ -56,7 +56,7 @@ steps: Mapping<String, Config.Step> = new {
   }
   ["rustfmt"] {
     glob = List("**/*.rs")
-    check = "command -v cargo >/dev/null 2>&1 || { echo 'rustfmt: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo fmt --check || { echo 'rustfmt: Rust not formatted' >&2; exit 1; }"
+    check = "command -v cargo >/dev/null 2>&1 || { echo 'rustfmt: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; command -v cargo-fmt >/dev/null 2>&1 || { echo 'rustfmt: cargo-fmt is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo fmt --check || { echo 'rustfmt: Rust not formatted' >&2; exit 1; }"
     fix = "cargo fmt"
   }
   ["typos"] {
@@ -69,7 +69,7 @@ steps: Mapping<String, Config.Step> = new {
   }
   ["clippy"] {
     glob = List("**/*.rs", "Cargo.toml", "clippy.toml")
-    check = "command -v cargo >/dev/null 2>&1 || { echo 'clippy: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo clippy --all-targets -q -- -D warnings || { echo 'clippy: clippy finding or a §C code limit exceeded' >&2; exit 1; }"
+    check = "command -v cargo >/dev/null 2>&1 || { echo 'clippy: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; command -v cargo-clippy >/dev/null 2>&1 || { echo 'clippy: cargo-clippy is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo clippy --all-targets -q -- -D warnings || { echo 'clippy: clippy finding or a §C code limit exceeded' >&2; exit 1; }"
   }
   ["actionlint"] {
     glob = List(".github/workflows/*.yml", ".github/workflows/*.yaml")
@@ -88,16 +88,16 @@ steps: Mapping<String, Config.Step> = new {
   }
   ["links"] {
     glob = List("**/*.md")
-    check = "command -v git >/dev/null 2>&1 || { echo 'links: git is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; git ls-files -z '*.md' | xargs -0 lychee --offline --no-progress --include-fragments || { echo 'links: a relative link or anchor is broken' >&2; exit 1; }"
+    check = "command -v git >/dev/null 2>&1 || { echo 'links: git is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; command -v lychee >/dev/null 2>&1 || { echo 'links: lychee is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; git ls-files -z '*.md' | xargs -0 lychee --offline --no-progress --include-fragments || { echo 'links: a relative link or anchor is broken' >&2; exit 1; }"
   }
   ["mth-fmt"] {
     glob = List("**/SPEC.md")
-    check = #"command -v for >/dev/null 2>&1 || { echo 'mth-fmt: for is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; for f in {{files}}; do mth fmt --check "$f" || exit 1; done || { echo 'mth-fmt: SPEC.md is hard-wrapped or over the line cap' >&2; exit 1; }"#
+    check = #"command -v mth >/dev/null 2>&1 || { echo 'mth-fmt: mth is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; for f in {{files}}; do mth fmt --check "$f" || exit 1; done || { echo 'mth-fmt: SPEC.md is hard-wrapped or over the line cap' >&2; exit 1; }"#
     fix = #"for f in {{files}}; do mth fmt "$f" || exit 1; done"#
   }
   ["mth-check"] {
     glob = List("**/SPEC.md")
-    check = #"command -v for >/dev/null 2>&1 || { echo 'mth-check: for is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; for f in {{files}}; do mth check "$f" || exit 1; done || { echo 'mth-check: SPEC.md breaks a structural rule' >&2; exit 1; }"#
+    check = #"command -v mth >/dev/null 2>&1 || { echo 'mth-check: mth is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; for f in {{files}}; do mth check "$f" || exit 1; done || { echo 'mth-check: SPEC.md breaks a structural rule' >&2; exit 1; }"#
   }
   ["sherd-check"] {
     glob = List("**/SPEC.md", "**/*.rs")
@@ -118,7 +118,7 @@ steps: Mapping<String, Config.Step> = new {
   }
   ["test"] {
     glob = List("**/*.rs", "Cargo.toml", "Cargo.lock", "src/catalog/builtin.pklith")
-    check = "command -v cargo >/dev/null 2>&1 || { echo 'test: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo nextest run --no-fail-fast --status-level fail --final-status-level fail || { echo 'test: a test failed, or the suite is empty' >&2; exit 1; }"
+    check = "command -v cargo >/dev/null 2>&1 || { echo 'test: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; command -v cargo-nextest >/dev/null 2>&1 || { echo 'test: cargo-nextest is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo nextest run --no-fail-fast --status-level fail --final-status-level fail || { echo 'test: a test failed, or the suite is empty' >&2; exit 1; }"
   }
   ["doctest"] {
     glob = List("**/*.rs", "Cargo.toml")
@@ -130,7 +130,7 @@ steps: Mapping<String, Config.Step> = new {
   }
   ["deny"] {
     glob = List("Cargo.toml", "Cargo.lock", "deny.toml")
-    check = "command -v cargo >/dev/null 2>&1 || { echo 'deny: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo deny check --disable-fetch licenses bans || { echo 'deny: a license or ban rule failed' >&2; exit 1; }"
+    check = "command -v cargo >/dev/null 2>&1 || { echo 'deny: cargo is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; command -v cargo-deny >/dev/null 2>&1 || { echo 'deny: cargo-deny is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cargo deny check --disable-fetch licenses bans || { echo 'deny: a license or ban rule failed' >&2; exit 1; }"
   }
   ["catalog-nix"] {
     glob = List("src/catalog/builtin.pklith", "flake.nix", "flake.lock", "scripts/catalog-nix.sh")
