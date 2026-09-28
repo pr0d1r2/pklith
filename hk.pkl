@@ -28,6 +28,11 @@ local vendored = List("pkl/**", "FORMAT.md", "FORMAT-EXTENSIONS.md")
 
 /// Run on every commit: the generated commit steps, plus this repository's own.
 local fast = (generated.steps) {
+  // T19 (V8): commits land through a branch and pull request, never directly
+  // on main. Proven red on main with `hk util no-commit-to-branch --branch main`.
+  ["no-commit-to-branch"] {
+    check = "command -v hk >/dev/null 2>&1 || { echo 'no-commit-to-branch: hk is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; hk util no-commit-to-branch --branch main || { echo 'no-commit-to-branch: commits to main are refused; work must arrive through a pull request' >&2; exit 1; }"
+  }
   ["trailing-whitespace"] { exclude = vendored }
   ["final-newline"] { exclude = vendored }
   ["line-endings"] { exclude = vendored }
