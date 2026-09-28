@@ -50,4 +50,4 @@ jobs:
           skipPush: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
           # Only what was built here; sources and tarballs stay out of the cache.
           pushFilter: '(-source$|nixpkgs\.tar\.gz$)'
-      - run: nix develop --command hk check --all --check
+      - run: nix develop --command hk check --all --check --skip-step no-commit-to-branch
