@@ -26,6 +26,7 @@ catalog-nix|supply|nix|src/catalog/builtin.pklith, flake.nix, flake.lock, script
 agents-table|spec|-|hk.pkl, hk.pklith.pkl, AGENTS.md, dev/**|cargo run -q -p pklith-dev -- agents --check|cargo run -q -p pklith-dev -- agents|-|AGENTS.md step table is stale
 gen-check|gate|cargo|-|cargo run -q --bin pklith -- gen --check|-|-|a step in hk.pklith.pkl no longer matches .pklith; run `pklith gen`
 pklith-check|gate|cargo|-|cargo run -q --bin pklith -- check|-|-|a tracked file type has no row in .pklith, or a row matches nothing
+no-commit-to-branch|gate|-|-|hk util no-commit-to-branch --branch main|-|-|commits to main are refused; work must arrive through a pull request
 
 ## types
 type|checks|min|exempt
