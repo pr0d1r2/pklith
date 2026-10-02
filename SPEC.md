@@ -179,7 +179,7 @@ T44|x|dogfood swap: T33 legacy step → `pklith check` + `gen --check`; drop leg
 T45|x|re-lay reproduction: `pklith lay` into temp repo → ∀ laid file byte-identical to this tree|V3,V13
 T46|x|compat package + README migration guide|V4,V10
 T47|x|review `nix-lefthook-unit-coverage` PRs + SPEC → backprop|R9
-T48|.|deprecation notice + migration link in 3 legacy READMEs, after V4 parity proven|V4
+T48|x|deprecation notice + migration link in 3 legacy READMEs, after V4 parity proven|V4
 T49|.|raise ashlar issue: hooks-disabled commits & degrade-w/o-hk vs V12/V1; bundled courses vs V13|R12
 T50|x|port map: ∀ set-and-setting setting entry point → pklith verb \| dropped w/ reason|R15
 T51|x|port `check-fragment-map.nix` → built-in catalog fragments (20) + importer|V17,R15
