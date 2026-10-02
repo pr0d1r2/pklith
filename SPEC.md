@@ -191,7 +191,7 @@ T56|x|confirm port (hk: `hk validate`, step set vs fragments, idempotence)|V22
 T57|x|migrate port: lefthook repo → hk|V24
 T58|x|protect port: required contexts from CI job names|`src/protect:V2`
 T59|x|raise set-and-setting issues for D1, D2, D3|R15
-T60|.|set-and-setting consumes pklith via flake input; its setting shell retired|V4
+T60|x|set-and-setting consumes pklith via flake input; its setting shell retired|V4
 T61|x|`lib.devShell` for consumers + test: shell entered on repo w/o `hk.pkl` installs no hooks|V22,V12
 T62|x|`package-nix` step: `nix build` → run built `pklith` on fixture repo; grep built outputs for `@…@` \| `*_PATH` placeholders|V10
 T63|x|one process-spawn helper scrubbing `GIT_DIR` `GIT_INDEX_FILE` `GIT_WORK_TREE` (done: `src/proc`); test: pklith run from inside a real hook on a 2nd repo leaves both intact (waits for a pklith verb)|V20

@@ -12,6 +12,11 @@ with hk, pkl, git and `pklith`, plus every tool its generated
 `nix/pklith.nix` names, all from the pinned catalog pklith was proven
 against:
 
+This is the consumer cutover used by set-and-setting: its setting shell is
+retired, and the repository consumes this flake as the `pklith` input. The
+set half (skills and `mkSet`) remains there; only setting-owned discovery,
+coverage and hook materialization move to pklith.
+
 ```nix
 {
   inputs.pklith.url = "github:pr0d1r2/pklith";
