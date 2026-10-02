@@ -85,6 +85,16 @@ pklith replaces `lefthook-linter-coverage`, `lefthook-linter-coverage-full`
 and `lefthook-unit-coverage`. Move in two steps, each leaving the gate
 green.
 
+> **Deprecated:** `lefthook-linter-coverage` is in maintenance mode. Migrate
+> to pklith using this [migration guide](#migrating-from-the-legacy-coverage-tools).
+
+> **Deprecated:** `lefthook-linter-coverage-full` is in maintenance mode.
+> Migrate to pklith using this
+> [migration guide](#migrating-from-the-legacy-coverage-tools).
+
+> **Deprecated:** `lefthook-unit-coverage` is in maintenance mode. Migrate
+> to pklith using this [migration guide](#migrating-from-the-legacy-coverage-tools).
+
 1. **Swap the package.** Replace the three legacy flake inputs with this
    flake's `packages.<system>.compat`. It installs `pklith` under each legacy
    name, and under those names it reads the same variables
