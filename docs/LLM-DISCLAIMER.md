@@ -28,11 +28,9 @@ not for the merges the loop makes now.
 
 This repository (code, spec, tests and prose) was written by
 [Claude Code](https://claude.com/claude-code) running Anthropic's **Claude
-Opus 5.5**. Every commit carries a `Co-Authored-By: Claude Opus 5.5`
-trailer: not most of them, all of them, which
-`git log --format=%B | grep -c Co-Authored-By` will confirm against
-`git rev-list --count HEAD`. A human owns every decision, reviews every
-diff, and is accountable for what ships.
+Opus 5.5**. Commit provenance is part of the record and can be inspected
+with `git log`; a human owns every decision, reviews every diff, and is
+accountable for what ships.
 
 That is the disclaimer. The rest of this file is why it is a design note
 rather than an apology, and what you can check for yourself.
