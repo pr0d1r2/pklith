@@ -200,7 +200,7 @@ T65|x|`schema-pin` step: vendored `pkl/Config.pkl` matches pinned hk's schema|V2
 T66|x|fixture per built-in catalog check: planted violation → step red, clean twin → green|V30,V2
 T67|x|pre-publish audit: ∀ committed file & message ⊥ names an unpublished fleet repo (ashlar today); publish it or anonymize. DONE 2026-09-27: history ⊥ secrets (ripsecrets over full `git log -p`), tree ⊥ home paths; names ashlar, leadgen, nix-config, xenolith KEPT by owner decision|R12,R14
 T68|x|`CHANGELOG.md` (keep-a-changelog) + `changelog-touched` step: golden or `src/` change w/o `[Unreleased]` entry → red|V33
-T69|.|release: version bump PR → tag → crates.io publish → cachix push of `pklith` for 3 tier-1 systems; `cargo semver-checks` gates the bump|V33,V10
+T69|x|release: version bump PR → tag → crates.io publish → cachix push of `pklith` for 3 tier-1 systems; `cargo semver-checks` gates the bump|V33,V10
 T70|x|fleet sweep: ∀ repo under `../` using a legacy coverage tool or set-and-setting setting → legacy verdict vs `pklith check` on imported `.pklith`; diffs → §B or fix|V34,V4
 T71|.|OPTIONAL: raise itok issue: `itok check` takes a limits path; ⊥ needed while `file-ceilings` holds (T26)|B11
 T72|x|`shellcheck` on `.githooks/*` & `.envrc` (shell w/o `.sh` name ∴ glob by path)|V2,V5
