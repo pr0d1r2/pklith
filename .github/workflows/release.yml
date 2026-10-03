@@ -5,7 +5,9 @@ name: release
 
 on:
   push:
-    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+    # Actions uses glob patterns, not regular expressions. The publish job
+    # below performs the exact Cargo.toml version check after this trigger.
+    tags: ['v*.*.*']
 
 concurrency:
   group: release-${{ github.ref }}
