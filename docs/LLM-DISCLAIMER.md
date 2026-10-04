@@ -51,7 +51,7 @@ prose is a defect until something executes it.**
 
 [`SPEC.md`](../SPEC.md) and one `SPEC.md` per node under `src/` are the
 law, not a description written afterwards. Together they carry
-**125 `§V` invariants** (what must stay true, with the reasoning), `§T`
+**126 `§V` invariants** (what must stay true, with the reasoning), `§T`
 tasks (what is decided and what is not), **22 `§B` bugs** (each paired
 with the invariant that now catches it), and `§R` research (the
 measurements the constraints rest on). A rule and its checker land in the

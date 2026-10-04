@@ -20,6 +20,11 @@ fn the_floor_drops_trailing_zeros() {
     assert_eq!(floor("nothing"), None);
 }
 
+#[test]
+fn the_floor_truncates_to_one_decimal() {
+    assert_eq!(floor("lines 97.96").as_deref(), Some("97.9"));
+}
+
 /// Rows, not distinct ids: two nodes' V1 are two invariants.
 #[test]
 fn spec_rows_are_counted_per_node() {

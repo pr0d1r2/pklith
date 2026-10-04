@@ -14,7 +14,7 @@ sib|src|product code nodes — scan, detect, registry, catalog, rule, hook, lega
 ## §C CONSTRAINTS
 
 - ⊥ published. a consumer of `pklith` ! ever receive these verbs; a 2nd `[[bin]]` in the main crate would land on their PATH (sherd dev §C).
-- pure fn over `&str` ∀ parser & renderer; `main.rs` alone reads the repo, runs `git`/`pkl` & writes ∴ ∀ rule testable w/ ⊥ a repository.
+- `io.rs` alone touches the filesystem or spawns; each verb calls it from one `run_verb`, and everything else is pure over `&str` ∴ ∀ rule testable w/ ⊥ a repository.
 - exit codes = pklith's: 0 clean · 1 drift · 2 usage | I/O.
 - same lint limits & coverage floor as the product crate (`[workspace.lints]`, `sherd coverage --workspace`).
 
@@ -26,6 +26,7 @@ V3: PLATFORM badges come from `ci.yml`'s matrix, ⊥ `flake.nix`'s systems. an u
 V4: a spec COUNT is rows, ⊥ distinct ids. ∀ node numbers its own from V1 & B1
 V5: numbers `docs/LLM-DISCLAIMER.md` quotes in prose are held to the same facts; drift → exit 1 before anything is written
 V6: render is idempotent: splice(splice(x)) == splice(x) ∴ `--check` is equality, ⊥ a heuristic
+V7: percentages truncate to one decimal (`int(x*10)/10`), ⊥ round; `100.00` renders as `100`
 
 ## §T TASKS
 
