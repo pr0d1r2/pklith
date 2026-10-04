@@ -32,16 +32,21 @@ fn is_key(s: &str) -> bool {
             .all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.'))
 }
 
-/// The coverage floor `.coverage` records, trailing zeros dropped:
-/// `lines 100.00` is `100`, `lines 92.30` is `92.3`.
+/// The coverage floor `.coverage` records, truncated to one decimal and with
+/// trailing zeros dropped: `lines 97.96` is `97.9`, `lines 100.00` is `100`.
 #[must_use]
 pub fn floor(coverage: &str) -> Option<String> {
     let value = coverage.lines().find_map(|l| l.strip_prefix("lines "))?;
     let value = value.trim();
-    let trimmed = if value.contains('.') {
-        value.trim_end_matches('0').trim_end_matches('.')
-    } else {
-        value
+    let trimmed = match value.split_once('.') {
+        Some((whole, fraction)) => {
+            let digit = fraction.chars().next().filter(|c| *c != '0');
+            match digit {
+                Some(digit) => return Some(format!("{whole}.{digit}")),
+                None => whole,
+            }
+        }
+        None => value,
     };
     (!trimmed.is_empty()).then(|| trimmed.to_owned())
 }
