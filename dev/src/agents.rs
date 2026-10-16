@@ -5,9 +5,11 @@ use crate::io::{Failed, read, run};
 use std::fmt::Write as _;
 
 /// Every push step as one line: id, `commit` or `push`, globs joined by
-/// U+001F, and whether it fixes; tab-separated. Asking `pkl` for text
+/// U+001F, and whether it fixes; then each step only the pre-commit hook
+/// runs (a rule about making a commit), as `commit only`. Joined by
+/// tabs. Asking `pkl` for text
 /// keeps the dev crate free of a JSON parser, as src/hook is.
-const ROWS: &str = r#"let (fast = hooks["pre-commit"].steps) hooks["pre-push"].steps.toMap().entries.map((e) -> let (s = e.value) List(e.key, if (fast.containsKey(e.key)) "commit" else "push", (if (s.glob is String) List(s.glob) else s.glob ?? List()).join("\u{1F}"), if (s.fix != null) "yes" else "-").join("\t")).join("\n")"#;
+const ROWS: &str = r#"let (fast = hooks["pre-commit"].steps) let (all = hooks["pre-push"].steps) let (row = (e, hook) -> let (s = e.value) List(e.key, hook, (if (s.glob is String) List(s.glob) else s.glob ?? List()).join("\u{1F}"), if (s.fix != null) "yes" else "-").join("\t")) (all.toMap().entries.map((e) -> row.apply(e, if (fast.containsKey(e.key)) "commit" else "push")) + fast.toMap().entries.filter((e) -> !all.containsKey(e.key)).map((e) -> row.apply(e, "commit only"))).join("\n")"#;
 
 /// The table block, markers included, for `rows` (as `ROWS` prints them)
 /// and the number of commit and push steps.

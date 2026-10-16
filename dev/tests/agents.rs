@@ -7,7 +7,7 @@ use std::process::Command;
 type Result<T = ()> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 const SCHEMA: &str = include_str!("../../pkl/Config.pkl");
-const HK: &str = "amends \"pkl/Config.pkl\"\nlocal fast = new Mapping<String, Step> { [\"a\"] { glob = List(\"*.rs\"); check = \"true\"; fix = \"true\" } }\nhooks {\n  [\"pre-commit\"] { steps = fast }\n  [\"pre-push\"] { steps = (fast) { [\"b\"] { check = \"true\" } } }\n}\n";
+const HK: &str = "amends \"pkl/Config.pkl\"\nlocal fast = new Mapping<String, Step> { [\"a\"] { glob = List(\"*.rs\"); check = \"true\"; fix = \"true\" } }\nhooks {\n  [\"pre-commit\"] { steps = (fast) { [\"c\"] { check = \"true\" } } }\n  [\"pre-push\"] { steps = (fast) { [\"b\"] { check = \"true\" } } }\n}\n";
 const AGENTS: &str = "# Agents\n\n<!-- BEGIN steps -->\n<!-- END steps -->\n";
 
 fn fixture(name: &str, agents: &str) -> Result<PathBuf> {
@@ -36,9 +36,9 @@ fn the_table_renders_then_checks() -> Result {
     let dir = fixture("render", AGENTS)?;
     assert_eq!(agents(&dir, false)?, (Some(0), String::new()));
     let text = std::fs::read_to_string(dir.join("AGENTS.md"))?;
-    let want = "| `a` | commit | `*.rs` | yes |\n| `b` | push | whole tree | - |\n";
+    let want = "| `a` | commit | `*.rs` | yes |\n| `b` | push | whole tree | - |\n| `c` | commit only | whole tree | - |\n";
     assert!(
-        text.contains("1 steps run on every commit and 2 on push") && text.contains(want),
+        text.contains("2 steps run on every commit and 2 on push") && text.contains(want),
         "{text}"
     );
     assert_eq!(agents(&dir, true)?.0, Some(0));
