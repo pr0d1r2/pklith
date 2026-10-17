@@ -2,7 +2,8 @@
 //! `pkl`, through the built binary.
 
 use std::path::{Path, PathBuf};
-use std::process::Command;
+
+mod common;
 
 type Result<T = ()> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -21,8 +22,8 @@ fn fixture(name: &str, agents: &str) -> Result<PathBuf> {
 }
 
 fn agents(dir: &Path, check: bool) -> Result<(Option<i32>, String)> {
-    let mut cmd = Command::new(env!("CARGO_BIN_EXE_pklith-dev"));
-    cmd.arg("agents").current_dir(dir);
+    let mut cmd = common::command(env!("CARGO_BIN_EXE_pklith-dev"), dir);
+    cmd.arg("agents");
     if check {
         cmd.arg("--check");
     }

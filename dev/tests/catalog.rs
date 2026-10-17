@@ -2,7 +2,8 @@
 //! binary.
 
 use std::path::{Path, PathBuf};
-use std::process::Command;
+
+mod common;
 
 type Result<T = ()> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -23,8 +24,8 @@ fn fixture(name: &str, catalog: Option<&str>, doc: &str) -> Result<PathBuf> {
 }
 
 fn catalog(dir: &Path, check: bool) -> Result<(Option<i32>, String)> {
-    let mut cmd = Command::new(env!("CARGO_BIN_EXE_pklith-dev"));
-    cmd.arg("catalog").current_dir(dir);
+    let mut cmd = common::command(env!("CARGO_BIN_EXE_pklith-dev"), dir);
+    cmd.arg("catalog");
     if check {
         cmd.arg("--check");
     }

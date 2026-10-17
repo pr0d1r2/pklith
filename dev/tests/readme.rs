@@ -4,6 +4,8 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+mod common;
+
 type Result<T = ()> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 const SCHEMA: &str = include_str!("../../pkl/Config.pkl");
@@ -35,7 +37,7 @@ fn fixture(name: &str) -> Result<PathBuf> {
         write(&dir, path, text)?;
     }
     for args in [&["init", "-q"][..], &["add", "-A"]] {
-        Command::new("git").args(args).current_dir(&dir).status()?;
+        common::command("git", &dir).args(args).status()?;
     }
     Ok(dir)
 }
@@ -48,8 +50,8 @@ fn write(dir: &Path, path: &str, text: &str) -> Result {
 
 /// Run `pklith-dev` in `dir` with `args`: its exit code and stderr.
 fn dev(dir: &Path, args: &[&str], path: Option<&str>) -> Result<(Option<i32>, String)> {
-    let mut cmd = Command::new(env!("CARGO_BIN_EXE_pklith-dev"));
-    cmd.args(args).current_dir(dir);
+    let mut cmd = common::command(env!("CARGO_BIN_EXE_pklith-dev"), dir);
+    cmd.args(args);
     if let Some(p) = path {
         cmd.env("PATH", p);
     }
