@@ -5,6 +5,8 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+mod common;
+
 type Result<T = ()> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 const CARGO: &str = "[package]\nname = \"pklith\"\nversion = \"0.0.0\"\nedition = \"2024\"\n\n[dependencies]\nmemchr = \"2\"\n";
@@ -29,8 +31,8 @@ fn fixture(name: &str, cargo: &str) -> Result<PathBuf> {
 }
 
 fn notices(dir: &Path, check: bool) -> Result<(Option<i32>, String)> {
-    let mut cmd = Command::new(env!("CARGO_BIN_EXE_pklith-dev"));
-    cmd.arg("notices").current_dir(dir);
+    let mut cmd = common::command(env!("CARGO_BIN_EXE_pklith-dev"), dir);
+    cmd.arg("notices");
     if check {
         cmd.arg("--check");
     }

@@ -17,6 +17,7 @@ sib|src|product code nodes — scan, detect, registry, catalog, rule, hook, lega
 - `io.rs` alone touches the filesystem or spawns; each verb calls it from one `run_verb`, and everything else is pure over `&str` ∴ ∀ rule testable w/ ⊥ a repository.
 - exit codes = pklith's: 0 clean · 1 drift · 2 usage | I/O.
 - same lint limits & coverage floor as the product crate (`[workspace.lints]`, `sherd coverage --workspace`).
+- tests spawn ONLY through `dev/tests/common::command`: `GIT_DIR` `GIT_INDEX_FILE` `GIT_WORK_TREE` removed (`.:V20`), as `pklith::proc::command` does for the product crate.
 
 ## §V INVARIANTS
 
@@ -42,3 +43,4 @@ T6|x|`commit-msg` & `changelog`: the commit-msg hook's rules, replacing both scr
 
 id|date|cause|fix
 B1|2026-09-27|shell badge generator counted distinct V & B ids across nodes: 36 invariants & 12 bugs for 119 & 21 (1dd1832). copied from a sibling; unit-untested ∴ looked right until quoted in prose|V4, & the move to Rust w/ tests
+B2|2026-10-17|`dev/tests` spawned `git` & `pklith-dev` w/ the hook env inherited. the gate runs `cargo test` from a hook; in a linked worktree git exports `GIT_DIR` & `GIT_INDEX_FILE` ∴ fixture `git init`/`add`/`commit` act on the developer's repo. planted: both vars at a scratch repo → `hooks` fixture committed `CHANGELOG.md` & `src/a.rs` into it|§C `common::command`, `.:V20`
