@@ -123,7 +123,7 @@ verb that uses the network.
 
 ## Known gaps
 
-- **No step timeout.** hk 1.58 has no timeout field for a step, and
+- **No step timeout.** hk 2.7.0 still has no timeout field for a step, and
   wrapping commands in `timeout` would re-quote `{{files}}`; a hung tool
   hangs the hook (`src/gen` T6).
 - **Platforms.** No x86_64-darwin (Intel macOS) and no Windows.
