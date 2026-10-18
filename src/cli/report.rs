@@ -22,7 +22,8 @@ pub(super) fn run(args: &[String], cwd: &Path) -> Outcome {
 }
 
 fn rendered(render: Render, opts: Options, cwd: &Path) -> Result<String, String> {
-    let (coverage, unbacked, universal) = super::check::judge(opts, None, cwd)?;
+    let (coverage, unbacked, universal) =
+        super::check::judge(opts, super::check::Asked::default(), cwd)?;
     let v = crate::report::Verdict {
         coverage: &coverage,
         unbacked: &unbacked,

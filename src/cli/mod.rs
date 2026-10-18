@@ -19,9 +19,10 @@ mod seed;
 
 /// Printed on stderr for a usage error (V2).
 pub const USAGE: &str = "usage: pklith <command> | --version\n
-  check [--root DIR] [--registry FILE] [--staged | --range A..B]
+  check [--root DIR] [--registry FILE] [--staged | --range A..B | --pushed]
                                          every tracked file has a type in .pklith with its checks;
-                                         --staged: only what the commit changes; a diff feeds `changed` rules
+                                         --staged: only what the commit changes; a diff feeds `changed` rules;
+                                         --pushed: the commits on no remote-tracking ref; commits feed `tdd-order`
   confirm                                accept the gate: complete, faithful, runnable, deterministic
   detect [--root DIR] [--registry FILE]  the fragments the tracked files switch on, one per line
   gen [--check]                          write hk.pklith.pkl from .pklith; --check: fail when it is stale

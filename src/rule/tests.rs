@@ -150,3 +150,33 @@ fn staged<'a>(files: &'a [String], diff: &'a [String]) -> Input<'a> {
         only_changed: true,
     }
 }
+
+/// A commit naming its changed paths, deleting none.
+fn commit(name: &str, changed: &[&str]) -> crate::scan::Commit {
+    crate::scan::Commit {
+        name: name.to_owned(),
+        changed: owned(changed),
+        deleted: Vec::new(),
+    }
+}
+
+/// T6, V6: `tdd-order` ignores a diff and judges a history: the test in
+/// an earlier or the same commit passes, a later one does not.
+#[test]
+fn tdd_order_judges_commits_in_order() -> Result<(), Error> {
+    let rows = rules("tdd|tdd-order|src/*.rs|tests/{stem}.rs|-\n")?;
+    assert!(evaluate(&rows, &staged(&owned(&[]), &owned(&["src/a.rs"]))).is_empty());
+    let history = [
+        commit("1 (t)", &["tests/a.rs"]),
+        commit("2 (a)", &["src/a.rs", "src/b.rs", "tests/c.rs"]),
+        commit("3 (c)", &["src/c.rs", "tests/b.rs"]),
+    ];
+    let failed = super::order(&rows, &history, &[]);
+    let want = Failure {
+        rule: "tdd".to_owned(),
+        source: "src/b.rs".to_owned(),
+        missing: "tests/b.rs changed in or before commit 2 (a)".to_owned(),
+    };
+    assert_eq!(failed, [want]);
+    Ok(())
+}

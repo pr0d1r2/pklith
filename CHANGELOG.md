@@ -19,6 +19,14 @@ the bytes pklith emits for the same inputs is at least a minor version
 
 ### Added
 
+- `## rules` kind `tdd-order` (#65): every commit that changes a selected
+  file changes its target in that commit or an earlier one. It runs only
+  over commits: `pklith check --pushed` (new: the commits on no
+  remote-tracking ref), `--range A..B`, or `--staged` (the commit being
+  made, after the unpushed ones). Commits before those are never judged,
+  so there is no baseline file; a deletion demands nothing and a rename
+  follows the new name. A failure names the file, its target and the
+  commit. #88's SwiftPM `swift-test` select and target work unchanged.
 - `pklith::scan::history`: the commits of a range, of `HEAD --not
   --remotes` (what a push is about to send), or those plus the index,
   oldest first with merges skipped, each with the paths it changed and

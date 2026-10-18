@@ -95,6 +95,7 @@ lists: the files the rule applies to, and those it leaves out.
 | `mentions` | a file matching the target glob contains the rendered pattern; `target` is `<glob> :: <pattern>`, and the pattern is literal, never a regex |
 | `changed` | the target changed whenever the source did; needs a diff, so it runs only under `pklith check --staged` or `--range A..B` |
 | `orphan` | the reverse of `exists`: a target left behind with no source |
+| `tdd-order` | every commit that changes a source changes its target in the same commit or an earlier one; needs commits, so it runs only under `pklith check --pushed`, `--range A..B` or `--staged` |
 
 `target` is a template. Variables are `{path}`, `{dir}`, `{stem}` and `{ext}`,
 each optionally followed by filters: `{stem|plural}`. Inside a cell the
@@ -109,6 +110,54 @@ id|kind|select|target|except
 paired|exists|src/**/*.rs|tests/{stem}.rs|src/main.rs
 doc|exists|lib/*.rb|docs/{stem\|plural}.md|-
 ```
+
+### `tdd-order`: tests first, judged at push
+
+```text
+## rules
+id|kind|select|target|except
+swift-tdd|tdd-order|Sources/*.swift|Tests/{stem}Tests.swift|Sources/HPKE.swift, Sources/Stream.swift
+```
+
+A commit that changes `Sources/X.swift` must change `Tests/XTests.swift`
+in that commit or in an earlier one of the commits judged. The rule reads
+paths only, never file content, so it works the same for XCTest, Swift
+Testing, or any other framework.
+
+- **Which commits.** `--pushed` judges the commits on no remote-tracking
+  ref (`git log HEAD --not --remotes`), which is what a push is about to
+  send; `--range A..B` judges those; `--staged` judges the commit being
+  made, after the unpushed ones. Merge commits are skipped. Without one of
+  these flags the rule does not run.
+- **Grandfathering.** Only those commits are judged. History before them is
+  never re-judged, so there is no baseline file: an untested file that
+  nobody changes demands nothing. Once it changes, its test must change
+  first or with it. A file that will never have its own test goes in
+  `except`.
+- **Deletions and renames.** Deleting a source needs no test change, and
+  deleting a test does not count as changing it. A rename follows the new
+  name: renaming `Sources/A.swift` to `Sources/B.swift` wants
+  `Tests/BTests.swift` changed, and renaming the test with it counts.
+- **A failure** names the rule, the source, the target it wanted, and the
+  commit, as `<short id> (<subject>)`.
+
+The rule runs where `pklith check --pushed` runs. Add it as a `test` check,
+claimed by the registry's own type, so `pklith gen` puts it at pre-push
+(test checks run at push, never on commit):
+
+```text
+## checks
+id|category|nix|glob|check|fix|env|msg
+tdd-order|test|-|-|pklith check --pushed|-|-|a commit changed a file before its test; commit the test first or with it
+
+## types
+type|checks|min|exempt
+pklith|pklith-check, tdd-order|-|-
+```
+
+In CI the checkout's commits are already on the remote, so the step there
+judges nothing; with full history fetched, `pklith check --range
+origin/main..HEAD` judges a pull request's commits instead.
 
 Rules are what `lefthook-unit-coverage`'s `mirror`, `flat`, `strip`,
 `test_suffix`, `test_ext` and `normalize` become.

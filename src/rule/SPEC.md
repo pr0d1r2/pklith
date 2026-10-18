@@ -54,7 +54,7 @@ T2|x|`exists` + `orphan`|V4
 T3|x|`mentions` (factory_bot `factory :{stem\|snake}` under `spec/factories/**`)|V2
 T4|x|`changed` over staged diff|V3
 T5|x|test: editing file content flips only `mentions` results|V5
-T6|.|`tdd-order` + `check --pushed`; tests: test-first & same-commit pass, impl-first fails naming file & commit, `except`, deletion, SwiftPM tree w/ #88's `swift-test` select & target unchanged|V6,V7,V8
+T6|x|`tdd-order` + `check --pushed`; tests: test-first & same-commit pass, impl-first fails naming file & commit, `except`, deletion, SwiftPM tree w/ #88's `swift-test` select & target unchanged|V6,V7,V8
 
 ## §B BUGS
 
