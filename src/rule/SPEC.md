@@ -55,6 +55,7 @@ T3|x|`mentions` (factory_bot `factory :{stem\|snake}` under `spec/factories/**`)
 T4|x|`changed` over staged diff|V3
 T5|x|test: editing file content flips only `mentions` results|V5
 T6|x|`tdd-order` + `check --pushed`; tests: test-first & same-commit pass, impl-first fails naming file & commit, `except`, deletion, SwiftPM tree w/ #88's `swift-test` select & target unchanged|V6,V7,V8
+T7|.|test: #88's SwiftPM mirror rows on a toy fork tree (`Sources/<S>.swift`, upstream `Tests/<S>Tests.swift`, fork `Tests/Fork/<S>ForkTests.swift`, helpers ⊥ `*Tests.swift`) through the built binary: full tree passes; untested source fails `exists` naming the fork test; fork & upstream test w/o source fail `orphan` (`*` crosses `/`); dropping `except` fails on `Tests/StanzaTests.swift`; helpers ⊥ selected; same select & target as `tdd-order` row parses|V1,V4
 
 ## §B BUGS
 
