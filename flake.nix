@@ -228,6 +228,7 @@
             pkgs.gawk
             pkgs.bats
             pkgs.gnugrep
+            pkgs.swift-format
             itok.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];
           RUST_BACKTRACE = "1";

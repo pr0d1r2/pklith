@@ -8,6 +8,14 @@ the bytes pklith emits for the same inputs is at least a minor version
 
 ## [Unreleased]
 
+### Added
+
+- Built-in check `swift-format` (format): `swift-format lint --strict` on
+  `**/*.swift`, fixed by `swift-format format --in-place`.
+- Built-in fragment `swift`, switched on by `Package.swift` or any `.swift`
+  file; `pklith seed` adds `/.build/`, `/.swiftpm/` and `*.profraw` to
+  `.gitignore`.
+
 ## [0.1.0] - 2026-09-27
 
 ### Changed

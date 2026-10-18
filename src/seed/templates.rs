@@ -13,7 +13,7 @@ pub enum Template {
 }
 
 /// Every seed id, in no particular order; fragment order decides output.
-pub const TEMPLATES: [(&str, Template); 13] = [
+pub const TEMPLATES: [(&str, Template); 14] = [
     (
         "editorconfig",
         Template::File(".editorconfig", EDITORCONFIG),
@@ -41,6 +41,10 @@ pub const TEMPLATES: [(&str, Template); 13] = [
         Template::Ignore(".direnv/\nresult\nresult-*\n"),
     ),
     ("ignore-rust", Template::Ignore("/target\n")),
+    (
+        "ignore-swift",
+        Template::Ignore("/.build/\n/.swiftpm/\n*.profraw\n"),
+    ),
     (
         "ignore-ruby",
         Template::Ignore("/vendor/bundle\n/.bundle\n"),

@@ -12,6 +12,11 @@ format 1
 # rubocop sets GEM_HOME: with none set, RubyGems falls back to the user gem
 # dir because the nix store is read-only, and loads whatever native gems a
 # different Ruby built there. /nonexistent is only read, never installed to.
+#
+# swift-format is nixpkgs' 5.10.1 (`--version` prints 508.0.0): it parses
+# the Swift 5.10 grammar, so newer syntax (a typed `throws(E)`) can
+# misparse; such a repository replaces the row with the host toolchain's
+# `swift format`.
 
 ## checks
 id|category|nix|glob|check|fix|env|msg
@@ -29,6 +34,7 @@ nixfmt|format|nixfmt|**/*.nix|nixfmt --check {{files}}|nixfmt {{files}}|-|nix fi
 shfmt|format|shfmt|**/*.sh, **/*.bash|shfmt --diff {{files}}|shfmt --write {{files}}|-|shell script not formatted
 taplo|format|taplo|**/*.toml|taplo fmt --check {{files}}|taplo fmt {{files}}|-|TOML not formatted or not parseable
 rustfmt|format|rustfmt|**/*.rs|cargo fmt --check|cargo fmt|-|Rust not formatted
+swift-format|format|swift-format|**/*.swift|swift-format lint --strict {{files}}|swift-format format --in-place {{files}}|-|Swift not formatted
 typos|lint|typos|**/*|typos --force-exclude {{files}}|-|-|misspelling; fix it or teach .typos.toml
 shellcheck|lint|shellcheck|**/*.sh, **/*.bash, .envrc|shellcheck {{files}}|-|-|shell script finding
 clippy|lint|clippy|**/*.rs, Cargo.toml, clippy.toml|cargo clippy --workspace --all-targets -q -- -D warnings|-|-|clippy finding
@@ -71,5 +77,6 @@ markdown|**/*.md|markdownlint|-
 yaml|**/*.yml, **/*.yaml|yamllint|-
 toml|**/*.toml|taplo|-
 rust|**/Cargo.toml, **/*.rs|rustfmt, clippy|ignore-rust
+swift|**/Package.swift, **/*.swift|swift-format|ignore-swift
 spec|**/SPEC.md|mth-fmt, mth-check, sherd-check, sherd-nav, sherd-budget|-
 context|.context-limits|itok|-

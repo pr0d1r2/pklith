@@ -144,10 +144,10 @@ mod tests {
     /// order.
     #[test]
     fn gitignore_gathers_parts_in_fragment_order() -> Result<(), String> {
-        let seeds = seeded(&["nix", "rust"])?;
+        let seeds = seeded(&["nix", "rust", "swift"])?;
         assert_eq!(
             text(&seeds, ".gitignore"),
-            Some(".direnv/\nresult\nresult-*\n/target\n")
+            Some(".direnv/\nresult\nresult-*\n/target\n/.build/\n/.swiftpm/\n*.profraw\n")
         );
         Ok(())
     }

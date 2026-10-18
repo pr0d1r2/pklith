@@ -29,7 +29,7 @@ mod tests {
     /// Cases ported from set-and-setting's `tests/detect-fragments.bats`,
     /// for the fragments pklith ships: its expectations, less the dropped
     /// fragments (ruby, rspec, ascii, …).
-    const CASES: [(&str, &[&str], &[&str]); 16] = [
+    const CASES: [(&str, &[&str], &[&str]); 17] = [
         (
             ".bats files detect bats",
             &["tests/a.bats"],
@@ -80,6 +80,11 @@ mod tests {
             "nested files are detected",
             &["a/b/c.sh", "d/e.nix"],
             &["base", "nix", "shell"],
+        ),
+        (
+            "a SwiftPM package detects swift",
+            &["Package.swift", "Sources/A/a.swift"],
+            &["base", "swift"],
         ),
         (
             "spec and rust",

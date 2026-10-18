@@ -265,6 +265,7 @@ proven! {
     shfmt => "shfmt": [file("a.sh", "if true;then echo;fi\n")], [file("a.sh", "if true; then echo; fi\n")];
     taplo => "taplo": [file("a.toml", "a=1\n")], [file("a.toml", "a = 1\n")];
     rustfmt => "rustfmt": crate_with("pub fn f(){}\n"), crate_with("pub fn f() {}\n");
+    swift_format => "swift-format": [file("a.swift", "let answer=1\n")], [file("a.swift", "let answer = 1\n")];
     rustfmt_workspace => "rustfmt": workspace_with("pub fn f(){}\n"), workspace_with("pub fn f() {}\n");
     typos => "typos": [File("a.txt", format!("the t{}h cat\n", "e"))], [file("a.txt", "the cat\n")];
     shellcheck => "shellcheck": [file("a.sh", "#!/bin/sh\necho $1\n")], [file("a.sh", "#!/bin/sh\necho \"$1\"\n")];

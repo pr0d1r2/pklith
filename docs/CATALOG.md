@@ -39,6 +39,7 @@ first: `hygiene`, `secret`, `format`, `lint`, `spec`, `test`, `coverage`,
 | `shfmt` | format | `shfmt` | `**/*.sh` `**/*.bash` | yes | shell script not formatted |
 | `taplo` | format | `taplo` | `**/*.toml` | yes | TOML not formatted or not parseable |
 | `rustfmt` | format | `rustfmt` | `**/*.rs` | yes | Rust not formatted |
+| `swift-format` | format | `swift-format` | `**/*.swift` | yes | Swift not formatted |
 | `typos` | lint | `typos` | `**/*` | - | misspelling; fix it or teach .typos.toml |
 | `shellcheck` | lint | `shellcheck` | `**/*.sh` `**/*.bash` `.envrc` | - | shell script finding |
 | `clippy` | lint | `clippy` | `**/*.rs` `Cargo.toml` `clippy.toml` | - | clippy finding |
@@ -76,6 +77,7 @@ first: `hygiene`, `secret`, `format`, `lint`, `spec`, `test`, `coverage`,
 | `yaml` | `**/*.yml` `**/*.yaml` | `yamllint` | - |
 | `toml` | `**/*.toml` | `taplo` | - |
 | `rust` | `**/Cargo.toml` `**/*.rs` | `rustfmt` `clippy` | `ignore-rust` |
+| `swift` | `**/Package.swift` `**/*.swift` | `swift-format` | `ignore-swift` |
 | `spec` | `**/SPEC.md` | `mth-fmt` `mth-check` `sherd-check` `sherd-nav` `sherd-budget` | - |
 | `context` | `.context-limits` | `itok` | - |
 <!-- END catalog -->
