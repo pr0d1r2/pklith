@@ -53,8 +53,10 @@ T4|x|`env` column: gen emits it; test: step w/ unset required env ⊥ emitted|`.
 T5|x|test: ∀ built-in `check` resolves to a binary of its `nix` attr; `npx`/`pipx run`/`curl` in a row → rejected|`.:V29`
 T6|x|fragment rows: parse, non-empty (`.:V18`), built-in fragments ported from set-and-setting + completeness test|`.:V16`,`.:V17`,`.:V18`
 T7|x|swift: rows `swift-format` (format, nix `swift-format`) & `swiftlint` (lint, nix `swiftlint`), fragment `swift` (triggers `**/Package.swift`, `**/*.swift`; seed `swiftlint`, `ignore-swift`); 1 fixture per row|V1,V2,V4,`.:V17`,`.:V30`
+T8|.|`.context-limits` has 2 readings: fragment `spec` row `sherd-budget` = chain ceilings, fragment `context` row `itok` = per-file ceilings; a repo w/ both fragments active cannot pass both. pick 1 meaning per file (e.g. itok reads its own path, `.:T71`), then test: repo w/ `SPEC.md` + `.context-limits` → ⊥ 2 rows reading 1 file 2 ways. open: which (issue #94)|B2,`.:B11`,`.:V9`
 
 ## §B BUGS
 
 id|date|cause|fix
 B1|2026-09-27|built-in `rubocop` w/o `GEM_HOME`: RubyGems falls back to user gem dir (nix store read-only) ∴ loads native gems of another Ruby → crash|row sets `GEM_HOME=/nonexistent`; fixture harness keeps real HOME so the host env is what gets proven
+B2|2026-10-18|age-plugin-se PR #5 (open, head `8b4151a`): seeded gate activates `spec` & `context` on 1 `.context-limits` holding sherd chain ceilings; `itok` reads them per FILE & refuses root `SPEC.md` ∴ itok row deferred. root B11 = same clash in pklith's own gate, fragment-level ⊥ fixed|T8 open

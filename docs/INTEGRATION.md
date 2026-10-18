@@ -70,6 +70,11 @@ On a repository with no gate yet:
 If you would rather not have one commit per check, `pklith gen` writes every
 step at once for a single commit of your own.
 
+A repository with code and history of its own, such as a fork, needs a
+little more: baselines for findings already there, local rows for tools nix
+cannot supply, and proofs that keep off shared git state.
+[EXISTING-REPO.md](EXISTING-REPO.md) walks through one.
+
 ## Keeping it true
 
 A new file type is a **gap**: `pklith check` fails naming it until `.pklith`
