@@ -59,7 +59,15 @@ pub(super) fn words(bytes: &[u8]) -> Result<Vec<String>, Error> {
 
 #[cfg(test)]
 mod tests {
-    use super::{Error, paths};
+    use super::{Diff, Error, changed, paths};
+
+    /// A range git would read as an option is refused before git runs;
+    /// `check` reaches scan's history first, which refuses it the same way.
+    #[test]
+    fn a_range_like_an_option_is_refused() {
+        let got = changed(std::path::Path::new("."), &Diff::Range("-x".to_owned()));
+        assert!(matches!(got, Err(Error::Malformed(_))), "{got:?}");
+    }
 
     /// NUL-separated paths come back sorted and unique; one that is not
     /// UTF-8 is an error naming it (scan V4).

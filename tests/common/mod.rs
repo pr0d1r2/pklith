@@ -2,6 +2,8 @@
 //! and a way to run the built binary. Each test file uses a subset.
 #![allow(dead_code)]
 
+pub mod commits;
+
 use std::path::{Path, PathBuf};
 use std::process::Command;
 

@@ -33,15 +33,12 @@ pub struct Commit {
 ///
 /// # Errors
 ///
-/// [`Error::Git`] when git fails, as for an unknown revision; a range
-/// starting with `-`, which git would read as an option; a path that is
-/// not UTF-8.
+/// [`Error::Git`] when git fails, as for an unknown revision (a range
+/// starting with `-` is a revision here, never an option); a path that
+/// is not UTF-8.
 pub fn history(root: &Path, span: &Span) -> Result<Vec<Commit>, Error> {
     let revs = match span {
-        Span::Range(range) if range.starts_with('-') => {
-            return Err(Error::Malformed(format!("range `{range}` is not A..B")));
-        }
-        Span::Range(range) => vec![range.as_str()],
+        Span::Range(range) => vec!["--end-of-options", range.as_str()],
         Span::Pushed | Span::Staged if !born(root) => Vec::new(),
         Span::Pushed | Span::Staged => vec!["HEAD", "--not", "--remotes"],
     };
@@ -115,11 +112,11 @@ mod tests {
     use super::{Error, Span, commit, history};
     use std::path::Path;
 
-    /// A range git would read as an option is refused before git runs.
+    /// A range starting with `-` is a revision to git, never an option.
     #[test]
-    fn a_range_like_an_option_is_refused() {
-        let got = history(Path::new("."), &Span::Range("-x".to_owned()));
-        assert!(matches!(got, Err(Error::Malformed(_))), "{got:?}");
+    fn a_range_like_an_option_is_a_revision() {
+        let got = history(Path::new("."), &Span::Range("--all".to_owned()));
+        assert!(matches!(got, Err(Error::Git(_))), "{got:?}");
     }
 
     type Result<T = ()> = std::result::Result<T, Box<dyn std::error::Error>>;
