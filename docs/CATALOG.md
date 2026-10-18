@@ -75,7 +75,7 @@ first: `hygiene`, `secret`, `format`, `lint`, `spec`, `test`, `coverage`,
 | `rubocop` | `**/.rubocop.yml` `**/*.gemspec` | `rubocop` | `rubocop` `ignore-ruby` |
 | `xml` | `**/*.xml` | `xmllint` | - |
 | `awk` | `**/*.awk` | `gawk-lint` | - |
-| `bats` | `**/*.bats` | `bats-parse` `bats-unit` | - |
+| `bats` | `**/*.bats` | `bats-parse` `bats-changed` `bats-unit` | - |
 | `markdown` | `**/*.md` | `markdownlint` | - |
 | `yaml` | `**/*.yml` `**/*.yaml` | `yamllint` | - |
 | `toml` | `**/*.toml` | `taplo` | - |
