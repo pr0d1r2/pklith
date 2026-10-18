@@ -19,6 +19,10 @@ the bytes pklith emits for the same inputs is at least a minor version
 
 ### Added
 
+- `pklith::scan::history`: the commits of a range, of `HEAD --not
+  --remotes` (what a push is about to send), or those plus the index,
+  oldest first with merges skipped, each with the paths it changed and
+  deleted; a rename deletes its old path and changes its new one.
 - Built-in check `swift-format` (format): `swift-format lint --strict` on
   `**/*.swift`, fixed by `swift-format format --in-place`.
 - Built-in fragment `swift`, switched on by `Package.swift` or any `.swift`

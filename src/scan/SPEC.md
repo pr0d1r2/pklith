@@ -52,7 +52,7 @@ T1|x|`git ls-files -z` source + `--root` walk source|V3,V4
 T2|x|basename → candidate types fn + table tests vs legacy sed outputs|V1,V2,`.:R1`,`.:R2`
 T3|x|edge cases: multi-dot `foo.spec.ts`, dotfiles `.gitignore`/`.editorconfig`, empty repo, name w/ newline|V1,V2,`.:R8`
 T4|x|golden: output order stable across git & walk sources|V5
-T5|.|history of a range, `--pushed` & `--staged` for `tdd-order` (rule V6)|V6,V7
+T5|x|history of a range, `--pushed` & `--staged` for `tdd-order` (rule V6)|V6,V7
 
 ## §B BUGS
 
