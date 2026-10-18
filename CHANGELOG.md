@@ -8,6 +8,15 @@ the bytes pklith emits for the same inputs is at least a minor version
 
 ## [Unreleased]
 
+### Changed
+
+- `pklith gen` writes `test`-category checks into the `push` mapping of
+  `hk.pklith.pkl`, beside `coverage`, instead of `steps`: a seeded gate
+  runs the test suite at pre-push and `hk check`, not on every commit, so
+  a failing test can be committed before its fix (#54). The seeded
+  `hk.pkl` comment says so. A hand-written `hk.pkl` that amends a test
+  step by its id in the commit steps must amend it from `push` instead.
+
 ### Added
 
 - Built-in check `swift-format` (format): `swift-format lint --strict` on

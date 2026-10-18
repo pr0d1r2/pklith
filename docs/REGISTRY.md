@@ -73,7 +73,7 @@ id adds one.
 
 | column | meaning |
 |---|---|
-| `category` | `hygiene`, `secret`, `format`, `lint`, `spec`, `test`, `coverage`, `supply` or `gate`. `pklith lay` lays checks in that order, cheapest and broadest first. `coverage` checks run at push, the rest at commit. |
+| `category` | `hygiene`, `secret`, `format`, `lint`, `spec`, `test`, `coverage`, `supply` or `gate`. `pklith lay` lays checks in that order, cheapest and broadest first. `test` and `coverage` checks run at push, the rest at commit, so a failing test can be committed before its fix. |
 | `nix` | the nix attribute providing the binary, emitted into `nix/pklith.nix`; `-` for hk's own utilities |
 | `glob` | the runner globs, emitted verbatim into the hk step |
 | `check` | the command. `{{files}}` expands to the matched files. |

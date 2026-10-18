@@ -41,8 +41,6 @@ local fast = (generated.steps) {
   ["sherd-budget"] { depends = List("sherd-nav") }
   ["file-ceilings"] { depends = List("sherd-check") }
   ["clippy"] { depends = List("rustfmt") }
-  ["test"] { depends = List("clippy") }
-  ["doctest"] { depends = List("test") }
   ["rustdoc"] { depends = List("clippy") }
   // Every step that runs `cargo run` waits for this build. Started together
   // on a stale binary, one cargo re-links the executable while another is
@@ -108,11 +106,15 @@ local fast = (generated.steps) {
   }
 }
 
-/// Run on push and in CI: everything in `fast`, plus the generated push steps,
+/// Run on push and in CI: everything in `fast`, plus the generated push steps
+/// (the test suites and coverage: gen V8, so a RED commit passes pre-commit),
 /// the re-lay reproduction (T45), which lays every check into a copy of HEAD
 /// through real hooks, and the nix package build (T62): minutes, too slow for
-/// each commit.
+/// each commit. A push step is added by name, not amended: amending an id
+/// `fast` lacks makes a step with no command.
 local all = (fast) {
+  ["test"] = (generated.push["test"]) { depends = List("clippy") }
+  ["doctest"] = (generated.push["doctest"]) { depends = List("test") }
   ["coverage"] = (generated.push["coverage"]) { depends = List("test") }
   ["relay"] {
     check = "scripts/relay.sh"

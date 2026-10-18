@@ -89,7 +89,9 @@ const HK: &str = r#"amends "pkl/Config.pkl"
 
 // Seeded by `pklith seed`; yours to edit. The steps come from hk.pklith.pkl,
 // which `pklith gen` and `pklith lay` write from .pklith: shape them here
-// (excludes, depends) by amending a step by its id.
+// (excludes, depends) by amending a step by its id. `steps` run on every
+// commit; `push` holds the test and coverage checks, which run at pre-push
+// and `hk check`, so a commit can hold a failing test before its fix.
 import "hk.pklith.pkl" as generated
 
 local all = (generated.steps) { ...generated.push }

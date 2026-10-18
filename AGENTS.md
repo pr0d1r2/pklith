@@ -18,7 +18,7 @@ Notes for anyone, human or agent, changing this repository.
 ## The gate
 
 <!-- BEGIN steps: generated from hk.pkl by `cargo run -p pklith-dev -- agents`; do not edit -->
-42 steps run on every commit and 48 on push and `hk check`; the commit-msg hook checks the message.
+40 steps run on every commit and 48 on push and `hk check`; the commit-msg hook checks the message.
 
 | step | runs on | files | fixes |
 |---|---|---|---|
@@ -48,8 +48,6 @@ Notes for anyone, human or agent, changing this repository.
 | `sherd-nav` | commit | `**/SPEC.md` | yes |
 | `sherd-budget` | commit | `**/SPEC.md` `.context-limits` | - |
 | `file-ceilings` | commit | `**/*.rs` | - |
-| `test` | commit | `**/*.rs` `Cargo.toml` `Cargo.lock` `src/catalog/builtin.pklith` | - |
-| `doctest` | commit | `**/*.rs` `Cargo.toml` | - |
 | `flake-lock-graph` | commit | `flake.lock` | - |
 | `deny` | commit | `Cargo.toml` `Cargo.lock` `deny.toml` | - |
 | `catalog-nix` | commit | `src/catalog/builtin.pklith` `flake.nix` `flake.lock` `scripts/catalog-nix.sh` | - |
@@ -63,6 +61,8 @@ Notes for anyone, human or agent, changing this repository.
 | `cli-doc` | commit | `src/cli/mod.rs` `docs/CLI.md` `dev/**` | yes |
 | `schema-pin` | commit | `pkl/**` `flake.lock` `scripts/schema-pin.sh` | - |
 | `hk-parity` | commit | `hk.pkl` `hk.pklith.pkl` `pkl/**` `scripts/hk-parity.sh` | - |
+| `test` | push | `**/*.rs` `Cargo.toml` `Cargo.lock` `src/catalog/builtin.pklith` | - |
+| `doctest` | push | `**/*.rs` `Cargo.toml` | - |
 | `coverage` | push | `**/*.rs` `Cargo.toml` `.coverage` | - |
 | `relay` | push | whole tree | - |
 | `deny-advisories` | push | `Cargo.toml` `Cargo.lock` `deny.toml` | - |
