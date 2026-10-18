@@ -3,9 +3,13 @@
 A worked example of materializing pklith's gate in a repository that
 already has code, history and an upstream it must not rewrite. The example
 is [age-plugin-se PR #5](https://github.com/pr0d1r2/age-plugin-se/pull/5),
-a fork of an upstream age plugin written in Swift. The PR is still open; what
-follows describes its head `8b4151a` as of 2026-10-18 and may change before
-it merges.
+a fork of an upstream age plugin written in Swift, merged on 2026-10-18 as
+`bd8b6a7` (its last commit `8b4151a`). It is the
+[guardrails](https://github.com/pr0d1r2/paradigm/blob/main/docs/guardrails/README.md)
+stage of [paradigm](https://github.com/pr0d1r2/paradigm), which also has a
+page on the
+[gate](https://github.com/pr0d1r2/paradigm/blob/main/docs/gate/README.md)
+it builds.
 
 After `pklith seed --init`, the PR adds 36 commit steps, 3 push steps and 2
 commit-msg steps, one check per commit, each body recording the planted
