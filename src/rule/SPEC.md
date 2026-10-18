@@ -2,14 +2,14 @@
 
 ## §G GOAL
 
-Companion rules: ∀ file matching a selector, something ! exist | be mentioned | change with it.
+Companion rules: ∀ file matching a selector, something ! exist | be mentioned | change with it | change before it.
 
 ## §N NAV
 
 rel|path|lens
 up|.|-
 up|src|product code nodes — scan, detect, registry, catalog, rule, hook, legacy, cover, map, report, gen, lay, seed, confirm, migrate, protect, cli
-self|src/rule|companion rules: exists, mentions, changed, orphan; path templates
+self|src/rule|companion rules: exists, mentions, changed, orphan, tdd-order; path templates
 sib|src/proc|run external programs one way: git hook env scrubbed, failures named
 sib|src/scan|enumerate files, basename → exactly 1 file type
 sib|src/detect|active fragments from scanned files, fixed order
@@ -30,7 +30,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 ## §C CONSTRAINTS
 
-- row: `id|kind|select|target|except`; `select` & `except` = glob lists. kinds: `exists` (path template) · `mentions` (target `<glob> :: <pattern template>`) · `changed` (target changes when source changes; diff input) · `orphan` (reverse: target w/o source).
+- row: `id|kind|select|target|except`; `select` & `except` = glob lists. kinds: `exists` (path template) · `mentions` (target `<glob> :: <pattern template>`) · `changed` (target changes when source changes; diff input) · `orphan` (reverse: target w/o source) · `tdd-order` (target changes in the same commit as the source | an earlier one of the history; history input, #65).
 - template vars `{path} {dir} {stem} {ext}`, written `{var|filter|…}`; inside a `.pklith` cell each `|` is `\|` (FORMAT cell rule); filters `strip:<prefix>` `chop:<suffix>` `suffix:<s>` `ext:<e>` `snake` `dash` `plural`. rendered `//` collapses ∴ empty `{dir}` ⊥ breaks a path.
 - `plural` = `## plural` table first, then fixed suffix rules (consonant+`y`→`ies`; `s x z ch sh`→`+es`; else `+s`). ⊥ inflector guess.
 - ⊥ `spec_bigger`, ⊥ `mentioning_methods` — quality proxies (`.:R10`).
@@ -42,6 +42,9 @@ V2: `mentions` pattern = LITERAL after render, ⊥ regex built from file text
 V3: `changed` runs only w/ explicit diff input (`--staged` | range); ⊥ guess base
 V4: unit-coverage `mirror`/`flat`/`strip`/`test_suffix`/`test_ext`/`normalize` ∀ expressible as `exists` rule (`.:R9`)
 V5: ⊥ rule result depends on file content except `mentions`
+V6: `tdd-order` runs only w/ history (`--range` | `--pushed` | `--staged`, root §I); ∀ commit C changing selected S: target T changed in C | a commit before C in the history, else fail naming S, T & C. framework-agnostic: path relation only
+V7: grandfathering = the history bound: commits before it ⊥ judged, ⊥ baseline file ∴ a file unchanged in the history demands nothing; a file exempt for good = `except`
+V8: deleting S demands nothing; deleting T ⊥ counts as changing it; rename follows the NEW name (scan V7) ∴ renamed S demands T rendered from the new path, renamed T counts at its new path
 
 ## §T TASKS
 
@@ -51,6 +54,7 @@ T2|x|`exists` + `orphan`|V4
 T3|x|`mentions` (factory_bot `factory :{stem\|snake}` under `spec/factories/**`)|V2
 T4|x|`changed` over staged diff|V3
 T5|x|test: editing file content flips only `mentions` results|V5
+T6|.|`tdd-order` + `check --pushed`; tests: test-first & same-commit pass, impl-first fails naming file & commit, `except`, deletion, SwiftPM tree w/ #88's `swift-test` select & target unchanged|V6,V7,V8
 
 ## §B BUGS
 

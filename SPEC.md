@@ -49,7 +49,7 @@ self|.|-
 
 ## §I INTERFACES
 
-- cmd: `pklith check [--root DIR] [--registry FILE] [--staged|--range A..B]` → gate verdict; `--registry` judges a repo w/o writing into it; `--staged` judges only what the commit changes (cover V8); any diff feeds `changed` rules: type gaps, stale, claim ⊥ backed by runner, rule gaps. 0 ok / 1 finding / 2 usage | unreadable
+- cmd: `pklith check [--root DIR] [--registry FILE] [--staged|--range A..B|--pushed]` → gate verdict; `--registry` judges a repo w/o writing into it; `--staged` judges only what the commit changes (cover V8); `--pushed` = commits on ⊥ remote-tracking ref (`HEAD --not --remotes`); any diff feeds `changed` rules, its commits `tdd-order` rules (rule V6): type gaps, stale, claim ⊥ backed by runner, rule gaps. 0 ok / 1 finding / 2 usage | unreadable
 - cmd: `pklith report [--root DIR] [--registry FILE] [--format text|json|md]` → matrix file type × check w/ file counts + findings (json versioned, md = legacy linter-coverage table). exit 0 unless usage
 - cmd: `pklith gen [--check]` → write `hk.pklith.pkl`, `nix/pklith.nix`, AGENTS.md step table block, & shared tool configs of active fragments (gitignored, V25). `--check` writes ⊥, exit 1 if stale
 - cmd: `pklith lay [--only ID,…] [--dry-run]` → 1 commit per missing check, fixed order, hooks ON, red → rollback (src/lay)

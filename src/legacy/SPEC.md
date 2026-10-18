@@ -15,7 +15,7 @@ sib|src/scan|enumerate files, basename → exactly 1 file type
 sib|src/detect|active fragments from scanned files, fixed order
 sib|src/registry|`.pklith` parse/fmt: types → check sets, rules, plural, exempt
 sib|src/catalog|check definitions: category, nix attr, runner glob, hk step, fix, failure msg
-sib|src/rule|companion rules: exists, mentions, changed, orphan; path templates
+sib|src/rule|companion rules: exists, mentions, changed, orphan, tdd-order; path templates
 sib|src/hook|read effective hk config via `pkl eval`: step → globs
 sib|src/cover|verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps
 sib|src/map|guard mode: changed paths → covering specs
