@@ -144,11 +144,20 @@ mod tests {
     /// order.
     #[test]
     fn gitignore_gathers_parts_in_fragment_order() -> Result<(), String> {
-        let seeds = seeded(&["nix", "rust"])?;
+        let seeds = seeded(&["nix", "rust", "swift"])?;
         assert_eq!(
             text(&seeds, ".gitignore"),
-            Some(".direnv/\nresult\nresult-*\n/target\n")
+            Some(".direnv/\nresult\nresult-*\n/target\n/.build/\n/.swiftpm/\n*.profraw\n")
         );
+        Ok(())
+    }
+
+    /// Swift seeds its swiftlint config and a `.gitignore` part (T4).
+    #[test]
+    fn swift_seeds_a_swiftlint_config() -> Result<(), String> {
+        let seeds = seeded(&["swift"])?;
+        let paths: Vec<&str> = seeds.iter().map(|s| s.path).collect();
+        assert_eq!(paths.join(" "), ".swiftlint.yml .gitignore");
         Ok(())
     }
 

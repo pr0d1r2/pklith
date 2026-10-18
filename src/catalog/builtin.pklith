@@ -12,6 +12,17 @@ format 1
 # rubocop sets GEM_HOME: with none set, RubyGems falls back to the user gem
 # dir because the nix store is read-only, and loads whatever native gems a
 # different Ruby built there. /nonexistent is only read, never installed to.
+#
+# swift-format is nixpkgs' 5.10.1 (`--version` prints 508.0.0): it parses
+# the Swift 5.10 grammar, so newer syntax (a typed `throws(E)`) can
+# misparse; such a repository replaces the row with the host toolchain's
+# `swift format`.
+#
+# swiftlint on macOS loads sourcekitd from the host's Xcode at run time
+# (through xcode-select or DEVELOPER_DIR), so on a Mac without Xcode the
+# step fails at start, not at a finding; on Linux nixpkgs ships upstream's
+# static binary. Its runner glob is the .swift files only: given nothing
+# but .swiftlint.yml, swiftlint fails with "No lintable files".
 
 ## checks
 id|category|nix|glob|check|fix|env|msg
@@ -29,6 +40,7 @@ nixfmt|format|nixfmt|**/*.nix|nixfmt --check {{files}}|nixfmt {{files}}|-|nix fi
 shfmt|format|shfmt|**/*.sh, **/*.bash|shfmt --diff {{files}}|shfmt --write {{files}}|-|shell script not formatted
 taplo|format|taplo|**/*.toml|taplo fmt --check {{files}}|taplo fmt {{files}}|-|TOML not formatted or not parseable
 rustfmt|format|rustfmt|**/*.rs|cargo fmt --check|cargo fmt|-|Rust not formatted
+swift-format|format|swift-format|**/*.swift|swift-format lint --strict {{files}}|swift-format format --in-place {{files}}|-|Swift not formatted
 typos|lint|typos|**/*|typos --force-exclude {{files}}|-|-|misspelling; fix it or teach .typos.toml
 shellcheck|lint|shellcheck|**/*.sh, **/*.bash, .envrc|shellcheck {{files}}|-|-|shell script finding
 clippy|lint|clippy|**/*.rs, Cargo.toml, clippy.toml|cargo clippy --workspace --all-targets -q -- -D warnings|-|-|clippy finding
@@ -43,6 +55,7 @@ xmllint|lint|libxml2|**/*.xml|xmllint --noout {{files}}|-|-|XML is not well-form
 gawk-lint|lint|gawk|**/*.awk|(for f in {{files}}; do gawk --lint=fatal --pretty-print=/dev/null -f "$f" \|\| exit 1; done)|-|-|awk script does not parse, or trips gawk's lint
 bats-parse|lint|bats|**/*.bats|bats --count {{files}} >/dev/null|-|-|bats file does not parse
 editorconfig-checker|lint|editorconfig-checker|**/*|editorconfig-checker {{files}}|-|-|file breaks its .editorconfig (indent, line ends, final newline)
+swiftlint|lint|swiftlint|**/*.swift|swiftlint lint --strict --quiet {{files}}|swiftlint lint --fix --quiet {{files}}|-|swiftlint finding; swiftlint names the rule
 mth-fmt|spec|microlith|**/SPEC.md|(for f in {{files}}; do mth fmt --check "$f" \|\| exit 1; done)|(for f in {{files}}; do mth fmt "$f" \|\| exit 1; done)|-|SPEC.md is hard-wrapped or over the line cap
 mth-check|spec|microlith|**/SPEC.md|(for f in {{files}}; do mth check "$f" \|\| exit 1; done)|-|-|SPEC.md breaks a structural rule
 sherd-check|spec|sherd|**/SPEC.md, **/*.rs|sherd check|-|-|a citation across spec nodes does not resolve
@@ -71,5 +84,6 @@ markdown|**/*.md|markdownlint|-
 yaml|**/*.yml, **/*.yaml|yamllint|-
 toml|**/*.toml|taplo|-
 rust|**/Cargo.toml, **/*.rs|rustfmt, clippy|ignore-rust
+swift|**/Package.swift, **/*.swift|swift-format, swiftlint|swiftlint, ignore-swift
 spec|**/SPEC.md|mth-fmt, mth-check, sherd-check, sherd-nav, sherd-budget|-
 context|.context-limits|itok|-

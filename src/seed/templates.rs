@@ -13,7 +13,7 @@ pub enum Template {
 }
 
 /// Every seed id, in no particular order; fragment order decides output.
-pub const TEMPLATES: [(&str, Template); 13] = [
+pub const TEMPLATES: [(&str, Template); 15] = [
     (
         "editorconfig",
         Template::File(".editorconfig", EDITORCONFIG),
@@ -36,11 +36,16 @@ pub const TEMPLATES: [(&str, Template); 13] = [
         "rubocop",
         Template::File(".rubocop.yml", "AllCops:\n  NewCops: enable\n"),
     ),
+    ("swiftlint", Template::File(".swiftlint.yml", SWIFTLINT)),
     (
         "ignore-nix",
         Template::Ignore(".direnv/\nresult\nresult-*\n"),
     ),
     ("ignore-rust", Template::Ignore("/target\n")),
+    (
+        "ignore-swift",
+        Template::Ignore("/.build/\n/.swiftpm/\n*.profraw\n"),
+    ),
     (
         "ignore-ruby",
         Template::Ignore("/vendor/bundle\n/.bundle\n"),
@@ -61,6 +66,21 @@ indent_style = space
 
 [{Makefile,*.mk,go.mod,*.go}]
 indent_style = tab
+";
+
+/// swiftlint's config for the swift fragment: the rules that fight
+/// swift-format's layout are off, as is `identifier_name`, and the two
+/// unwrap rules, opt-in upstream, are on.
+const SWIFTLINT: &str = "# Seeded by `pklith seed`; yours to edit. swift-format owns layout, so
+# the rules that fight it are off; the unwrap rules are opt-in upstream.
+disabled_rules:
+  - opening_brace
+  - trailing_comma
+  - line_length
+  - identifier_name
+opt_in_rules:
+  - force_unwrapping
+  - implicitly_unwrapped_optional
 ";
 
 /// The gate a fresh repository starts from: hk runs whatever
