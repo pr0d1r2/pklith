@@ -30,7 +30,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 ## §C CONSTRAINTS
 
-- seed set per fragment from catalog `seed` cell: base `.editorconfig` `.gitattributes` README stub & an hk gate (`hk.pkl` running `hk.pklith.pkl`, that module empty, vendored `pkl/Config.pkl`, `.githooks/pre-commit` & `pre-push` executable, refusing w/o hk: `.:V1`) · nix `.envrc` · rubocop `.rubocop.yml` · `.gitignore` parts (nix, rust, ruby). ⊥ LICENSE: a license is the owner's choice & its year needs a clock (`.:C`). ⊥ size limits, ⊥ `.typos.toml`: tools run fine w/o them. exemptions live in `.pklith` `exempt` cells, ⊥ separate ledger.
+- seed set per fragment from catalog `seed` cell: base `.editorconfig` `.gitattributes` README stub & an hk gate (`hk.pkl` running `hk.pklith.pkl`, that module empty, vendored `pkl/Config.pkl`, `.githooks/pre-commit` & `pre-push` executable, refusing w/o hk: `.:V1`) · nix `.envrc` · rubocop `.rubocop.yml` · swiftlint `.swiftlint.yml` (style rules swift-format owns OFF, `force_unwrapping` & `implicitly_unwrapped_optional` ON) · `.gitignore` parts (nix, rust, ruby, swift). ⊥ LICENSE: a license is the owner's choice & its year needs a clock (`.:C`). ⊥ size limits, ⊥ `.typos.toml`: tools run fine w/o them. exemptions live in `.pklith` `exempt` cells, ⊥ separate ledger.
 - templates embedded in binary; ⊥ network.
 - `--init` also writes `.pklith` from detected fragments: their checks per type, & binary types (images, fonts, archives) as exempt w/ reason `binary asset`. repo edits it after.
 
@@ -46,6 +46,7 @@ id|status|task|cites
 T1|x|seed writer + skip-if-exists + empty ledger valid|V1,V3,`.:T55`
 T2|x|`.gitignore` composition|V2
 T3|x|`.pklith` from detected fragments + binary-asset exemptions|V1,`.:V11`
+T4|.|swift seeds: `swiftlint` → `.swiftlint.yml`, `ignore-swift` → `/.build/` `/.swiftpm/` `*.profraw`|V1,V2
 
 ## §B BUGS
 

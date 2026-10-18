@@ -33,6 +33,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 - row: `id|category|nix|glob|check|fix|env|msg`. `env` = vars the step needs & their values, emitted w/ the step (`.:V19`); `-` if none. category ∈ `hygiene secret format lint spec test coverage supply gate`, IN THAT ORDER — the order lay lays them (cheapest & broadest first). `gate` = checks judging the gate itself (`pklith check`, `gen --check`): pass only once ∀ other step laid ∴ last
 - built-in rows seeded from sibling gates (`.:R6`); `.pklith ## checks` overrides by id.
 - `glob` = the RUNNER glob; gen emits it verbatim into the hk step. `glob` & `env` cells are comma lists; `env` items `KEY=value`, value ⊥ comma. `nix` empty (`-`) = hk runs it natively (`hk util`).
+- swiftlint on darwin loads `sourcekitd` from host Xcode (`xcode-select`) at run time ∴ ⊥ Xcode → step fails at start, ⊥ at a finding. linux attr = upstream static binary.
 - fragment row: `fragment|triggers|checks|seed`. triggers = file types, paths, globs (read by src/detect); checks = catalog ids; seed = seed file ids (src/seed). built-in order = fragment order.
 
 ## §V INVARIANTS
@@ -51,6 +52,7 @@ T3|x|test: ∀ built-in nix attr evals|V2
 T4|x|`env` column: gen emits it; test: step w/ unset required env ⊥ emitted|`.:V19`
 T5|x|test: ∀ built-in `check` resolves to a binary of its `nix` attr; `npx`/`pipx run`/`curl` in a row → rejected|`.:V29`
 T6|x|fragment rows: parse, non-empty (`.:V18`), built-in fragments ported from set-and-setting + completeness test|`.:V16`,`.:V17`,`.:V18`
+T7|.|swift: rows `swift-format` (format, nix `swift-format`) & `swiftlint` (lint, nix `swiftlint`), fragment `swift` (triggers `**/Package.swift`, `**/*.swift`; seed `swiftlint`, `ignore-swift`); 1 fixture per row|V1,V2,V4,`.:V17`,`.:V30`
 
 ## §B BUGS
 
