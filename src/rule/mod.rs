@@ -1,11 +1,15 @@
 //! Companion rules (`src/rule/SPEC.md`): for every file a selector picks,
-//! something must exist, be mentioned, or change with it.
+//! something must exist, be mentioned, change with it, or change before
+//! it.
 
 use crate::registry::{Error, Row};
 use crate::scan::Globs;
 use std::collections::HashSet;
 
+mod order;
 pub mod template;
+
+pub use order::order;
 
 use template::{Plurals, Template};
 
@@ -21,7 +25,8 @@ pub enum Kind {
     /// literally (V2).
     Mentions { within: Globs, glob: String },
     /// The rendered path changes whenever the source does; judged only
-    /// with a diff (V3).
+    /// with a diff (V3). A `tdd-order` row is this kind, judged commit by
+    /// commit over a history instead ([`order()`], V6).
     Changed,
 }
 
@@ -34,6 +39,9 @@ pub struct Rule {
     select: Globs,
     except: Globs,
     target: Template,
+    /// `tdd-order`: judged by [`order()`] over a history, never by
+    /// [`evaluate`].
+    ordered: bool,
 }
 
 /// A selected file whose companion is missing (cover V7).
@@ -74,15 +82,15 @@ pub fn parse(rows: &[Row]) -> Result<Vec<Rule>, Error> {
 }
 
 fn rule(row: &Row) -> Result<Rule, Error> {
-    let [id, kind, select, target, except] =
+    let [id, name, select, target, except] =
         <[String; 5]>::try_from(row.cells.clone()).unwrap_or_default();
-    let typed =
-        kind_of(&kind, &target).and_then(|(k, t)| Ok((k, t, globs(&select)?, globs(&except)?)));
+    let typed = typed(&name, &target, &select, &except);
     let (kind, target, select, except) = typed.map_err(|what| Error {
         line: row.line,
         message: format!("rule `{id}`: {what}"),
     })?;
     Ok(Rule {
+        ordered: name == "tdd-order",
         id,
         kind,
         select,
@@ -91,11 +99,22 @@ fn rule(row: &Row) -> Result<Rule, Error> {
     })
 }
 
+/// A row's kind, target and globs, typed.
+fn typed(
+    kind: &str,
+    target: &str,
+    select: &str,
+    except: &str,
+) -> Result<(Kind, Template, Globs, Globs), String> {
+    let (kind, target) = kind_of(kind, target)?;
+    Ok((kind, target, globs(select)?, globs(except)?))
+}
+
 fn kind_of(kind: &str, target: &str) -> Result<(Kind, Template), String> {
     let kind = match kind {
         "exists" => Kind::Exists,
         "orphan" => Kind::Orphan,
-        "changed" => Kind::Changed,
+        "changed" | "tdd-order" => Kind::Changed,
         "mentions" => return mentions(target),
         other => return Err(format!("unknown kind `{other}`")),
     };
@@ -143,13 +162,19 @@ impl Rule {
     /// src/map follows from a changed file to its spec.
     #[must_use]
     pub fn companion(&self, source: &str, plurals: &Plurals) -> Option<String> {
-        let selects = self.select.matches(source) && !self.except.matches(source);
-        (matches!(self.kind, Kind::Exists) && selects).then(|| self.target.render(source, plurals))
+        let exists = matches!(self.kind, Kind::Exists);
+        (exists && self.selects(source)).then(|| self.target.render(source, plurals))
+    }
+
+    /// Whether the rule picks `path`: selected and not excepted.
+    fn selects(&self, path: &str) -> bool {
+        self.select.matches(path) && !self.except.matches(path)
     }
 }
 
 /// Every failure of `rules` over `input`, rule by rule, sources in the
-/// order given. `changed` rules run only when there is a diff (V3).
+/// order given. `changed` rules run only when there is a diff (V3);
+/// `tdd-order` rules need a history and run in [`order()`] (V6).
 #[must_use]
 pub fn evaluate(rules: &[Rule], input: &Input<'_>) -> Vec<Failure> {
     let tracked: HashSet<&str> = input.files.iter().map(String::as_str).collect();
@@ -161,13 +186,14 @@ pub fn evaluate(rules: &[Rule], input: &Input<'_>) -> Vec<Failure> {
 
 fn failures(rule: &Rule, input: &Input<'_>, tracked: &HashSet<&str>) -> Vec<Failure> {
     let pool = match (&rule.kind, input.diff) {
+        _ if rule.ordered => return Vec::new(),
         (Kind::Changed, None) => return Vec::new(),
         (Kind::Changed, Some(diff)) => diff,
         (_, Some(diff)) if input.only_changed => diff,
         _ => input.files,
     };
     let live = |f: &&String| matches!(rule.kind, Kind::Changed) || tracked.contains(f.as_str());
-    let picked = |f: &&String| rule.select.matches(f) && !rule.except.matches(f);
+    let picked = |f: &&String| rule.selects(f);
     let selected = pool.iter().filter(live).filter(picked);
     selected
         .filter_map(|source| missing(rule, source, input, tracked))

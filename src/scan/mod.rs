@@ -5,8 +5,10 @@ use std::path::Path;
 
 mod diff;
 mod glob;
+mod history;
 pub use diff::{Diff, changed};
 pub use glob::Globs;
+pub use history::{Commit, Span, history};
 
 /// How a candidate key was derived from a basename (scan §C).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

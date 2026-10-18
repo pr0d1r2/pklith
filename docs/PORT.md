@@ -84,5 +84,6 @@ These were dropped:
 | nix-flake-check | Slow and whole-flake; it belongs in CI, where a repository can add it. |
 | commit-msg-lint, changelog-touched | Commit-message and changelog policy is the repository's; pklith's own gate has both. |
 | markdownlint-agentic | Depends on set-and-setting's skill-file classifier. |
-| bats-unit, tdd-order-bats | They run a repository's own test suite and history, not a file check. |
+| bats-unit | It runs a repository's own test suite, not a file check. |
+| tdd-order-bats | Its test-first rule is now a `tdd-order` row in `## rules` with a `pklith check --pushed` step ([REGISTRY.md](REGISTRY.md)); migrate cannot write that row, since the select and target templates are the repository's. |
 | rekall-check, rekall-gnu-sed, set-skill-*, set-ref-resolution, set-bundle-content, skill-registered | Set-half checks. |

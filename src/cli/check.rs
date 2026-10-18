@@ -1,15 +1,15 @@
 //! `pklith check`: the gate verdict.
 
 use super::{Loaded, Options, Outcome, USAGE, exit, files, load, options, toplevel};
-use crate::scan::Diff;
+use crate::scan::{Commit, Diff, Span};
 use std::path::{Path, PathBuf};
 
 pub(super) fn run(args: &[String], cwd: &Path) -> Outcome {
-    let Some((diff, opts)) = diff_flag(args).and_then(|(d, rest)| Some((d, options(&rest)?)))
+    let Some((asked, opts)) = diff_flag(args).and_then(|(a, rest)| Some((a, options(&rest)?)))
     else {
         return exit(2, USAGE);
     };
-    match judge(opts, diff, cwd) {
+    match judge(opts, &asked, cwd) {
         Ok((coverage, unbacked, _)) => {
             let text = crate::report::text(&coverage) + &crate::report::unbacked(&unbacked);
             exit(u8::from(!coverage.ok() || !unbacked.is_empty()), text)
@@ -18,16 +18,29 @@ pub(super) fn run(args: &[String], cwd: &Path) -> Outcome {
     }
 }
 
-/// `--staged` or `--range A..B`, at most one, and the other arguments.
-fn diff_flag(args: &[String]) -> Option<(Option<Diff>, Vec<String>)> {
+/// What the flags ask to judge beyond the tree: a diff for `changed`
+/// rules, a history for `tdd-order` ones (rule V6), or neither.
+#[derive(Default)]
+pub(super) struct Asked {
+    diff: Option<Diff>,
+    span: Option<Span>,
+}
+
+/// `--staged`, `--range A..B` or `--pushed`, at most one, and the other
+/// arguments.
+fn diff_flag(args: &[String]) -> Option<(Asked, Vec<String>)> {
     let mut rest = args.to_vec();
     let staged = take_flag(&mut rest, "--staged");
+    let pushed = take_flag(&mut rest, "--pushed");
     let range = take_value(&mut rest, "--range").ok()?;
-    match (staged, range) {
-        (true, Some(_)) => None,
-        (true, None) => Some((Some(Diff::Staged), rest)),
-        (false, range) => Some((range.map(Diff::Range), rest)),
-    }
+    let (diff, span) = match (staged, pushed, range) {
+        (false, false, None) => (None, None),
+        (true, false, None) => (Some(Diff::Staged), Some(Span::Staged)),
+        (false, true, None) => (None, Some(Span::Pushed)),
+        (false, false, Some(r)) => (Some(Diff::Range(r.clone())), Some(Span::Range(r))),
+        _ => return None,
+    };
+    Some((Asked { diff, span }, rest))
 }
 
 /// Remove `flag` from `args`, saying whether it was there; a repeated flag
@@ -57,24 +70,58 @@ struct Scope {
     files: Vec<String>,
     /// Paths the diff touches, when one was given.
     changed: Option<Vec<String>>,
+    /// The commits judged, oldest first, when a span was given (rule V6).
+    history: Vec<Commit>,
     /// `--staged`: judge only what the commit touches (cover V8).
     staged: bool,
 }
 
-fn scope(opts: Options, diff: Option<Diff>, cwd: &Path) -> Result<Scope, String> {
+fn scope(opts: Options, asked: &Asked, cwd: &Path) -> Result<Scope, String> {
     let walk = opts.root.is_some();
     let root = opts.root.map_or_else(|| toplevel(cwd), Ok)?;
     let loaded = load(&opts.registry.unwrap_or_else(|| root.join(".pklith")))?;
     let files = files(&root, walk)?;
-    let staged = diff == Some(Diff::Staged);
-    let changed = diff.map(|d| super::changed(&root, &d)).transpose()?;
+    let staged = asked.diff == Some(Diff::Staged);
+    let (changed, history) = read(&root, asked)?;
     Ok(Scope {
         root,
         loaded,
         files,
         changed,
+        history,
         staged,
     })
+}
+
+/// The paths `changed` rules read and the commits `tdd-order` rules
+/// read. The diff comes first, so a bad range is refused by its name;
+/// with `--pushed` the diff is every path the commits touch.
+fn read(root: &Path, asked: &Asked) -> Result<(Option<Vec<String>>, Vec<Commit>), String> {
+    let diff = asked
+        .diff
+        .as_ref()
+        .map(|d| super::changed(root, d))
+        .transpose()?;
+    let history = history(root, asked.span.as_ref())?;
+    let changed = diff.or_else(|| asked.span.is_some().then(|| touched(&history)));
+    Ok((changed, history))
+}
+
+/// The commits `span` covers, none without one.
+fn history(root: &Path, span: Option<&Span>) -> Result<Vec<Commit>, String> {
+    let read = |s| crate::scan::history(root, s).map_err(|e| e.to_string());
+    Ok(span.map(read).transpose()?.unwrap_or_default())
+}
+
+/// Every path `history` touches, sorted and unique.
+fn touched(history: &[Commit]) -> Vec<String> {
+    let mut paths: Vec<String> = history
+        .iter()
+        .flat_map(|c| c.changed.iter().chain(&c.deleted).cloned())
+        .collect();
+    paths.sort();
+    paths.dedup();
+    paths
 }
 
 /// The coverage, the claims no step backs, and the universal `*` checks.
@@ -85,9 +132,10 @@ pub(super) type Verdict = (
 );
 
 /// The full verdict, or with `--staged` only what the commit touches
-/// (cover V8, root V26). A diff also feeds `changed` rules (rule V3).
-pub(super) fn judge(opts: Options, diff: Option<Diff>, cwd: &Path) -> Result<Verdict, String> {
-    let s = scope(opts, diff, cwd)?;
+/// (cover V8, root V26). A diff also feeds `changed` rules (rule V3), a
+/// history `tdd-order` ones (rule V6).
+pub(super) fn judge(opts: Options, asked: &Asked, cwd: &Path) -> Result<Verdict, String> {
+    let s = scope(opts, asked, cwd)?;
     let unbacked = backing(&s)?;
     let mut coverage = match &s.changed {
         Some(paths) if s.staged => crate::cover::judge_staged(&s.files, paths, &s.loaded.registry),
@@ -139,7 +187,13 @@ fn rules(s: &Scope) -> Vec<crate::rule::Failure> {
         plurals: &s.loaded.plurals,
         only_changed: s.staged,
     };
-    crate::rule::evaluate(&s.loaded.rules, &input)
+    let mut failed = crate::rule::evaluate(&s.loaded.rules, &input);
+    failed.extend(crate::rule::order(
+        &s.loaded.rules,
+        &s.history,
+        &s.loaded.plurals,
+    ));
+    failed
 }
 
 /// Cover V9: fragments the gaps switch on that `.pklith` does not

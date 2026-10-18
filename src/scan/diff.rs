@@ -37,23 +37,37 @@ pub fn changed(root: &Path, diff: &Diff) -> Result<Vec<String>, Error> {
 /// NUL-separated paths, sorted and unique; one that is not UTF-8 is named
 /// lossily (scan V4).
 fn paths(bytes: &[u8]) -> Result<Vec<String>, Error> {
-    let utf8 = |p: &[u8]| {
-        String::from_utf8(p.to_vec())
-            .map_err(|_| Error::NotUtf8(String::from_utf8_lossy(p).into_owned()))
-    };
-    let mut paths = bytes
-        .split(|b| *b == 0)
-        .filter(|p| !p.is_empty())
-        .map(utf8)
-        .collect::<Result<Vec<_>, _>>()?;
+    let mut paths = words(bytes)?;
     paths.sort();
     paths.dedup();
     Ok(paths)
 }
 
+/// NUL-separated words in their order; one that is not UTF-8 is named
+/// lossily (scan V4).
+pub(super) fn words(bytes: &[u8]) -> Result<Vec<String>, Error> {
+    let utf8 = |p: &[u8]| {
+        String::from_utf8(p.to_vec())
+            .map_err(|_| Error::NotUtf8(String::from_utf8_lossy(p).into_owned()))
+    };
+    bytes
+        .split(|b| *b == 0)
+        .filter(|p| !p.is_empty())
+        .map(utf8)
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{Error, paths};
+    use super::{Diff, Error, changed, paths};
+
+    /// A range git would read as an option is refused before git runs;
+    /// `check` reaches scan's history first, which refuses it the same way.
+    #[test]
+    fn a_range_like_an_option_is_refused() {
+        let got = changed(std::path::Path::new("."), &Diff::Range("-x".to_owned()));
+        assert!(matches!(got, Err(Error::Malformed(_))), "{got:?}");
+    }
 
     /// NUL-separated paths come back sorted and unique; one that is not
     /// UTF-8 is an error naming it (scan V4).

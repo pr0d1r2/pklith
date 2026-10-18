@@ -14,7 +14,7 @@ sib|src/proc|run external programs one way: git hook env scrubbed, failures name
 sib|src/detect|active fragments from scanned files, fixed order
 sib|src/registry|`.pklith` parse/fmt: types → check sets, rules, plural, exempt
 sib|src/catalog|check definitions: category, nix attr, runner glob, hk step, fix, failure msg
-sib|src/rule|companion rules: exists, mentions, changed, orphan; path templates
+sib|src/rule|companion rules: exists, mentions, changed, orphan, tdd-order; path templates
 sib|src/hook|read effective hk config via `pkl eval`: step → globs
 sib|src/legacy|3 legacy formats: read, `import`, compat entries
 sib|src/cover|verdict: type gaps, stale, claim ⊥ backed by runner, rule gaps
@@ -42,6 +42,8 @@ V2: dotfile `.envrc` ≡ legacy key `envrc` (`.:R1` parity, `.:V4`)
 V3: submodule gitlinks & symlinks-to-dir ⊥ files (`.:R4`)
 V4: non-UTF-8 path → error naming it, ⊥ lossy skip
 V5: output sorted, per type: file list + count
+V6: history = commits of `A..B` | `HEAD --not --remotes` (`--pushed`), oldest first, merges skipped; ∀ commit: short id, subject, paths changed & deleted. `--staged` adds the index as a last pseudo-commit after the unpushed ones
+V7: history renames detected (`-M`): old path deleted, new path changed; a copy changes its new path
 
 ## §T TASKS
 
@@ -50,6 +52,7 @@ T1|x|`git ls-files -z` source + `--root` walk source|V3,V4
 T2|x|basename → candidate types fn + table tests vs legacy sed outputs|V1,V2,`.:R1`,`.:R2`
 T3|x|edge cases: multi-dot `foo.spec.ts`, dotfiles `.gitignore`/`.editorconfig`, empty repo, name w/ newline|V1,V2,`.:R8`
 T4|x|golden: output order stable across git & walk sources|V5
+T5|x|history of a range, `--pushed` & `--staged` for `tdd-order` (rule V6)|V6,V7
 
 ## §B BUGS
 
