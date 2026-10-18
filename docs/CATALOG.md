@@ -54,6 +54,7 @@ first: `hygiene`, `secret`, `format`, `lint`, `spec`, `test`, `coverage`,
 | `gawk-lint` | lint | `gawk` | `**/*.awk` | - | awk script does not parse, or trips gawk's lint |
 | `bats-parse` | lint | `bats` | `**/*.bats` | - | bats file does not parse |
 | `editorconfig-checker` | lint | `editorconfig-checker` | `**/*` | - | file breaks its .editorconfig (indent, line ends, final newline) |
+| `swiftlint` | lint | `swiftlint` | `**/*.swift` | yes | swiftlint finding; swiftlint names the rule |
 | `mth-fmt` | spec | `microlith` | `**/SPEC.md` | yes | SPEC.md is hard-wrapped or over the line cap |
 | `mth-check` | spec | `microlith` | `**/SPEC.md` | - | SPEC.md breaks a structural rule |
 | `sherd-check` | spec | `sherd` | `**/SPEC.md` `**/*.rs` | - | a citation across spec nodes does not resolve |
@@ -77,7 +78,7 @@ first: `hygiene`, `secret`, `format`, `lint`, `spec`, `test`, `coverage`,
 | `yaml` | `**/*.yml` `**/*.yaml` | `yamllint` | - |
 | `toml` | `**/*.toml` | `taplo` | - |
 | `rust` | `**/Cargo.toml` `**/*.rs` | `rustfmt` `clippy` | `ignore-rust` |
-| `swift` | `**/Package.swift` `**/*.swift` | `swift-format` | `ignore-swift` |
+| `swift` | `**/Package.swift` `**/*.swift` | `swift-format` `swiftlint` | `swiftlint` `ignore-swift` |
 | `spec` | `**/SPEC.md` | `mth-fmt` `mth-check` `sherd-check` `sherd-nav` `sherd-budget` | - |
 | `context` | `.context-limits` | `itok` | - |
 <!-- END catalog -->

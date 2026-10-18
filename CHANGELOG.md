@@ -15,6 +15,11 @@ the bytes pklith emits for the same inputs is at least a minor version
 - Built-in fragment `swift`, switched on by `Package.swift` or any `.swift`
   file; `pklith seed` adds `/.build/`, `/.swiftpm/` and `*.profraw` to
   `.gitignore`.
+- Built-in check `swiftlint` (lint, in the `swift` fragment):
+  `swiftlint lint --strict --quiet` on `**/*.swift`. `pklith seed` writes a
+  `.swiftlint.yml` that turns off `opening_brace`, `trailing_comma`,
+  `line_length` and `identifier_name` and opts in to `force_unwrapping`
+  and `implicitly_unwrapped_optional`.
 
 ## [0.1.0] - 2026-09-27
 

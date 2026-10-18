@@ -152,6 +152,15 @@ mod tests {
         Ok(())
     }
 
+    /// Swift seeds its swiftlint config and a `.gitignore` part (T4).
+    #[test]
+    fn swift_seeds_a_swiftlint_config() -> Result<(), String> {
+        let seeds = seeded(&["swift"])?;
+        let paths: Vec<&str> = seeds.iter().map(|s| s.path).collect();
+        assert_eq!(paths.join(" "), ".swiftlint.yml .gitignore");
+        Ok(())
+    }
+
     /// Every seed id a built-in fragment names has a template.
     #[test]
     fn every_builtin_seed_id_has_a_template() -> Result<(), Box<dyn std::error::Error>> {

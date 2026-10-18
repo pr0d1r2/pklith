@@ -50,6 +50,17 @@ fn workspace_with(lib: &str) -> [Entry; 4] {
     ]
 }
 
+/// The `.swiftlint.yml` `pklith seed` writes (seed T4): with it a force
+/// unwrap fails, which swiftlint's defaults allow, and a short name such as
+/// `a` passes, which they refuse.
+fn swiftlint_seed() -> Entry {
+    let text = match pklith::seed::templates::named("swiftlint") {
+        Some(pklith::seed::templates::Template::File(_, text)) => text,
+        _ => "",
+    };
+    file(".swiftlint.yml", text)
+}
+
 const EDITORCONFIG: &str = "root = true\n[*]\nindent_style = space\n";
 
 const WORKFLOW: &str = "on: push\npermissions: {}\njobs:\n  a:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo hi\n";
@@ -87,6 +98,8 @@ proven! {
     clippy => "clippy": crate_with("pub fn f(v: &Vec<u8>) -> usize {\n    v.len()\n}\n"), crate_with("pub fn f(v: &[u8]) -> usize {\n    v.len()\n}\n");
     clippy_workspace => "clippy": workspace_with("pub fn f(v: &Vec<u8>) -> usize {\n    v.len()\n}\n"), workspace_with("pub fn f(v: &[u8]) -> usize {\n    v.len()\n}\n");
     rubocop => "rubocop": [file("a.rb", "puts \"x\"\n")], [file("a.rb", "# frozen_string_literal: true\n\nputs 'x'\n")];
+    swiftlint => "swiftlint": [file("a.swift", "let answer = try! compute()\n")], [file("a.swift", "let answer = try compute()\n")];
+    swiftlint_seeded => "swiftlint": [swiftlint_seed(), file("a.swift", "let answer = value!\n")], [swiftlint_seed(), file("a.swift", "let a = value ?? 1\n")];
     actionlint => "actionlint": [workflow(&format!("{WORKFLOW}    bogus: 1\n"))], [workflow(WORKFLOW)];
     zizmor => "zizmor": [workflow(&WORKFLOW.replace("on: push", "on: issues").replace("echo hi", "echo \"${{ github.event.issue.title }}\""))], [workflow(WORKFLOW)];
     editorconfig_checker => "editorconfig-checker": [file(".editorconfig", EDITORCONFIG), file("a.txt", "a\n\tb\n")], [file(".editorconfig", EDITORCONFIG), file("a.txt", "a\n  b\n")];

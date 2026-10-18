@@ -229,6 +229,7 @@
             pkgs.bats
             pkgs.gnugrep
             pkgs.swift-format
+            pkgs.swiftlint
             itok.packages.${pkgs.stdenv.hostPlatform.system}.default
           ];
           RUST_BACKTRACE = "1";
