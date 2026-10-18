@@ -61,6 +61,21 @@ fn swiftlint_seed() -> Entry {
     file(".swiftlint.yml", text)
 }
 
+/// A script, its companion spec under the registry's `exists` rule, and
+/// `tests/unit/a.bats` asserting the script prints 3: `prints` is what
+/// the script prints, so 2 is the planted bug.
+pub fn bats_suite(prints: u8) -> [Entry; 3] {
+    [
+        file(".pklith", BATS_RULE),
+        File("scripts/a.sh", format!("echo {prints}\n")),
+        file("tests/unit/a.bats", BATS_SPEC),
+    ]
+}
+
+pub const BATS_RULE: &str = "format 1\n## rules\nid|kind|select|target|except\nbats|exists|scripts/*.sh|tests/unit/{stem}.bats|-\n";
+
+const BATS_SPEC: &str = "@test \"runs\" {\n  sh \"$BATS_TEST_DIRNAME/../../scripts/a.sh\"\n}\n\n@test \"prints 3\" {\n  [ \"$(sh \"$BATS_TEST_DIRNAME/../../scripts/a.sh\")\" = 3 ]\n}\n";
+
 const EDITORCONFIG: &str = "root = true\n[*]\nindent_style = space\n";
 
 const WORKFLOW: &str = "on: push\npermissions: {}\njobs:\n  a:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo hi\n";
@@ -88,6 +103,8 @@ proven! {
     xmllint => "xmllint": [file("a.xml", "<a><b></a>\n")], [file("a.xml", "<a/>\n")];
     gawk_lint => "gawk-lint": [file("a.awk", "BEGIN { system(\"touch ran\"); x = substr(\"a\") }\n")], [file("a.awk", "BEGIN { print 1 }\n")];
     bats_parse => "bats-parse": [file("a.bats", "@test \"x\" {\n  true\n")], [file("a.bats", "@test \"x\" {\n  true\n}\n")];
+    bats_changed => "bats-changed": bats_suite(2), bats_suite(3);
+    bats_unit => "bats-unit": bats_suite(2), bats_suite(3);
     shfmt => "shfmt": [file("a.sh", "if true;then echo;fi\n")], [file("a.sh", "if true; then echo; fi\n")];
     taplo => "taplo": [file("a.toml", "a=1\n")], [file("a.toml", "a = 1\n")];
     rustfmt => "rustfmt": crate_with("pub fn f(){}\n"), crate_with("pub fn f() {}\n");

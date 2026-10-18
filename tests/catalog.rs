@@ -94,7 +94,9 @@ fn git(dir: &Path, args: &[&str]) -> Result<String> {
 
 /// The step's command exactly as gen emits it (guard and failure message
 /// included), with `{{files}}` naming every staged path, run by
-/// `sh` with only PATH, HOME and the check's own env. The real HOME stays,
+/// `sh` with only PATH, HOME and the check's own env. PATH leads with this
+/// build's `pklith`, which a row such as `bats-changed` runs, so it is the
+/// binary under test, not the dev shell's. The real HOME stays,
 /// as it does under hk: what a developer's home holds (user gems, cargo
 /// config) is exactly what a step must survive. Build output goes to the
 /// fixture, not the developer's cargo target.
@@ -104,7 +106,7 @@ fn command(check: &pklith::catalog::Check, dir: &Path, files: &str) -> Command {
         .arg(pklith::r#gen::explained(check).replace("{{files}}", files))
         .current_dir(dir)
         .env_clear()
-        .env("PATH", std::env::var_os("PATH").unwrap_or_default())
+        .env("PATH", path())
         .env("HOME", std::env::var_os("HOME").unwrap_or_default())
         .env("CARGO_TARGET_DIR", dir.join("target"));
     for pair in &check.env {
@@ -112,6 +114,14 @@ fn command(check: &pklith::catalog::Check, dir: &Path, files: &str) -> Command {
         cmd.env(key, value);
     }
     cmd
+}
+
+/// PATH with the directory of the built `pklith` first.
+fn path() -> std::ffi::OsString {
+    let built = Path::new(env!("CARGO_BIN_EXE_pklith")).parent();
+    let rest = std::env::var_os("PATH").unwrap_or_default();
+    let dirs = built.map(Path::to_path_buf).into_iter();
+    std::env::join_paths(dirs.chain(std::env::split_paths(&rest))).unwrap_or(rest)
 }
 
 /// Whether the command passed, and everything it printed.
@@ -172,6 +182,9 @@ macro_rules! proven {
 
 #[path = "catalog/fixtures.rs"]
 mod fixtures;
+
+#[path = "catalog/bats.rs"]
+mod bats;
 
 /// V30: no built-in check ships without a fixture, and no fixture outlives
 /// its check.
