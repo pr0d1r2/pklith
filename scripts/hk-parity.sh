@@ -5,11 +5,28 @@
 # passes having run almost nothing. This fails unless both evaluators see the
 # same steps, each with a command.
 #
+# V36 (B13): a step with no command at all, in any hook, is refused by name
+# rather than filtered. Amending a step id a mapping lacks is no Pkl error:
+# it makes the mapping's default, a Step with no `check`, which runs nothing
+# and cannot fail. A step meant to run nothing would be listed here with its
+# reason; there is none.
+#
 #   scripts/hk-parity.sh
 set -euo pipefail
 
-want="$(pkl eval --format json hk.pkl |
-  jq -r '.hooks.check.steps | to_entries[] | select(.value.check != null or .value.check_diff != null) | .key' | sort)"
+evaluated="$(pkl eval --format json hk.pkl)"
+
+empty="$(jq -r '.hooks | to_entries[] | .key as $hook | (.value.steps // {}) | to_entries[] |
+  select(.value._type == "step" and .value.check == null and .value.check_diff == null and
+    .value.check_list_files == null and .value.fix == null) | "  \($hook): \(.key)"' <<<"$evaluated")"
+if [ -n "$empty" ]; then
+  echo "hk-parity: these steps have no check, check_diff, check_list_files or fix, so they run nothing (V36):" >&2
+  printf '%s\n' "$empty" >&2
+  echo "  an id amended that its mapping lacks becomes an empty step; add the step by name from where it lives" >&2
+  exit 1
+fi
+
+want="$(jq -r '.hooks.check.steps | to_entries[] | select(.value.check != null or .value.check_diff != null) | .key' <<<"$evaluated" | sort)"
 seen="$(hk check --check --all --plan --json |
   jq -r '.steps[] | select([.reasons[].kind] | index("no_command") | not) | .name' | sort)"
 

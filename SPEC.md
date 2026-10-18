@@ -128,6 +128,7 @@ V32: ∀ check commit body records its planted violation & the red verdict line 
 V33: emitted bytes change for the same inputs → ≥ minor version & a `CHANGELOG.md` entry naming the files consumers will see change; golden diff w/o changelog touch → red
 V34: cutover (T44, T48, T60) only after a PARALLEL RUN: pklith & the tool it replaces judge the same repos, verdict diff = 0 or each diff explained in §B
 V35: hk evaluates hk.pkl w/ its own Pkl implementation (pklr) by default; the step set hk sees ! equal the set `pkl eval` sees, gated. a construct pklr mishandles ⊥ used
+V36: ∀ step in ∀ hook of the evaluated hk.pkl has a command (`check` | `check_diff` | `check_list_files` | `fix`); a commandless step → `hk-parity` fails naming hook & step, ⊥ filtered. a deliberate one ! listed w/ reason (none today)
 
 ## §T TASKS
 
@@ -204,6 +205,7 @@ T69|x|release (`release.toml`, cargo-release): version bump PR → merge → fro
 T70|x|fleet sweep: ∀ repo under `../` using a legacy coverage tool or set-and-setting setting → legacy verdict vs `pklith check` on imported `.pklith`; diffs → §B or fix|V34,V4
 T71|.|OPTIONAL: raise itok issue: `itok check` takes a limits path; ⊥ needed while `file-ceilings` holds (T26)|B11
 T72|x|`shellcheck` on `.githooks/*` & `.envrc` (shell w/o `.sh` name ∴ glob by path)|V2,V5
+T73|x|`hk-parity` refuses a commandless step in any hook, naming it; test: fixture hk.pkl amending a missing step id → red, clean twin → green|V36,B13
 
 ## §B BUGS
 
@@ -220,3 +222,4 @@ B9|2026-09-25|set-and-setting `B25`: `lefthook install` wrote default stub befor
 B10|2026-09-25|set-and-setting D1: ledger awk registers only `ticket:` entries ∴ reason-only exemption ignored|V23
 B11|2026-09-26|`itok check` & `sherd budget` both read `.context-limits`: itok per FILE (root `SPEC.md` 7,242 tok, whole file), sherd per CHAIN at rule depth (5,217). ceilings right for one are wrong for the other ∴ itok step ⊥ adopted|V9
 B12|2026-09-26|hk.pkl built its commit steps from hk.pklith.pkl w/ `for (…) { when (id != "coverage") { … } }`: `pkl eval` listed 34 steps, hk's default pklr evaluator 2 (the rest "no command defined") ∴ `hk check --all` exited 0 running almost nothing. caught by planting before commit. `toMap().remove()` fails in pklr too ∴ gen splits `steps` / `push`|V35,V2
+B13|2026-10-18|#91 near-miss: hk.pkl amended `["test"]` by id inside `fast` after gen moved `test` to `push`; Pkl amends the mapping default ∴ a `Step` w/ `check = null` in every hook, suite ran nowhere. `hk-parity` filtered commandless steps on both sides ∴ green. caught by reading the eval|V36,V35

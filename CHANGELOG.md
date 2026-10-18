@@ -30,6 +30,13 @@ the bytes pklith emits for the same inputs is at least a minor version
   `line_length` and `identifier_name` and opts in to `force_unwrapping`
   and `implicitly_unwrapped_optional`.
 
+### Fixed
+
+- pklith's own gate: `scripts/hk-parity.sh` refuses a step with no
+  `check`, `check_diff`, `check_list_files` or `fix` in any hook of the
+  evaluated `hk.pkl`, naming the hook and step, instead of filtering it
+  (#92). An id amended into a mapping that lacks it is such a step (#91).
+
 ## [0.1.0] - 2026-09-27
 
 ### Changed
