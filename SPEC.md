@@ -205,7 +205,7 @@ T69|x|release (`release.toml`, cargo-release): version bump PR → merge → fro
 T70|x|fleet sweep: ∀ repo under `../` using a legacy coverage tool or set-and-setting setting → legacy verdict vs `pklith check` on imported `.pklith`; diffs → §B or fix|V34,V4
 T71|.|OPTIONAL: raise itok issue: `itok check` takes a limits path; ⊥ needed while `file-ceilings` holds (T26)|B11
 T72|x|`shellcheck` on `.githooks/*` & `.envrc` (shell w/o `.sh` name ∴ glob by path)|V2,V5
-T73|.|`hk-parity` refuses a commandless step in any hook, naming it; test: fixture hk.pkl amending a missing step id → red, clean twin → green|V36,B13
+T73|x|`hk-parity` refuses a commandless step in any hook, naming it; test: fixture hk.pkl amending a missing step id → red, clean twin → green|V36,B13
 
 ## §B BUGS
 
