@@ -18,7 +18,7 @@
 [![network pklith protect only](https://img.shields.io/badge/network-pklith_protect_only-brightgreen)](docs/SECURITY.md)
 
 [![gate hk](https://img.shields.io/badge/gate-hk-6E4AFF)](hk.pkl)
-[![gate steps 42 commit / 48 push](https://img.shields.io/badge/gate_steps-42_commit_%2F_48_push-6E4AFF)](hk.pkl)
+[![gate steps 40 commit / 48 push](https://img.shields.io/badge/gate_steps-40_commit_%2F_48_push-6E4AFF)](hk.pkl)
 [![coverage floor 100%](https://img.shields.io/badge/coverage_floor-%E2%89%A5100%25-brightgreen)](.coverage)
 [![invariants 127](https://img.shields.io/badge/invariants-127-6E4AFF)](SPEC.md)
 [![bugs logged 24](https://img.shields.io/badge/bugs_logged-24-6E4AFF)](SPEC.md)

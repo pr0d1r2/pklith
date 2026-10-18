@@ -36,16 +36,17 @@ pub fn used<'a>(registry: &Registry, catalog: &'a [Check]) -> Vec<&'a Check> {
 }
 
 /// The Pkl module: one typed hk step per check, in two mappings. `steps`
-/// run on every commit; `push` holds coverage checks, which rebuild the crate
-/// instrumented and belong to push and CI. Splitting here keeps hk.pkl free
-/// of filtering, which hk's own Pkl evaluator mishandles (root B12). The
-/// module imports the vendored hk schema, so it evaluates offline and a wrong
-/// field fails to evaluate (V4).
+/// run on every commit; `push` holds test and coverage checks, which run a
+/// suite and belong to push and CI (V8): a commit can hold a failing test
+/// before its fix, and pre-commit stays O(changed files). Splitting here
+/// keeps hk.pkl free of filtering, which hk's own Pkl evaluator mishandles
+/// (root B12). The module imports the vendored hk schema, so it evaluates
+/// offline and a wrong field fails to evaluate (V4).
 #[must_use]
 pub fn pkl(checks: &[&Check]) -> String {
     let (push, commit): (Vec<&Check>, Vec<&Check>) = checks
         .iter()
-        .partition(|c| c.category == Category::Coverage);
+        .partition(|c| matches!(c.category, Category::Test | Category::Coverage));
     format!(
         "{HEADER}import \"pkl/Config.pkl\"\n\n{}\n{}",
         mapping("steps", &commit),
@@ -230,11 +231,12 @@ typos|lint|typos|**/*|typos {{files}}|-|-|m
 fmt|format|rustfmt|**/*.rs, build.rs|cargo fmt --check|cargo fmt|-|m
 links|lint|lychee|-|lychee "q"# x|-|A=1, B=x=y|it's broken
 unused|lint|-|*|x|-|-|m
+unit|test|-|**/*.rs|unit --all|-|-|m
 cov|coverage|-|**/*.rs|cov --check|-|-|m
 ## types
 type|checks|min|exempt
 *|typos|-|-
-rs|fmt,cov|-|-
+rs|fmt,unit,cov|-|-
 md|links|-|-
 "##;
 
@@ -261,6 +263,10 @@ steps: Mapping<String, Config.Step> = new {
 }
 
 push: Mapping<String, Config.Step> = new {
+  ["unit"] {
+    glob = List("**/*.rs")
+    check = "command -v unit >/dev/null 2>&1 || { echo 'unit: unit is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; unit --all || { echo 'unit: m' >&2; exit 1; }"
+  }
   ["cov"] {
     glob = List("**/*.rs")
     check = "command -v cov >/dev/null 2>&1 || { echo 'cov: cov is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; cov --check || { echo 'cov: m' >&2; exit 1; }"
@@ -275,7 +281,8 @@ push: Mapping<String, Config.Step> = new {
     }
 
     /// V1: only checks the registry names, each once, in lay order
-    /// (category, then catalog order). V7: no glob means whole tree. Env
+    /// (category, then catalog order). V8: test and coverage checks go to
+    /// `push`, the rest to `steps`. V7: no glob means whole tree. Env
     /// goes with its step (root V19). A quote followed by `#` gets a wider
     /// delimiter.
     #[test]

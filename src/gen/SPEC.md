@@ -57,7 +57,7 @@ T4|x|write-if-changed + `--check`|V2,V3,B1
 T5|x|golden test: emitted files carry ⊥ system literal|`.:V21`
 T6|.|confirm hk schema has a step timeout field; emit it or wrap. FOUND hk 1.58: ⊥ field; wrap `timeout N sh -c '…'` re-quotes hk's `{{files}}` ∴ breaks paths w/ spaces or quotes. open: decide wrapper|V6
 T7|x|test: whole-tree steps emitted w/o glob (golden `links` step)|V7
-T8|.|route `test` to `push` w/ `coverage`; golden holds a test-category check in `push` (issue #54)|V8,B3
+T8|x|route `test` to `push` w/ `coverage`; golden holds a test-category check in `push` (issue #54)|V8,B3
 
 ## §B BUGS
 
