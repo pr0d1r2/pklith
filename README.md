@@ -79,6 +79,8 @@ replaces one, a new id adds one.
   usage text.
 - [A measured example](docs/EXAMPLE.md): pklith put into a real public
   repository, with the numbers it produced.
+- [A gate in an existing repository](docs/EXISTING-REPO.md): a worked
+  example on a Swift fork, with upstream baselines and host-toolchain rows.
 - [Contributing](docs/CONTRIBUTING.md), [security](docs/SECURITY.md), the
   [code of conduct](docs/CODE_OF_CONDUCT.md) and
   [third-party notices](docs/THIRD-PARTY-NOTICES.md).
