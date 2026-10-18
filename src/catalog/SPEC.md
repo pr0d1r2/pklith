@@ -34,6 +34,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 - built-in rows seeded from sibling gates (`.:R6`); `.pklith ## checks` overrides by id.
 - `glob` = the RUNNER glob; gen emits it verbatim into the hk step. `glob` & `env` cells are comma lists; `env` items `KEY=value`, value ⊥ comma. `nix` empty (`-`) = hk runs it natively (`hk util`).
 - swiftlint on darwin loads `sourcekitd` from host Xcode (`xcode-select`) at run time ∴ ⊥ Xcode → step fails at start, ⊥ at a finding. linux attr = upstream static binary.
+- `test` rows run a repo's own suite ∴ `src/gen:V8` → push. `bats-changed` (`**/*.sh` `**/*.bats`): companion `.bats` of ∀ changed file via `pklith map` (`exists` rule templates) + ∀ changed `.bats` itself; TAP lines ⊥ `ok` printed ∴ failures only; companion missing → red (`src/map:V1`). `bats-unit` (whole tree): `bats --recursive tests`; ⊥ `tests` dir → red, ⊥ green-by-nothing
 - fragment row: `fragment|triggers|checks|seed`. triggers = file types, paths, globs (read by src/detect); checks = catalog ids; seed = seed file ids (src/seed). built-in order = fragment order.
 
 ## §V INVARIANTS
@@ -54,6 +55,7 @@ T5|x|test: ∀ built-in `check` resolves to a binary of its `nix` attr; `npx`/`p
 T6|x|fragment rows: parse, non-empty (`.:V18`), built-in fragments ported from set-and-setting + completeness test|`.:V16`,`.:V17`,`.:V18`
 T7|x|swift: rows `swift-format` (format, nix `swift-format`) & `swiftlint` (lint, nix `swiftlint`), fragment `swift` (triggers `**/Package.swift`, `**/*.swift`; seed `swiftlint`, `ignore-swift`); 1 fixture per row|V1,V2,V4,`.:V17`,`.:V30`
 T8|.|`.context-limits` has 2 readings: fragment `spec` row `sherd-budget` = chain ceilings, fragment `context` row `itok` = per-file ceilings; a repo w/ both fragments active cannot pass both. pick 1 meaning per file (e.g. itok reads its own path, `.:T71`), then test: repo w/ `SPEC.md` + `.context-limits` → ⊥ 2 rows reading 1 file 2 ways. open: which (issue #94)|B2,`.:B11`,`.:V9`
+T9|x|test rows `bats-changed` & `bats-unit` (nix `bats`, issue #97); `bats` fragment gains both (`.:V17`; PORT: `bats-unit` mapped, ⊥ dropped); 1 fixture per row + companion-only case through the built binary|V1,V2,V4,`.:V17`,`.:V30`,`src/gen:V8`
 
 ## §B BUGS
 

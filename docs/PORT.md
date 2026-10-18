@@ -72,6 +72,7 @@ pklith adds three fragments of its own: `rust`, `spec` (SPEC.md files) and `cont
 | xmllint | `xmllint` |
 | gawk-lint | `gawk-lint`, which parses without running the script |
 | bats-parse | `bats-parse` |
+| bats-unit | `bats-unit`, which runs `bats --recursive tests` at pre-push; a repository whose specs live elsewhere replaces the row |
 | linter-coverage | `pklith check` itself |
 
 These were dropped:
@@ -84,6 +85,5 @@ These were dropped:
 | nix-flake-check | Slow and whole-flake; it belongs in CI, where a repository can add it. |
 | commit-msg-lint, changelog-touched | Commit-message and changelog policy is the repository's; pklith's own gate has both. |
 | markdownlint-agentic | Depends on set-and-setting's skill-file classifier. |
-| bats-unit | It runs a repository's own test suite, not a file check. |
 | tdd-order-bats | Its test-first rule is now a `tdd-order` row in `## rules` with a `pklith check --pushed` step ([REGISTRY.md](REGISTRY.md)); migrate cannot write that row, since the select and target templates are the repository's. |
 | rekall-check, rekall-gnu-sed, set-skill-*, set-ref-resolution, set-bundle-content, skill-registered | Set-half checks. |
