@@ -23,6 +23,15 @@ format 1
 # step fails at start, not at a finding; on Linux nixpkgs ships upstream's
 # static binary. Its runner glob is the .swift files only: given nothing
 # but .swiftlint.yml, swiftlint fails with "No lintable files".
+#
+# bats-changed and bats-unit run a repository's own suite, so as `test`
+# checks gen puts them at push. bats-changed runs the spec `pklith map`
+# finds for each changed file through the `exists` rules, plus each changed
+# .bats file, and prints only the TAP lines that are not `ok`; a changed
+# script whose spec is missing fails, as map does. Spec paths are split on
+# blanks. bats-unit runs everything under tests/; a repository that keeps
+# its specs elsewhere replaces the row. Without tests/ bats refuses, so the
+# step never passes having run nothing.
 
 ## checks
 id|category|nix|glob|check|fix|env|msg
@@ -62,6 +71,8 @@ sherd-check|spec|sherd|**/SPEC.md, **/*.rs|sherd check|-|-|a citation across spe
 sherd-nav|spec|sherd|**/SPEC.md|sherd sync --check|sherd sync|-|a §N table is stale
 sherd-budget|spec|sherd|**/SPEC.md, .context-limits|sherd budget|-|-|a spec chain is over its ceiling
 itok|spec|itok|**/*, .context-limits|itok check|-|-|a file registered in .context-limits is over its token ceiling
+bats-changed|test|bats|**/*.sh, **/*.bats|(specs=$(pklith map {{files}}) \|\| exit 1; for f in {{files}}; do case $f in *.bats) [ -f "$f" ] && specs="$specs $f";; esac; done; [ -n "$specs" ] \|\| exit 0; out=$(bats --formatter tap $(printf '%s\n' $specs \| sort -u)) && exit 0; printf '%s\n' "$out" \| grep -v '^ok '; exit 1)|-|-|a changed file's bats spec failed, or a changed script has no spec its rule names
+bats-unit|test|bats|-|bats --recursive tests|-|-|a bats test under tests/ failed, or there is no tests/ directory
 
 # Fragments (catalog §C): which checks a repository gets, from the files it
 # tracks. Ported from set-and-setting's detect-fragments.sh and
@@ -79,7 +90,7 @@ shell|**/*.sh, **/*.bash|shellcheck, shfmt|-
 rubocop|**/.rubocop.yml, **/*.gemspec|rubocop|rubocop, ignore-ruby
 xml|**/*.xml|xmllint|-
 awk|**/*.awk|gawk-lint|-
-bats|**/*.bats|bats-parse|-
+bats|**/*.bats|bats-parse, bats-unit|-
 markdown|**/*.md|markdownlint|-
 yaml|**/*.yml, **/*.yaml|yamllint|-
 toml|**/*.toml|taplo|-

@@ -19,6 +19,16 @@ the bytes pklith emits for the same inputs is at least a minor version
 
 ### Added
 
+- Built-in checks `bats-changed` and `bats-unit` (test, nix `bats`, #97),
+  emitted in the `push` mapping of `hk.pklith.pkl`. `bats-changed` runs on
+  changed `**/*.sh` and `**/*.bats`: the spec `pklith map` finds for each
+  through the `exists` rules, and each changed `.bats` file, printing only
+  the TAP lines that are not `ok`; a changed script whose spec is missing
+  fails. `bats-unit` runs `bats --recursive tests` over the whole tree and
+  joins the `bats` fragment, so `pklith seed --init` in a repository with
+  `.bats` files now claims it and `nix/pklith.nix` keeps `bats`.
+  `pklith migrate` maps lefthook commands of both names instead of
+  refusing them.
 - `## rules` kind `tdd-order` (#65): every commit that changes a selected
   file changes its target in that commit or an earlier one. It runs only
   over commits: `pklith check --pushed` (new: the commits on no

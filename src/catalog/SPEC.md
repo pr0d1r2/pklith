@@ -55,7 +55,7 @@ T5|x|test: ∀ built-in `check` resolves to a binary of its `nix` attr; `npx`/`p
 T6|x|fragment rows: parse, non-empty (`.:V18`), built-in fragments ported from set-and-setting + completeness test|`.:V16`,`.:V17`,`.:V18`
 T7|x|swift: rows `swift-format` (format, nix `swift-format`) & `swiftlint` (lint, nix `swiftlint`), fragment `swift` (triggers `**/Package.swift`, `**/*.swift`; seed `swiftlint`, `ignore-swift`); 1 fixture per row|V1,V2,V4,`.:V17`,`.:V30`
 T8|.|`.context-limits` has 2 readings: fragment `spec` row `sherd-budget` = chain ceilings, fragment `context` row `itok` = per-file ceilings; a repo w/ both fragments active cannot pass both. pick 1 meaning per file (e.g. itok reads its own path, `.:T71`), then test: repo w/ `SPEC.md` + `.context-limits` → ⊥ 2 rows reading 1 file 2 ways. open: which (issue #94)|B2,`.:B11`,`.:V9`
-T9|.|test rows `bats-changed` & `bats-unit` (nix `bats`, issue #97); `bats` fragment gains `bats-unit` (PORT: mapped, ⊥ dropped); 1 fixture per row + companion-only case through the built binary|V1,V2,V4,`.:V17`,`.:V30`,`src/gen:V8`
+T9|x|test rows `bats-changed` & `bats-unit` (nix `bats`, issue #97); `bats` fragment gains `bats-unit` (PORT: mapped, ⊥ dropped); 1 fixture per row + companion-only case through the built binary|V1,V2,V4,`.:V17`,`.:V30`,`src/gen:V8`
 
 ## §B BUGS
 
