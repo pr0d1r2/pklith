@@ -206,7 +206,7 @@ T70|x|fleet sweep: ∀ repo under `../` using a legacy coverage tool or set-and-
 T71|.|OPTIONAL: raise itok issue: `itok check` takes a limits path; ⊥ needed while `file-ceilings` holds (T26)|B11
 T72|x|`shellcheck` on `.githooks/*` & `.envrc` (shell w/o `.sh` name ∴ glob by path)|V2,V5
 T73|x|`hk-parity` refuses a commandless step in any hook, naming it; test: fixture hk.pkl amending a missing step id → red, clean twin → green|V36,B13
-T74|.|x86_64-darwin in flake `systems` (age-plugin-se T32). microlith, itok ⊥ ship it ∴ built from locked src till they do|V21
+T74|x|x86_64-darwin in flake `systems` (age-plugin-se T32). microlith, itok ⊥ ship it ∴ built from locked src till they do|V21
 T75|.|OWNER: x86_64-darwin CI job; cold cache|V8
 T76|.|nixpkgs 26.05 = last w/ x86_64-darwin (warned 2026-10-21): decide before bump past it|T74
 

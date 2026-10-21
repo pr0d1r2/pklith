@@ -40,8 +40,8 @@ coverage and hook materialization move to pklith.
 ```
 
 With an `.envrc` holding `use flake`, `direnv allow` enters it on `cd`.
-Supported systems are aarch64-darwin, x86_64-linux and aarch64-linux;
-asking `lib.devShell` for another fails naming these.
+Supported systems are aarch64-darwin, x86_64-darwin, x86_64-linux and
+aarch64-linux; asking `lib.devShell` for another fails naming these.
 
 ## Putting the gate in
 
@@ -131,4 +131,8 @@ verb that uses the network.
 - **No step timeout.** hk 2.7.0 still has no timeout field for a step, and
   wrapping commands in `timeout` would re-quote `{{files}}`; a hung tool
   hangs the hook (`src/gen` T6).
-- **Platforms.** No x86_64-darwin (Intel macOS) and no Windows.
+- **Platforms.** No Windows. x86_64-darwin (Intel macOS) evaluates but
+  has no CI job and nothing in the cache, so the first shell builds hk,
+  pklith, sherd, microlith and itok from source; microlith and itok publish no
+  package for it, so pklith builds them from their locked source.
+  nixpkgs 26.05 is the last nixpkgs release with x86_64-darwin.
