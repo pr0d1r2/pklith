@@ -48,34 +48,43 @@
       ...
     }:
     let
-      # The tier-1 systems of §C. No system literal appears anywhere else
-      # (V21): everything below is written against whatever `pkgs` it is given.
+      # The systems of §C, x86_64-darwin eval only (T74-T76). No system
+      # literal appears anywhere else (V21).
       systems = [
         "aarch64-darwin"
+        "x86_64-darwin"
         "x86_64-linux"
         "aarch64-linux"
       ];
       # The overlay makes `pkgs.hk` mean nix-hk's hk, so there is one `pkgs`.
       forAll =
         f: nixpkgs.lib.genAttrs systems (s: f (nixpkgs.legacyPackages.${s}.extend nix-hk.overlays.default));
+      # An input's package, or its crate built from the locked source where
+      # it ships none (microlith, itok on x86_64-darwin: T74).
+      input =
+        pkgs: i:
+        let
+          crate = (builtins.fromTOML (builtins.readFile (i + "/Cargo.toml"))).package;
+        in
+        i.packages.${pkgs.stdenv.hostPlatform.system}.default or (pkgs.rustPlatform.buildRustPackage {
+          pname = crate.name;
+          inherit (crate) version;
+          src = i;
+          cargoLock.lockFile = i + "/Cargo.lock";
+          doCheck = false;
+        });
     in
     {
       # The namespace the built-in catalog's `nix` column names
       # (src/catalog/builtin.pklith): nixpkgs, plus the flake inputs for
       # tools nixpkgs does not ship. scripts/catalog-nix.sh builds from it.
-      legacyPackages = forAll (
-        pkgs:
-        let
-          input = i: i.packages.${pkgs.stdenv.hostPlatform.system}.default;
-        in
-        {
-          catalog = pkgs // {
-            microlith = input microlith;
-            sherd = input sherd;
-            itok = input itok;
-          };
-        }
-      );
+      legacyPackages = forAll (pkgs: {
+        catalog = pkgs // {
+          microlith = input pkgs microlith;
+          sherd = input pkgs sherd;
+          itok = input pkgs itok;
+        };
+      });
 
       # The dev shell a pklith consumer enters (root §C): hk, pkl, git and pklith,
       # plus every package its generated `nix/pklith.nix` names, all from
@@ -212,9 +221,9 @@
             pkgs.cargo-llvm-cov
             pkgs.llvmPackages.llvm
             # SPEC.md format and structure (mth), from the pinned microlith.
-            microlith.packages.${pkgs.stdenv.hostPlatform.system}.default
+            (input pkgs microlith)
             # Federation checks (check, sync, budget), from the pinned sherd.
-            sherd.packages.${pkgs.stdenv.hostPlatform.system}.default
+            (input pkgs sherd)
             # Built-in catalog tools pklith's own gate does not run, so its
             # test suite can prove each one against a planted violation (V30).
             pkgs.shfmt
@@ -230,7 +239,7 @@
             pkgs.gnugrep
             pkgs.swift-format
             pkgs.swiftlint
-            itok.packages.${pkgs.stdenv.hostPlatform.system}.default
+            (input pkgs itok)
           ];
           RUST_BACKTRACE = "1";
           LLVM_COV = "${pkgs.llvmPackages.llvm}/bin/llvm-cov";

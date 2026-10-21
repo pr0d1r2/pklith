@@ -19,6 +19,13 @@ the bytes pklith emits for the same inputs is at least a minor version
 
 ### Added
 
+- x86_64-darwin (Intel macOS) in the flake's systems: `lib.devShell`,
+  `legacyPackages.x86_64-darwin.catalog`, `packages.x86_64-darwin` and
+  `checks.x86_64-darwin` now exist, so a consumer's `nix develop` starts
+  there instead of failing with the supported list. microlith and itok
+  publish no x86_64-darwin package, so the catalog builds them from their
+  locked source on that system. It has no CI job and no cached binaries,
+  and nixpkgs 26.05 is the last nixpkgs release that carries it.
 - Built-in checks `bats-changed` and `bats-unit` (test, nix `bats`, #97),
   emitted in the `push` mapping of `hk.pklith.pkl`. `bats-changed` runs on
   changed `**/*.sh` and `**/*.bats`: the spec `pklith map` finds for each
