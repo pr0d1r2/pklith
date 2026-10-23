@@ -105,6 +105,7 @@ proven! {
     bats_parse => "bats-parse": [file("a.bats", "@test \"x\" {\n  true\n")], [file("a.bats", "@test \"x\" {\n  true\n}\n")];
     bats_changed => "bats-changed": bats_suite(2), bats_suite(3);
     bats_unit => "bats-unit": bats_suite(2), bats_suite(3);
+    bats_unit_none => "bats-unit": [file("tests/AppTests.swift", "import XCTest\n")], bats_suite(3);
     shfmt => "shfmt": [file("a.sh", "if true;then echo;fi\n")], [file("a.sh", "if true; then echo; fi\n")];
     taplo => "taplo": [file("a.toml", "a=1\n")], [file("a.toml", "a = 1\n")];
     rustfmt => "rustfmt": crate_with("pub fn f(){}\n"), crate_with("pub fn f() {}\n");
