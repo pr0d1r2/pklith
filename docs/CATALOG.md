@@ -61,8 +61,8 @@ first: `hygiene`, `secret`, `format`, `lint`, `spec`, `test`, `coverage`,
 | `sherd-nav` | spec | `sherd` | `**/SPEC.md` | yes | a §N table is stale |
 | `sherd-budget` | spec | `sherd` | `**/SPEC.md` `.context-limits` | - | a spec chain is over its ceiling |
 | `itok` | spec | `itok` | `**/*` `.context-limits` | - | a file registered in .context-limits is over its token ceiling |
-| `bats-changed` | test | `bats` | `**/*.sh` `**/*.bats` | - | a changed file's bats spec failed, or a changed script has no spec its rule names |
-| `bats-unit` | test | `bats` | whole tree | - | a bats test under tests/ failed, or there is no tests/ directory |
+| `bats-changed` | test | `bats` | `**/*.sh` `**/*.bats` | - | a changed file's bats spec failed or holds no test, or a changed script has no spec its rule names |
+| `bats-unit` | test | `bats` | whole tree | - | a bats test under tests/ failed, or bats ran none: no tests/ directory, or no .bats file in it |
 
 ### Fragments
 

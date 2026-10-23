@@ -61,6 +61,16 @@ the bytes pklith emits for the same inputs is at least a minor version
 
 ### Fixed
 
+- Built-in `bats-unit` no longer passes having run no test (#102). On a
+  case-insensitive filesystem, the macOS default, `bats --recursive tests`
+  also opens a SwiftPM `Tests/` directory, finds no `.bats` file, prints
+  `1..0` and exits 0; a `tests/` with no `.bats` file did the same
+  anywhere. The step now runs bats with the TAP formatter and fails on a
+  `1..0` plan, saying no bats tests were found under `tests/`, and on a
+  failure prints only the TAP lines that are not `ok`. `bats-changed`
+  likewise fails when the specs it runs hold no test. Consumers see both
+  steps' `check` change in `hk.pklith.pkl`, and `bats-unit`'s message in
+  the AGENTS.md table.
 - pklith's own gate: `scripts/hk-parity.sh` refuses a step with no
   `check`, `check_diff`, `check_list_files` or `fix` in any hook of the
   evaluated `hk.pkl`, naming the hook and step, instead of filtering it
