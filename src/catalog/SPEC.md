@@ -34,7 +34,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 - built-in rows seeded from sibling gates (`.:R6`); `.pklith ## checks` overrides by id.
 - `glob` = the RUNNER glob; gen emits it verbatim into the hk step. `glob` & `env` cells are comma lists; `env` items `KEY=value`, value ⊥ comma. `nix` empty (`-`) = hk runs it natively (`hk util`).
 - swiftlint on darwin loads `sourcekitd` from host Xcode (`xcode-select`) at run time ∴ ⊥ Xcode → step fails at start, ⊥ at a finding. linux attr = upstream static binary.
-- `test` rows run a repo's own suite ∴ `src/gen:V8` → push. `bats-changed` (`**/*.sh` `**/*.bats`): companion `.bats` of ∀ changed file via `pklith map` (`exists` rule templates) + ∀ changed `.bats` itself; TAP lines ⊥ `ok` printed ∴ failures only; companion missing → red (`src/map:V1`). `bats-unit` (whole tree): `bats --recursive tests`; ⊥ `tests` dir → red, ⊥ green-by-nothing
+- `test` rows run a repo's own suite ∴ `src/gen:V8` → push. `bats-changed` (`**/*.sh` `**/*.bats`): companion `.bats` of ∀ changed file via `pklith map` (`exists` rule templates) + ∀ changed `.bats` itself; TAP lines ⊥ `ok` printed ∴ failures only; companion missing → red (`src/map:V1`). `bats-unit` (whole tree): `bats --recursive tests`, failures only. both: 0 tests run (plan `1..0`) → red (B3)
 - fragment row: `fragment|triggers|checks|seed`. triggers = file types, paths, globs (read by src/detect); checks = catalog ids; seed = seed file ids (src/seed). built-in order = fragment order.
 
 ## §V INVARIANTS
@@ -56,9 +56,11 @@ T6|x|fragment rows: parse, non-empty (`.:V18`), built-in fragments ported from s
 T7|x|swift: rows `swift-format` (format, nix `swift-format`) & `swiftlint` (lint, nix `swiftlint`), fragment `swift` (triggers `**/Package.swift`, `**/*.swift`; seed `swiftlint`, `ignore-swift`); 1 fixture per row|V1,V2,V4,`.:V17`,`.:V30`
 T8|.|`.context-limits` has 2 readings: fragment `spec` row `sherd-budget` = chain ceilings, fragment `context` row `itok` = per-file ceilings; a repo w/ both fragments active cannot pass both. pick 1 meaning per file (e.g. itok reads its own path, `.:T71`), then test: repo w/ `SPEC.md` + `.context-limits` → ⊥ 2 rows reading 1 file 2 ways. open: which (issue #94)|B2,`.:B11`,`.:V9`
 T9|x|test rows `bats-changed` & `bats-unit` (nix `bats`, issue #97); `bats` fragment gains both (`.:V17`; PORT: `bats-unit` mapped, ⊥ dropped); 1 fixture per row + companion-only case through the built binary|V1,V2,V4,`.:V17`,`.:V30`,`src/gen:V8`
+T10|.|0 tests → red in both bats rows (#102); built-binary test per B3 cause + failures only|V1,`.:V30`
 
 ## §B BUGS
 
 id|date|cause|fix
 B1|2026-09-27|built-in `rubocop` w/o `GEM_HOME`: RubyGems falls back to user gem dir (nix store read-only) ∴ loads native gems of another Ruby → crash|row sets `GEM_HOME=/nonexistent`; fixture harness keeps real HOME so the host env is what gets proven
 B2|2026-10-18|age-plugin-se PR #5 (open, head `8b4151a`): seeded gate activates `spec` & `context` on 1 `.context-limits` holding sherd chain ceilings; `itok` reads them per FILE & refuses root `SPEC.md` ∴ itok row deferred. root B11 = same clash in pklith's own gate, fragment-level ⊥ fixed|T8 open
+B3|2026-10-23|SwiftPM `Tests/` on a case-insensitive FS (macOS): `tests` opens it, `1..0`, exit 0 ∴ `bats-unit` green-by-nothing (age-plugin-se #21); `tests/` w/o `.bats` likewise|T10
