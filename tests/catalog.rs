@@ -168,11 +168,12 @@ fn explains(check: &pklith::catalog::Check, output: &str) {
 }
 
 macro_rules! proven {
-    ($($name:ident => $id:literal: $bad:expr, $good:expr;)*) => {
+    ($($(#[$attr:meta])* $name:ident => $id:literal: $bad:expr, $good:expr;)*) => {
         /// Every id with a fixture below.
         pub const PROVEN: &[&str] = &[$($id),*];
         $(
             #[test]
+            $(#[$attr])*
             fn $name() -> super::Result {
                 super::proves($id, &$bad, &$good)
             }
@@ -185,6 +186,9 @@ mod fixtures;
 
 #[path = "catalog/bats.rs"]
 mod bats;
+
+#[path = "catalog/universal.rs"]
+mod universal;
 
 /// V30: no built-in check ships without a fixture, and no fixture outlives
 /// its check.
