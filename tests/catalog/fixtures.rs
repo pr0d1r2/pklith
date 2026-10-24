@@ -61,6 +61,16 @@ fn swiftlint_seed() -> Entry {
     file(".swiftlint.yml", text)
 }
 
+/// The `.envrc` `pklith seed` writes for the nix fragment (seed V4, #105):
+/// shellcheck reads `.envrc`, so the seed must name its shell.
+fn envrc_seed() -> Entry {
+    let text = match pklith::seed::templates::named("envrc") {
+        Some(pklith::seed::templates::Template::File(_, text)) => text,
+        _ => "",
+    };
+    file(".envrc", text)
+}
+
 /// A script, its companion spec under the registry's `exists` rule, and
 /// `tests/unit/a.bats` asserting the script prints 3: `prints` is what
 /// the script prints, so 2 is the planted bug.
@@ -135,6 +145,7 @@ proven! {
     rustfmt_workspace => "rustfmt": workspace_with("pub fn f(){}\n"), workspace_with("pub fn f() {}\n");
     typos => "typos": [File("a.txt", format!("the t{}h cat\n", "e"))], [file("a.txt", "the cat\n")];
     shellcheck => "shellcheck": [file("a.sh", "#!/bin/sh\necho $1\n")], [file("a.sh", "#!/bin/sh\necho \"$1\"\n")];
+    shellcheck_seeded_envrc => "shellcheck": [file(".envrc", "use flake\n")], [envrc_seed()];
     clippy => "clippy": crate_with("pub fn f(v: &Vec<u8>) -> usize {\n    v.len()\n}\n"), crate_with("pub fn f(v: &[u8]) -> usize {\n    v.len()\n}\n");
     clippy_workspace => "clippy": workspace_with("pub fn f(v: &Vec<u8>) -> usize {\n    v.len()\n}\n"), workspace_with("pub fn f(v: &[u8]) -> usize {\n    v.len()\n}\n");
     rubocop => "rubocop": [file("a.rb", "puts \"x\"\n")], [file("a.rb", "# frozen_string_literal: true\n\nputs 'x'\n")];
