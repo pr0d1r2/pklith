@@ -48,7 +48,7 @@ T1|x|seed writer + skip-if-exists + empty ledger valid|V1,V3,`.:T55`
 T2|x|`.gitignore` composition|V2
 T3|x|`.pklith` from detected fragments + binary-asset exemptions|V1,`.:V11`
 T4|x|swift seeds: `swiftlint` → `.swiftlint.yml`, `ignore-swift` → `/.build/` `/.swiftpm/` `*.profraw`|V1,V2
-T5|.|`.envrc` shell directive + shellcheck fixture on the seeded file (#105)|V4
+T5|x|`.envrc` shell directive + shellcheck fixture on the seeded file (#105)|V4
 
 ## §B BUGS
 

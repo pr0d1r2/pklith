@@ -31,7 +31,7 @@ pub const TEMPLATES: [(&str, Template); 15] = [
         Template::Script(".githooks/pre-commit", PRE_COMMIT),
     ),
     ("pre-push", Template::Script(".githooks/pre-push", PRE_PUSH)),
-    ("envrc", Template::File(".envrc", "use flake\n")),
+    ("envrc", Template::File(".envrc", ENVRC)),
     (
         "rubocop",
         Template::File(".rubocop.yml", "AllCops:\n  NewCops: enable\n"),
@@ -51,6 +51,10 @@ pub const TEMPLATES: [(&str, Template); 15] = [
         Template::Ignore("/vendor/bundle\n/.bundle\n"),
     ),
 ];
+
+/// direnv evaluates `.envrc` with bash, and the catalog's shellcheck step
+/// reads it, so it names its shell (seed V4, #105).
+const ENVRC: &str = "# shellcheck shell=bash\nuse flake\n";
 
 /// What editorconfig-checker (base fragment) holds files to: LF, UTF-8, a
 /// final newline, no trailing blanks, spaces except where a tool needs a

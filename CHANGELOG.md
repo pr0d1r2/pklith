@@ -74,6 +74,12 @@ the bytes pklith emits for the same inputs is at least a minor version
 
 ### Fixed
 
+- `pklith seed` writes `.envrc` as `# shellcheck shell=bash` then
+  `use flake`, instead of a bare `use flake` that the catalog's
+  `shellcheck` step refused with SC2148, so a fresh seed is no longer red
+  at `hk check --all` (#105). Consumers see the new first line in a newly
+  seeded `.envrc`; an existing one is never rewritten, and one that still
+  lacks a directive needs it added by hand.
 - On darwin the catalog's `swiftlint` is a wrapper (`nix/swiftlint.nix`,
   applied by `nix/overlay.nix`, so `legacyPackages.<system>.catalog` and
   the `nix/pklith.nix` a consumer's `lib.devShell` imports both get it)
