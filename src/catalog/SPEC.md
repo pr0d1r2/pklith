@@ -60,7 +60,7 @@ T8|.|`.context-limits` has 2 readings: fragment `spec` row `sherd-budget` = chai
 T9|x|test rows `bats-changed` & `bats-unit` (nix `bats`, issue #97); `bats` fragment gains both (`.:V17`; PORT: `bats-unit` mapped, ⊥ dropped); 1 fixture per row + companion-only case through the built binary|V1,V2,V4,`.:V17`,`.:V30`,`src/gen:V8`
 T10|x|0 tests → red in both bats rows (#102); built-binary test per B3 cause + failures only|V1,`.:V30`
 T11|x|`cargo-universal` row (nix/cargo-universal.nix), joins `rust` fragment; fixture: toy bin crate, planted `[env]` floor 26.0 (macOS only); ∀ host: non-Darwin & lib-only skip, canned `lipo`/`otool` parse|V1,V2,V4,`.:V17`,`.:V30`,`src/gen:V8`
-T12|.|darwin `swiftlint` wrapper (#108)|V5
+T12|x|darwin `swiftlint` wrapper (#108)|V5
 
 ## §B BUGS
 
