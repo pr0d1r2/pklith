@@ -13,7 +13,7 @@
 SPEC.md        6600
 dev            7900
 src            6900
-src/catalog    7700
+src/catalog    8000
 src/cli        7300
 src/confirm    7100
 src/cover      7500
