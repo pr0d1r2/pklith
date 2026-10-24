@@ -131,3 +131,31 @@ fn seed_init_leaves_existing_files_to_the_repository() -> Result {
     assert!(registry.contains("pkl|-|-|written by pklith"), "{registry}");
     Ok(std::fs::remove_dir_all(dir)?)
 }
+
+/// A repository with its own `flake.nix`, `flake.lock` and `.gitignore`.
+fn flake(name: &str) -> Result<std::path::PathBuf> {
+    let dir = std::env::temp_dir().join(format!("pklith-cli-{}-{name}", std::process::id()));
+    std::fs::create_dir_all(&dir)?;
+    std::fs::write(dir.join("flake.nix"), "{ }\n")?;
+    std::fs::write(dir.join("flake.lock"), "{ }\n")?;
+    std::fs::write(dir.join(".gitignore"), "result\n")?;
+    for args in [&["init", "-q"][..], &["add", "-A"]] {
+        pklith::proc::command("git", &dir).args(args).output()?;
+    }
+    Ok(dir)
+}
+
+/// Seed V5 (#104): a flake repository with its own `.gitignore` and
+/// `flake.lock` is green after `seed --init` and `gen` with no hand edits.
+#[test]
+fn seed_init_then_gen_passes_check_on_a_flake() -> Result {
+    let dir = flake("flake")?;
+    assert_eq!(pklith(&dir, &["seed", "--init"])?.0, Some(0));
+    assert_eq!(pklith(&dir, &["gen"])?.0, Some(0));
+    pklith::proc::command("git", &dir)
+        .args(["add", "-A"])
+        .output()?;
+    let (code, _, stderr) = pklith(&dir, &["check"])?;
+    assert_eq!((code, stderr.as_str()), (Some(0), ""));
+    Ok(std::fs::remove_dir_all(dir)?)
+}
