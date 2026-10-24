@@ -13,7 +13,7 @@
 SPEC.md        6600
 dev            7900
 src            6900
-src/catalog    8000
+src/catalog    8350
 src/cli        7300
 src/confirm    7100
 src/cover      7500
@@ -30,4 +30,4 @@ src/registry   7600
 src/report     7200
 src/rule       7500
 src/scan       7400
-src/seed       7300
+src/seed       7450
