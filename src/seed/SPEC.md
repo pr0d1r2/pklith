@@ -30,7 +30,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 ## §C CONSTRAINTS
 
-- seed set per fragment from catalog `seed` cell: base `.editorconfig` `.gitattributes` README stub & an hk gate (`hk.pkl` running `hk.pklith.pkl`, that module empty, vendored `pkl/Config.pkl`, `.githooks/pre-commit` & `pre-push` executable, refusing w/o hk: `.:V1`) · nix `.envrc` · rubocop `.rubocop.yml` · swiftlint `.swiftlint.yml` (style rules swift-format owns OFF, `force_unwrapping` & `implicitly_unwrapped_optional` ON) · `.gitignore` parts (nix, rust, ruby, swift). ⊥ LICENSE: a license is the owner's choice & its year needs a clock (`.:C`). ⊥ size limits, ⊥ `.typos.toml`: tools run fine w/o them. exemptions live in `.pklith` `exempt` cells, ⊥ separate ledger.
+- seed set per fragment from catalog `seed` cell: base `.editorconfig` `.gitattributes` README stub & an hk gate (`hk.pkl` running `hk.pklith.pkl`, that module empty, vendored `pkl/Config.pkl`, `.githooks/pre-commit` & `pre-push` executable, refusing w/o hk: `.:V1`) · nix `.envrc` (`# shellcheck shell=bash`, `use flake`) · rubocop `.rubocop.yml` · swiftlint `.swiftlint.yml` (style rules swift-format owns OFF, `force_unwrapping` & `implicitly_unwrapped_optional` ON) · `.gitignore` parts (nix, rust, ruby, swift). ⊥ LICENSE: a license is the owner's choice & its year needs a clock (`.:C`). ⊥ size limits, ⊥ `.typos.toml`: tools run fine w/o them. exemptions live in `.pklith` `exempt` cells, ⊥ separate ledger.
 - templates embedded in binary; ⊥ network.
 - `--init` also writes `.pklith` from detected fragments: their checks per type, & binary types (images, fonts, archives) as exempt w/ reason `binary asset`. repo edits it after.
 
@@ -39,6 +39,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 V1: `--init` skip-if-exists; existing file ⊥ touched (`.:V25`)
 V2: `.gitignore` fragments concatenated in fragment order
 V3: seeded `.pklith` parses & cover accepts it on the tree as seed & gen leave it (their own files included): ⊥ stale row, ⊥ unbacked claim; a type no check reads is left a gap & named, ⊥ silent exempt (`.:V5`, `.:V11`) — except a type ONLY pklith's own files have, exempt w/ reason `written by pklith (seed or gen)` ∴ a fresh repo is green once seeded (92c8953)
+V4: seeded file passes the steps its fragments add, as written: `.envrc` names its shell (direnv runs bash) ∴ shellcheck ⊥ SC2148
 
 ## §T TASKS
 
@@ -47,7 +48,9 @@ T1|x|seed writer + skip-if-exists + empty ledger valid|V1,V3,`.:T55`
 T2|x|`.gitignore` composition|V2
 T3|x|`.pklith` from detected fragments + binary-asset exemptions|V1,`.:V11`
 T4|x|swift seeds: `swiftlint` → `.swiftlint.yml`, `ignore-swift` → `/.build/` `/.swiftpm/` `*.profraw`|V1,V2
+T5|.|`.envrc` shell directive + shellcheck fixture on the seeded file (#105)|V4
 
 ## §B BUGS
 
 id|date|cause|fix
+B1|2026-10-23|#105: seeded `.envrc` = bare `use flake` ∴ catalog shellcheck SC2148 ∴ fresh seed red at `hk check --all`|V4
