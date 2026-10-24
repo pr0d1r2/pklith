@@ -35,7 +35,8 @@ sib|src/cli|arg dispatch, usage, exit codes
 - `glob` = the RUNNER glob; gen emits it verbatim into the hk step. `glob` & `env` cells are comma lists; `env` items `KEY=value`, value ⊥ comma. `nix` empty (`-`) = hk runs it natively (`hk util`).
 - darwin swiftlint needs host `sourcekitdInProc`, nix ships none ∴ attr wraps it, `TOOLCHAIN_DIR` ← host `xcode-select -p`; linux unwrapped.
 - `test` rows run a repo's own suite ∴ `src/gen:V8` → push. `bats-changed` (`**/*.sh` `**/*.bats`): companion `.bats` of ∀ changed file via `pklith map` (`exists` rule templates) + ∀ changed `.bats` itself; TAP lines ⊥ `ok` printed ∴ failures only; companion missing → red (`src/map:V1`). `bats-unit` (whole tree): `bats --recursive tests`, failures only. both: 0 tests run (plan `1..0`) → red (B3)
-- `cargo-universal` (test; paradigm#25's universal rule): ∀ workspace bin, release builds for `aarch64-apple-darwin` & `x86_64-apple-darwin`, `lipo`-joined → exactly arm64 + x86_64, each slice `minos` 14.0 (`otool -l`; `vtool` ⊥ runs under nix). env `MACOSX_DEPLOYMENT_TARGET=14.0`. non-Darwin | no bin → notice, exit 0. nixpkgs rustc: host std only ∴ other Mac's std from same-rev rustc of that system, `--sysroot`. push vs release-only = paradigm's open question
+- `cargo-universal` (test; paradigm#25's universal rule): ∀ workspace bin, release builds for `aarch64-apple-darwin` & `x86_64-apple-darwin`, `lipo`-joined → exactly arm64 + x86_64, each slice `minos` = floor (`otool -l`; `vtool` ⊥ runs under nix), built w/ `MACOSX_DEPLOYMENT_TARGET` = floor. non-Darwin | no bin → notice, exit 0. nixpkgs rustc: host std only ∴ other Mac's std from same-rev rustc of that system, `--sysroot`. push vs release-only = paradigm's open question
+- `cargo-deployment-target` (lint; paradigm T18): root `Cargo.toml` → `.cargo/config.toml` `[env]` `MACOSX_DEPLOYMENT_TARGET = { value = floor, force = true }` (inline | sub-table), read by `taplo get -o json` + jq. ⊥ file, ⊥ key, other value, ⊥ force → red, naming file & expected. force REQUIRED: nix darwin stdenv exports its own value (dev shell, CI, `buildRustPackage`) & `[env]` w/o force ⊥ overrides it. ⊥ root `Cargo.toml` → notice, exit 0. floor (14.0) in 1 place, `src/seed/cargo-config.toml` = what seed writes; nix reads it (`fromTOML`) for both cargo rows
 - fragment row: `fragment|triggers|checks|seed`. triggers = file types, paths, globs (read by src/detect); checks = catalog ids; seed = seed file ids (src/seed). built-in order = fragment order.
 
 ## §V INVARIANTS
@@ -61,6 +62,7 @@ T9|x|test rows `bats-changed` & `bats-unit` (nix `bats`, issue #97); `bats` frag
 T10|x|0 tests → red in both bats rows (#102); built-binary test per B3 cause + failures only|V1,`.:V30`
 T11|x|`cargo-universal` row (nix/cargo-universal.nix), joins `rust` fragment; fixture: toy bin crate, planted `[env]` floor 26.0 (macOS only); ∀ host: non-Darwin & lib-only skip, canned `lipo`/`otool` parse|V1,V2,V4,`.:V17`,`.:V30`,`src/gen:V8`
 T12|x|darwin `swiftlint` wrapper (#108)|V5
+T13|.|`cargo-deployment-target` row (nix/cargo-deployment-target.nix), joins `rust` w/ seed `cargo-config` (`src/seed:T7`); `cargo-universal` takes the floor from the same file; fixture: ⊥ config; built binary: ⊥ key, `26.0`, ⊥ force, table & sub-table pass, ⊥ root `Cargo.toml` skips|V1,V2,V4,`.:V17`,`.:V30`
 
 ## §B BUGS
 

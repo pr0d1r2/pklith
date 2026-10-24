@@ -30,7 +30,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 
 ## §C CONSTRAINTS
 
-- seed set per fragment from catalog `seed` cell: base `.editorconfig` `.gitattributes` README stub & an hk gate (`hk.pkl` running `hk.pklith.pkl`, that module empty, vendored `pkl/Config.pkl`, `.githooks/pre-commit` & `pre-push` executable, refusing w/o hk: `.:V1`) · nix `.envrc` (`# shellcheck shell=bash`, `use flake`) · rubocop `.rubocop.yml` · swiftlint `.swiftlint.yml` (style rules swift-format owns OFF, `force_unwrapping` & `implicitly_unwrapped_optional` ON) · `.gitignore` parts (nix, rust, ruby, swift). ⊥ LICENSE: a license is the owner's choice & its year needs a clock (`.:C`). ⊥ size limits, ⊥ `.typos.toml`: tools run fine w/o them. exemptions live in `.pklith` `exempt` cells, ⊥ separate ledger.
+- seed set per fragment from catalog `seed` cell: base `.editorconfig` `.gitattributes` README stub & an hk gate (`hk.pkl` running `hk.pklith.pkl`, that module empty, vendored `pkl/Config.pkl`, `.githooks/pre-commit` & `pre-push` executable, refusing w/o hk: `.:V1`) · nix `.envrc` (`# shellcheck shell=bash`, `use flake`) · rubocop `.rubocop.yml` · swiftlint `.swiftlint.yml` (style rules swift-format owns OFF, `force_unwrapping` & `implicitly_unwrapped_optional` ON) · rust `.cargo/config.toml` (`cargo-config`: `[env]` pins the macOS floor, `src/catalog:T13`) · `.gitignore` parts (nix, rust, ruby, swift). ⊥ LICENSE: a license is the owner's choice & its year needs a clock (`.:C`). ⊥ size limits, ⊥ `.typos.toml`: tools run fine w/o them. exemptions live in `.pklith` `exempt` cells, ⊥ separate ledger.
 - templates embedded in binary; ⊥ network.
 - `--init` also writes `.pklith` from detected fragments: their checks per type, & binary types (images, fonts, archives) as exempt w/ reason `binary asset`. repo edits it after.
 
@@ -51,6 +51,7 @@ T3|x|`.pklith` from detected fragments + binary-asset exemptions|V1,`.:V11`
 T4|x|swift seeds: `swiftlint` → `.swiftlint.yml`, `ignore-swift` → `/.build/` `/.swiftpm/` `*.profraw`|V1,V2
 T5|x|`.envrc` shell directive + shellcheck fixture on the seeded file (#105)|V4
 T6|x|known exemptions: `gitignore`, root `flake.lock` (#104)|V5,V3
+T7|.|rust seed `cargo-config` → `.cargo/config.toml`; an existing one ⊥ touched, & if it lacks the seeded pin line seed says so on stderr, exit 0 (the check judges it)|V1,`src/catalog:T13`
 
 ## §B BUGS
 
