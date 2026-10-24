@@ -91,6 +91,15 @@ the bytes pklith emits for the same inputs is at least a minor version
   line naming `sourcekitdInProc.framework` and `xcode-select --install`,
   and the step stays red. A `TOOLCHAIN_DIR` already set is kept. Linux
   is unchanged.
+- `pklith seed --init` writes `gitignore|-|-|git configuration; hygiene
+  steps only` and ``path:flake.lock|-|-|written by `nix flake lock`;
+  hygiene steps only`` into the first `.pklith` when those files are
+  tracked and no active check reads them, so a freshly seeded flake
+  repository passes `pklith check` without hand edits (#104). Other lock
+  files, such as `Cargo.lock`, and a nested `flake.lock` stay named gaps.
+  A check that reaches `flake.lock` takes its row instead of the
+  exemption. Consumers see the two rows in a newly seeded `.pklith`; an
+  existing one is never rewritten.
 - Built-in `bats-unit` no longer passes having run no test (#102). On a
   case-insensitive filesystem, the macOS default, `bats --recursive tests`
   also opens a SwiftPM `Tests/` directory, finds no `.bats` file, prints

@@ -34,22 +34,91 @@ impl Reach<'_> {
 /// row, so `pklith check` names it until someone decides (root V5), unless
 /// every file of it is one pklith writes itself (`own`: the seed files and
 /// what gen writes, such as the vendored hk schema): that type is exempt,
-/// so a repository is green the moment it is seeded.
+/// so a repository is green the moment it is seeded. So are the `KNOWN`
+/// files no check reads, such as `.gitignore` and `flake.lock` (seed V5).
 #[must_use]
 pub fn registry(files: &[String], active: &[&Fragment], catalog: &[Check], own: &[&str]) -> String {
     let (universal, mut rows) = rows(files, active, catalog);
     let (_, specific) = split(active, catalog);
     let text: Vec<&String> = files.iter().filter(|f| !binary(f)).collect();
-    let (owned, open): (Vec<String>, Vec<String>) = unreached(&text, &specific)
+    let open = exempt(&text, &specific, own, &mut rows);
+    rows.sort();
+    render(&universal, &rows, &open)
+}
+
+/// Files no built-in check reads that a repository commonly tracks, and
+/// why each is exempt (seed V5): a type key, or `path:` and one path.
+/// `flake.lock` is named, not `lock`, so Cargo.lock stays a gap.
+const KNOWN: [(&str, &str); 2] = [
+    ("gitignore", "git configuration; hygiene steps only"),
+    (
+        "path:flake.lock",
+        "written by `nix flake lock`; hygiene steps only",
+    ),
+];
+
+/// Exempt rows for the types no check reaches that need no decision:
+/// those only pklith's own files have, then the `KNOWN` ones. Returns the
+/// types left open, for the header to name.
+fn exempt(
+    text: &[&String],
+    specific: &[Reach<'_>],
+    own: &[&str],
+    rows: &mut Vec<String>,
+) -> Vec<String> {
+    let (owned, open): (Vec<String>, Vec<String>) = unreached(text, specific)
         .into_iter()
-        .partition(|key| only_own(&text, key, own));
+        .partition(|key| only_own(text, key, own));
     rows.extend(
         owned
             .iter()
             .map(|k| format!("{k}|-|-|written by pklith (seed or gen)")),
     );
-    rows.sort();
-    render(&universal, &rows, &open)
+    let rest = known(text, specific, &open, rows);
+    unreached(&rest, specific)
+        .into_iter()
+        .filter(|key| open.contains(key))
+        .collect()
+}
+
+/// The `KNOWN` rows that apply, pushed to `rows`; returns `text` less
+/// the files they exempt.
+fn known<'a>(
+    text: &[&'a String],
+    specific: &[Reach<'_>],
+    open: &[String],
+    rows: &mut Vec<String>,
+) -> Vec<&'a String> {
+    let mut rest = text.to_vec();
+    for (class, reason) in KNOWN {
+        let hits = hits(&rest, class);
+        if free(&hits, specific, open) {
+            rows.push(format!("{class}|-|-|{reason}"));
+            rest.retain(|f| !hits.contains(f));
+        }
+    }
+    rest
+}
+
+/// The files a `KNOWN` class names: every file of a type key, or the one
+/// path after `path:`.
+fn hits<'a>(files: &[&'a String], class: &str) -> Vec<&'a String> {
+    let path = class.strip_prefix("path:");
+    files
+        .iter()
+        .filter(|f| path.map_or(crate::scan::key(f) == class, |p| f.as_str() == p))
+        .copied()
+        .collect()
+}
+
+/// Whether a `KNOWN` exemption applies to `hits`: there are some, no
+/// check reaches them, and their type is open. A check that later reads
+/// them supersedes the exemption (seed V5).
+fn free(hits: &[&String], specific: &[Reach<'_>], open: &[String]) -> bool {
+    !hits.is_empty()
+        && hits
+            .iter()
+            .all(|f| reaching(f, specific).is_empty() && open.contains(&crate::scan::key(f)))
 }
 
 /// Whether every file of type `key` is one pklith writes itself.
