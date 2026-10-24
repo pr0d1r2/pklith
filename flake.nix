@@ -75,20 +75,22 @@
           cargoLock.lockFile = i + "/Cargo.lock";
           doCheck = false;
         });
-      # `cargo-universal`'s script and toolchain (catalog T11).
-      universal = pkgs: import ./nix/cargo-universal.nix { inherit pkgs nixpkgs; };
+      # The catalog's cargo checks (nix/catalog.nix).
+      own = pkgs: import ./nix/catalog.nix { inherit pkgs nixpkgs; };
     in
     {
       # The namespace the built-in catalog's `nix` column names
       # (src/catalog/builtin.pklith): nixpkgs, plus the flake inputs for
       # tools nixpkgs does not ship. scripts/catalog-nix.sh builds from it.
       legacyPackages = forAll (pkgs: {
-        catalog = pkgs // {
-          microlith = input pkgs microlith;
-          sherd = input pkgs sherd;
-          itok = input pkgs itok;
-          cargo-universal = universal pkgs;
-        };
+        catalog =
+          pkgs
+          // {
+            microlith = input pkgs microlith;
+            sherd = input pkgs sherd;
+            itok = input pkgs itok;
+          }
+          // own pkgs;
       });
 
       # The dev shell a pklith consumer enters (root §C): hk, pkl, git and pklith,
@@ -243,8 +245,8 @@
             pkgs.swift-format
             pkgs.swiftlint
             (input pkgs itok)
-            (universal pkgs)
-          ];
+          ]
+          ++ builtins.attrValues (own pkgs);
           RUST_BACKTRACE = "1";
           LLVM_COV = "${pkgs.llvmPackages.llvm}/bin/llvm-cov";
           LLVM_PROFDATA = "${pkgs.llvmPackages.llvm}/bin/llvm-profdata";

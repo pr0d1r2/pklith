@@ -1,22 +1,22 @@
 # The built-in catalog's `cargo-universal` check (src/catalog T11, paradigm
 # V28): each bin target of a cargo workspace, built in release for
 # aarch64-apple-darwin and x86_64-apple-darwin and joined by `lipo`, must
-# hold exactly the arm64 and x86_64 slices, each with `minos` 14.0, so one
-# binary runs on both Macs from macOS 14 on. Modelled on age-plugin-se's
+# hold exactly the arm64 and x86_64 slices, each with `minos` at the floor
+# (14.0 today), so one binary runs on both Macs from that macOS on. Modelled on age-plugin-se's
 # gate/universal.sh, which does the same for SwiftPM.
 #
 #   cargo-universal          build the workspace's bins and check them
 #   cargo-universal BINARY   check BINARY only, building nothing
 #
-# MACOSX_DEPLOYMENT_TARGET is the floor the build asks for (the catalog row
-# sets 14.0); CARGO_UNIVERSAL_MINOS is the minos expected (14.0). Only the
-# slices' minos is judged, so a floor raised anywhere (the env, a
-# `.cargo/config.toml` `[env]`) fails. The universal binaries land in
+# CARGO_UNIVERSAL_MINOS is the floor, which nix sets from
+# src/seed/cargo-config.toml; the build asks for it through
+# MACOSX_DEPLOYMENT_TARGET. Only the slices' minos is judged, so a floor
+# raised anywhere (a forced `.cargo/config.toml` `[env]`) fails. The universal binaries land in
 # `<target dir>/universal-apple-darwin/release/`. nix sets
 # CARGO_UNIVERSAL_SYSROOT on macOS: the host rustc's sysroot plus the other
 # Mac's std, which nixpkgs' rustc lacks.
 
-minos=${CARGO_UNIVERSAL_MINOS:-14.0}
+minos=${CARGO_UNIVERSAL_MINOS:?is unset; nix sets it from src/seed/cargo-config.toml}
 archs="arm64 x86_64"
 
 say() {
@@ -66,7 +66,7 @@ if [ -z "$bins" ]; then
 fi
 target=$(jq -r .target_directory <<<"$metadata")
 
-export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET:-$minos}
+export MACOSX_DEPLOYMENT_TARGET=$minos
 triples="aarch64-apple-darwin x86_64-apple-darwin"
 for triple in $triples; do
 	if [ -n "${CARGO_UNIVERSAL_SYSROOT:-}" ]; then

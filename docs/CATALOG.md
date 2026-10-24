@@ -43,6 +43,7 @@ first: `hygiene`, `secret`, `format`, `lint`, `spec`, `test`, `coverage`,
 | `typos` | lint | `typos` | `**/*` | - | misspelling; fix it or teach .typos.toml |
 | `shellcheck` | lint | `shellcheck` | `**/*.sh` `**/*.bash` `.envrc` | - | shell script finding |
 | `clippy` | lint | `clippy` | `**/*.rs` `Cargo.toml` `clippy.toml` | - | clippy finding |
+| `cargo-deployment-target` | lint | `cargo-deployment-target` | `**/Cargo.toml` `.cargo/config.toml` | - | the macOS floor is not pinned: .cargo/config.toml must set [env] MACOSX_DEPLOYMENT_TARGET to the paradigm V28 floor with force = true |
 | `rubocop` | lint | `rubocop` | `**/*.rb` `**/*.rake` `**/*.gemspec` `Gemfile` `Rakefile` | yes | Ruby style or lint offense |
 | `actionlint` | lint | `actionlint` | `.github/workflows/*.yml` `.github/workflows/*.yaml` | - | workflow does not parse or type-check |
 | `zizmor` | lint | `zizmor` | `.github/workflows/*.yml` `.github/workflows/*.yaml` | - | workflow security finding |
@@ -63,7 +64,7 @@ first: `hygiene`, `secret`, `format`, `lint`, `spec`, `test`, `coverage`,
 | `itok` | spec | `itok` | `**/*` `.context-limits` | - | a file registered in .context-limits is over its token ceiling |
 | `bats-changed` | test | `bats` | `**/*.sh` `**/*.bats` | - | a changed file's bats spec failed or holds no test, or a changed script has no spec its rule names |
 | `bats-unit` | test | `bats` | whole tree | - | a bats test under tests/ failed, or bats ran none: no tests/ directory, or no .bats file in it |
-| `cargo-universal` | test | `cargo-universal` | `**/*.rs` `**/Cargo.toml` `**/Cargo.lock` | - | a Mac release binary is not universal: it must hold exactly the arm64 and x86_64 slices, each minos 14.0 |
+| `cargo-universal` | test | `cargo-universal` | `**/*.rs` `**/Cargo.toml` `**/Cargo.lock` | - | a Mac release binary is not universal: it must hold exactly the arm64 and x86_64 slices, each at the paradigm V28 minos floor |
 
 ### Fragments
 
@@ -80,7 +81,7 @@ first: `hygiene`, `secret`, `format`, `lint`, `spec`, `test`, `coverage`,
 | `markdown` | `**/*.md` | `markdownlint` | - |
 | `yaml` | `**/*.yml` `**/*.yaml` | `yamllint` | - |
 | `toml` | `**/*.toml` | `taplo` | - |
-| `rust` | `**/Cargo.toml` `**/*.rs` | `rustfmt` `clippy` `cargo-universal` | `ignore-rust` |
+| `rust` | `**/Cargo.toml` `**/*.rs` | `rustfmt` `clippy` `cargo-deployment-target` `cargo-universal` | `ignore-rust` `cargo-config` |
 | `swift` | `**/Package.swift` `**/*.swift` | `swift-format` `swiftlint` | `swiftlint` `ignore-swift` |
 | `spec` | `**/SPEC.md` | `mth-fmt` `mth-check` `sherd-check` `sherd-nav` `sherd-budget` | - |
 | `context` | `.context-limits` | `itok` | - |
@@ -94,9 +95,10 @@ joined by `lipo`, hold exactly the arm64 and x86_64 slices, each with
 `minos` 14.0. `cargo-universal` checks that for every bin target of a
 cargo workspace (its script is
 [`nix/cargo-universal.sh`](../nix/cargo-universal.sh)), and leaves the
-joined binaries in `target/universal-apple-darwin/release/`. The row sets
-`MACOSX_DEPLOYMENT_TARGET=14.0`; what fails is the slices' `minos`, so a
-floor raised anywhere, such as a `.cargo/config.toml` `[env]`, is caught.
+joined binaries in `target/universal-apple-darwin/release/`. It builds
+with `MACOSX_DEPLOYMENT_TARGET` at the floor; what fails is the slices'
+`minos`, so a floor raised anywhere, such as a forced `.cargo/config.toml`
+`[env]`, is caught.
 `minos` is read with `otool -l`, since `vtool` does not run inside a nix
 shell. Off macOS, or in a workspace with no bin target, the step passes
 with a notice.
@@ -111,6 +113,39 @@ the rest can be garbage-collected.
 As a `test` check, `pklith gen` puts it at pre-push. Whether a member may
 run it at release only instead is an open question in paradigm; a
 repository that may replaces the row in its `.pklith`.
+
+### `cargo-deployment-target`
+
+paradigm decided (its T18) that every Rust member pins the V28 floor in
+its own `.cargo/config.toml`, so cargo builds for it wherever it runs:
+the dev shell, CI (which runs the dev shell), nix's `buildRustPackage`
+and plain cargo. `cargo-deployment-target` (its script is
+[`nix/cargo-deployment-target.sh`](../nix/cargo-deployment-target.sh))
+checks that a repository with a `Cargo.toml` at its root has
+
+```toml
+[env]
+MACOSX_DEPLOYMENT_TARGET = { value = "14.0", force = true }
+```
+
+or the same value written as an `[env.MACOSX_DEPLOYMENT_TARGET]` table:
+taplo parses the file, so the layout does not matter. `force = true` is
+required. Inside `nix develop`, and in `buildRustPackage`, nixpkgs'
+darwin stdenv already exports a `MACOSX_DEPLOYMENT_TARGET` of its own,
+and cargo's `[env]` does not override a variable that is already set
+unless it is forced: a plain `MACOSX_DEPLOYMENT_TARGET = "14.0"` builds
+with whatever nixpkgs says, and would stop pinning anything the day
+nixpkgs changes its default. A missing file, a missing key, another value
+or a missing `force` fails, naming the file and the line above. Without a
+root `Cargo.toml` the step passes with a notice; a repository whose cargo
+workspace lives elsewhere replaces the row.
+
+`pklith seed` writes that file for the `rust` fragment where none exists.
+It never touches an existing one: when it lacks the seeded line, seed
+says so on stderr and leaves the verdict to this check. The seeded file,
+[`src/seed/cargo-config.toml`](../src/seed/cargo-config.toml), is the
+one place pklith keeps the floor; the nix packages of both cargo checks
+read it from there.
 
 Why some set-and-setting checks and fragments are not here is recorded in
 [PORT.md](PORT.md).
