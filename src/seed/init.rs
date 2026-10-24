@@ -386,6 +386,91 @@ yml|yamllint|-|-
         Ok(())
     }
 
+    /// The rows seed V5 writes for `.gitignore` and the root `flake.lock`.
+    const KNOWN: [&str; 2] = [
+        "\ngitignore|-|-|git configuration; hygiene steps only\n",
+        "\npath:flake.lock|-|-|written by `nix flake lock`; hygiene steps only\n",
+    ];
+
+    /// A rust and nix tree with `.gitignore`, two lock files and a nested
+    /// `flake.lock`, seeded from the built-in catalog.
+    fn locked() -> Result<(Vec<String>, String), Error> {
+        let files: Vec<String> = [
+            ".gitignore",
+            "Cargo.lock",
+            "flake.lock",
+            "flake.nix",
+            "tests/fixtures/flake.lock",
+        ]
+        .map(str::to_owned)
+        .into();
+        let fragments = crate::catalog::builtin_fragments()?;
+        let active = crate::detect::active(&files, &fragments);
+        let text = registry(&files, &active, &crate::catalog::builtin()?, &[]);
+        Ok((files, text))
+    }
+
+    /// Seed V5 (#104): `.gitignore` and the root `flake.lock` no check
+    /// reads are seeded exempt with their reasons; another lock file
+    /// (Cargo.lock) and a nested flake.lock stay gaps, and the header
+    /// names only what is left.
+    #[test]
+    fn known_files_seed_their_exemptions() -> Result<(), Error> {
+        let (files, text) = locked()?;
+        assert!(KNOWN.iter().all(|row| text.contains(row)), "{text}");
+        assert!(text.contains("exempt reason: lock.\n"), "{text}");
+        let coverage = crate::cover::judge(&files, &crate::registry::parse(&text)?);
+        let gaps: Vec<(&str, usize)> = coverage
+            .gaps
+            .iter()
+            .map(|g| (g.key.as_str(), g.files.len()))
+            .collect();
+        assert_eq!((gaps, coverage.stale.len()), (vec![("lock", 2)], 0));
+        Ok(())
+    }
+
+    /// A catalog of one check, `lock-budget`, reaching `flake.lock`.
+    fn budget() -> crate::catalog::Check {
+        crate::catalog::Check {
+            line: 0,
+            id: "lock-budget".to_owned(),
+            category: crate::catalog::Category::Lint,
+            nix: String::new(),
+            globs: vec!["flake.lock".to_owned()],
+            check: "true".to_owned(),
+            fix: None,
+            env: Vec::new(),
+            msg: "m".to_owned(),
+        }
+    }
+
+    /// The fragment `budget` belongs to, switched on by `flake.lock`.
+    fn lock_fragment() -> Result<crate::catalog::Fragment, crate::scan::Error> {
+        Ok(crate::catalog::Fragment {
+            line: 0,
+            id: "lock".to_owned(),
+            always: false,
+            triggers: crate::scan::Globs::new(&["flake.lock".to_owned()])?,
+            checks: vec!["lock-budget".to_owned()],
+            seed: Vec::new(),
+        })
+    }
+
+    /// Seed V5: a check that reaches `flake.lock` replaces the exemption,
+    /// so a later catalog check needs no change to seed.
+    #[test]
+    fn a_lock_check_supersedes_it() -> Result<(), Box<dyn std::error::Error>> {
+        let files: Vec<String> = ["flake.lock", "flake.nix"].map(str::to_owned).into();
+        let fragment = lock_fragment()?;
+        let text = registry(&files, &[&fragment], &[budget()], &[]);
+        assert!(
+            text.contains("\npath:flake.lock|lock-budget|-|-\n"),
+            "{text}"
+        );
+        assert!(!text.contains("nix flake lock"), "{text}");
+        Ok(())
+    }
+
     /// The hk step gen would emit for a check: its runner globs.
     fn step(check: crate::catalog::Check) -> crate::hook::Step {
         crate::hook::Step {
