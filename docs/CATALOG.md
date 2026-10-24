@@ -63,6 +63,7 @@ first: `hygiene`, `secret`, `format`, `lint`, `spec`, `test`, `coverage`,
 | `itok` | spec | `itok` | `**/*` `.context-limits` | - | a file registered in .context-limits is over its token ceiling |
 | `bats-changed` | test | `bats` | `**/*.sh` `**/*.bats` | - | a changed file's bats spec failed or holds no test, or a changed script has no spec its rule names |
 | `bats-unit` | test | `bats` | whole tree | - | a bats test under tests/ failed, or bats ran none: no tests/ directory, or no .bats file in it |
+| `cargo-universal` | test | `cargo-universal` | `**/*.rs` `**/Cargo.toml` `**/Cargo.lock` | - | a Mac release binary is not universal: it must hold exactly the arm64 and x86_64 slices, each minos 14.0 |
 
 ### Fragments
 
@@ -79,11 +80,37 @@ first: `hygiene`, `secret`, `format`, `lint`, `spec`, `test`, `coverage`,
 | `markdown` | `**/*.md` | `markdownlint` | - |
 | `yaml` | `**/*.yml` `**/*.yaml` | `yamllint` | - |
 | `toml` | `**/*.toml` | `taplo` | - |
-| `rust` | `**/Cargo.toml` `**/*.rs` | `rustfmt` `clippy` | `ignore-rust` |
+| `rust` | `**/Cargo.toml` `**/*.rs` | `rustfmt` `clippy` `cargo-universal` | `ignore-rust` |
 | `swift` | `**/Package.swift` `**/*.swift` | `swift-format` `swiftlint` | `swiftlint` `ignore-swift` |
 | `spec` | `**/SPEC.md` | `mth-fmt` `mth-check` `sherd-check` `sherd-nav` `sherd-budget` | - |
 | `context` | `.context-limits` | `itok` | - |
 <!-- END catalog -->
+
+### `cargo-universal`
+
+paradigm's V28 asks every member to ship one macOS binary for both Macs:
+the release builds for `aarch64-apple-darwin` and `x86_64-apple-darwin`,
+joined by `lipo`, hold exactly the arm64 and x86_64 slices, each with
+`minos` 14.0. `cargo-universal` checks that for every bin target of a
+cargo workspace (its script is
+[`nix/cargo-universal.sh`](../nix/cargo-universal.sh)), and leaves the
+joined binaries in `target/universal-apple-darwin/release/`. The row sets
+`MACOSX_DEPLOYMENT_TARGET=14.0`; what fails is the slices' `minos`, so a
+floor raised anywhere, such as a `.cargo/config.toml` `[env]`, is caught.
+`minos` is read with `otool -l`, since `vtool` does not run inside a nix
+shell. Off macOS, or in a workspace with no bin target, the step passes
+with a notice.
+
+nixpkgs' rustc carries the standard library for its own host only. The
+package adds the other Mac's, copied from the same nixpkgs revision's
+rustc for that system and passed with `--sysroot`. The first build of
+the package fetches that rustc from cache.nixos.org (about 1.5 GB
+unpacked, with its closure) and keeps only its std crates (about 120 MB);
+the rest can be garbage-collected.
+
+As a `test` check, `pklith gen` puts it at pre-push. Whether a member may
+run it at release only instead is an open question in paradigm; a
+repository that may replaces the row in its `.pklith`.
 
 Why some set-and-setting checks and fragments are not here is recorded in
 [PORT.md](PORT.md).

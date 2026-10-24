@@ -19,6 +19,19 @@ the bytes pklith emits for the same inputs is at least a minor version
 
 ### Added
 
+- Built-in check `cargo-universal` (test, catalog T11, paradigm V28),
+  emitted in the `push` mapping of `hk.pklith.pkl` with
+  `MACOSX_DEPLOYMENT_TARGET=14.0`: on macOS every bin target of the cargo
+  workspace is built in release for `aarch64-apple-darwin` and
+  `x86_64-apple-darwin`, joined by `lipo` into
+  `target/universal-apple-darwin/release/`, and must hold exactly the
+  arm64 and x86_64 slices, each `minos` 14.0. Off macOS, or with no bin
+  target, it passes with a notice. Its package,
+  `legacyPackages.<system>.catalog.cargo-universal`, carries the other
+  Mac's std from the same nixpkgs revision. It joins the `rust`
+  fragment, so `pklith seed --init` in a Rust repository now claims it
+  for `rs` and `Cargo.toml`, and `nix/pklith.nix` lists
+  `catalog.cargo-universal`.
 - x86_64-darwin (Intel macOS) in the flake's systems: `lib.devShell`,
   `legacyPackages.x86_64-darwin.catalog`, `packages.x86_64-darwin` and
   `checks.x86_64-darwin` now exist, so a consumer's `nix develop` starts

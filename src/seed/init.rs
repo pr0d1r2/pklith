@@ -325,10 +325,10 @@ nix|nixfmt, statix, deadnix|-|-
 path:**/SPEC.md|markdownlint, mth-fmt, mth-check, sherd-check, sherd-nav, sherd-budget|-|-
 path:.envrc|shellcheck|-|-
 path:.github/workflows/*.yml|actionlint, zizmor, yamllint|-|-
-path:Cargo.toml|taplo, clippy|-|-
+path:Cargo.toml|taplo, clippy, cargo-universal|-|-
 path:clippy.toml|taplo, clippy|-|-
 png|-|-|binary asset
-rs|rustfmt, clippy, sherd-check|-|-
+rs|rustfmt, clippy, cargo-universal, sherd-check|-|-
 sh|shellcheck, shfmt|-|-
 yml|yamllint|-|-
 ";
