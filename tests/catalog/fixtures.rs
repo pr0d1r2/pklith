@@ -77,7 +77,9 @@ pub const BATS_RULE: &str = "format 1\n## rules\nid|kind|select|target|except\nb
 const BATS_SPEC: &str = "@test \"runs\" {\n  sh \"$BATS_TEST_DIRNAME/../../scripts/a.sh\"\n}\n\n@test \"prints 3\" {\n  [ \"$(sh \"$BATS_TEST_DIRNAME/../../scripts/a.sh\")\" = 3 ]\n}\n";
 
 /// A toy bin crate; `floor` set, its `.cargo/config.toml` forces that
-/// `MACOSX_DEPLOYMENT_TARGET` over the env the row sets.
+/// `MACOSX_DEPLOYMENT_TARGET` over the env the row sets. Its one use is
+/// macOS-only, so it is too: elsewhere clippy calls it dead code.
+#[cfg(target_os = "macos")]
 fn bin_crate(floor: Option<&str>) -> Vec<Entry> {
     let toml = "[package]\nname = \"toy\"\nversion = \"0.1.0\"\nedition = \"2024\"\n";
     let mut entries = vec![
