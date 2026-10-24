@@ -190,6 +190,9 @@ mod bats;
 #[path = "catalog/universal.rs"]
 mod universal;
 
+#[path = "catalog/swiftlint.rs"]
+mod swiftlint;
+
 /// V30: no built-in check ships without a fixture, and no fixture outlives
 /// its check.
 #[test]
