@@ -58,7 +58,7 @@ T7|x|swift: rows `swift-format` (format, nix `swift-format`) & `swiftlint` (lint
 T8|.|`.context-limits` has 2 readings: fragment `spec` row `sherd-budget` = chain ceilings, fragment `context` row `itok` = per-file ceilings; a repo w/ both fragments active cannot pass both. pick 1 meaning per file (e.g. itok reads its own path, `.:T71`), then test: repo w/ `SPEC.md` + `.context-limits` → ⊥ 2 rows reading 1 file 2 ways. open: which (issue #94)|B2,`.:B11`,`.:V9`
 T9|x|test rows `bats-changed` & `bats-unit` (nix `bats`, issue #97); `bats` fragment gains both (`.:V17`; PORT: `bats-unit` mapped, ⊥ dropped); 1 fixture per row + companion-only case through the built binary|V1,V2,V4,`.:V17`,`.:V30`,`src/gen:V8`
 T10|x|0 tests → red in both bats rows (#102); built-binary test per B3 cause + failures only|V1,`.:V30`
-T11|.|`cargo-universal` row (nix/cargo-universal.nix), joins `rust` fragment; fixture: toy bin crate, planted `[env]` floor 26.0 (macOS only); ∀ host: non-Darwin & lib-only skip, canned `lipo`/`otool` parse|V1,V2,V4,`.:V17`,`.:V30`,`src/gen:V8`
+T11|x|`cargo-universal` row (nix/cargo-universal.nix), joins `rust` fragment; fixture: toy bin crate, planted `[env]` floor 26.0 (macOS only); ∀ host: non-Darwin & lib-only skip, canned `lipo`/`otool` parse|V1,V2,V4,`.:V17`,`.:V30`,`src/gen:V8`
 
 ## §B BUGS
 

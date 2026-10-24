@@ -42,7 +42,10 @@ fn seed_init_writes_a_registry_pklith_loads() -> Result {
     let (code, stdout, _) = pklith(&dir, &["seed", "--init"])?;
     assert_eq!((code, stdout.lines().last()), (Some(0), Some(".pklith")));
     let text = std::fs::read_to_string(dir.join(".pklith"))?;
-    assert!(text.contains("\nrs|rustfmt, clippy|-|-\n"), "{text}");
+    assert!(
+        text.contains("\nrs|rustfmt, clippy, cargo-universal|-|-\n"),
+        "{text}"
+    );
     assert_eq!(pklith(&dir, &["detect"])?.0, Some(0));
     assert_eq!(pklith(&dir, &["seed", "--init"])?.1, "");
     Ok(std::fs::remove_dir_all(dir)?)

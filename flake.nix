@@ -73,6 +73,8 @@
           cargoLock.lockFile = i + "/Cargo.lock";
           doCheck = false;
         });
+      # `cargo-universal`'s script and toolchain (catalog T11).
+      universal = pkgs: import ./nix/cargo-universal.nix { inherit pkgs nixpkgs; };
     in
     {
       # The namespace the built-in catalog's `nix` column names
@@ -83,6 +85,7 @@
           microlith = input pkgs microlith;
           sherd = input pkgs sherd;
           itok = input pkgs itok;
+          cargo-universal = universal pkgs;
         };
       });
 
@@ -198,8 +201,7 @@
             # hk.pkl with pkl.
             pkgs.hk
             pkgs.pkl
-            # Gate tools that need a real binary, one per step, each added in
-            # the commit that adds its step.
+            # Gate tools with a real binary, one per step.
             pkgs.ripsecrets
             pkgs.jq
             pkgs.typos
@@ -212,9 +214,8 @@
             pkgs.zizmor
             pkgs.cargo-deny
             pkgs.cargo-semver-checks
-            # The release runner, as in sherd, itok, microlith and rekall: clean
-            # tree, tag scheme, dry run first, verify, publish, push, rather
-            # than a release script of our own.
+            # The release runner, as in sherd, itok, microlith and rekall,
+            # rather than a release script of our own.
             pkgs.cargo-release
             # Coverage: cargo-llvm-cov plus llvm-cov/llvm-profdata, which nixpkgs
             # rustc does not ship; wired through the env vars it looks for.
@@ -240,6 +241,7 @@
             pkgs.swift-format
             pkgs.swiftlint
             (input pkgs itok)
+            (universal pkgs)
           ];
           RUST_BACKTRACE = "1";
           LLVM_COV = "${pkgs.llvmPackages.llvm}/bin/llvm-cov";
