@@ -50,7 +50,7 @@ Notes for anyone, human or agent, changing this repository.
 | `file-ceilings` | commit | `**/*.rs` | - |
 | `flake-lock-graph` | commit | `flake.lock` | - |
 | `deny` | commit | `Cargo.toml` `Cargo.lock` `deny.toml` | - |
-| `catalog-nix` | commit | `src/catalog/builtin.pklith` `flake.nix` `flake.lock` `scripts/catalog-nix.sh` | - |
+| `catalog-nix` | commit | `src/catalog/builtin.pklith` `flake.nix` `flake.lock` `nix/overlay.nix` `nix/swiftlint.nix` `scripts/catalog-nix.sh` | - |
 | `gen-check` | commit | whole tree | - |
 | `pklith-check` | commit | whole tree | - |
 | `build` | commit | whole tree | - |
