@@ -129,12 +129,13 @@ mod tests {
     }
 
     /// Base seeds its files and an hk gate, filling the repository name;
-    /// nix adds `.envrc`, and nix and rust a `.gitignore`.
+    /// nix adds `.envrc`, rust `.cargo/config.toml` (T7), and nix and rust
+    /// a `.gitignore`.
     #[test]
     fn fragments_seed_their_files() -> Result<(), String> {
         let seeds = seeded(&["base", "nix", "rust"])?;
         let paths: Vec<&str> = seeds.iter().map(|s| s.path).collect();
-        let want = ".editorconfig .gitattributes README.md hk.pkl hk.pklith.pkl pkl/Config.pkl .githooks/pre-commit .githooks/pre-push .envrc .gitignore";
+        let want = ".editorconfig .gitattributes README.md hk.pkl hk.pklith.pkl pkl/Config.pkl .githooks/pre-commit .githooks/pre-push .envrc .cargo/config.toml .gitignore";
         assert_eq!(paths.join(" "), want);
         assert_eq!(text(&seeds, "README.md"), Some("# demo\n"));
         Ok(())

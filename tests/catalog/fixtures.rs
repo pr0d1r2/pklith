@@ -104,6 +104,19 @@ fn bin_crate(floor: Option<&str>) -> Vec<Entry> {
     entries
 }
 
+/// A crate, with the `.cargo/config.toml` `pklith seed` writes (seed T7)
+/// when `seeded`: without it the macOS floor is pinned nowhere.
+fn floor_crate(seeded: bool) -> Vec<Entry> {
+    let toml = "[package]\nname = \"toy\"\nversion = \"0.1.0\"\nedition = \"2024\"\n";
+    let mut entries = vec![file("Cargo.toml", toml)];
+    if let (true, Some(pklith::seed::templates::Template::File(path, text))) =
+        (seeded, pklith::seed::templates::named("cargo-config"))
+    {
+        entries.push(file(path, text));
+    }
+    entries
+}
+
 const EDITORCONFIG: &str = "root = true\n[*]\nindent_style = space\n";
 
 const WORKFLOW: &str = "on: push\npermissions: {}\njobs:\n  a:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo hi\n";
@@ -142,6 +155,7 @@ proven! {
     /// proves the rest on every host.
     #[cfg(target_os = "macos")]
     cargo_universal => "cargo-universal": bin_crate(Some("26.0")), bin_crate(None);
+    cargo_deployment_target => "cargo-deployment-target": floor_crate(false), floor_crate(true);
     rustfmt_workspace => "rustfmt": workspace_with("pub fn f(){}\n"), workspace_with("pub fn f() {}\n");
     typos => "typos": [File("a.txt", format!("the t{}h cat\n", "e"))], [file("a.txt", "the cat\n")];
     shellcheck => "shellcheck": [file("a.sh", "#!/bin/sh\necho $1\n")], [file("a.sh", "#!/bin/sh\necho \"$1\"\n")];
