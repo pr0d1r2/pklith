@@ -35,6 +35,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 - `glob` = the RUNNER glob; gen emits it verbatim into the hk step. `glob` & `env` cells are comma lists; `env` items `KEY=value`, value ⊥ comma. `nix` empty (`-`) = hk runs it natively (`hk util`).
 - swiftlint on darwin loads `sourcekitd` from host Xcode (`xcode-select`) at run time ∴ ⊥ Xcode → step fails at start, ⊥ at a finding. linux attr = upstream static binary.
 - `test` rows run a repo's own suite ∴ `src/gen:V8` → push. `bats-changed` (`**/*.sh` `**/*.bats`): companion `.bats` of ∀ changed file via `pklith map` (`exists` rule templates) + ∀ changed `.bats` itself; TAP lines ⊥ `ok` printed ∴ failures only; companion missing → red (`src/map:V1`). `bats-unit` (whole tree): `bats --recursive tests`, failures only. both: 0 tests run (plan `1..0`) → red (B3)
+- `cargo-universal` (test; paradigm#25's universal rule): ∀ workspace bin, release builds for `aarch64-apple-darwin` & `x86_64-apple-darwin`, `lipo`-joined → exactly arm64 + x86_64, each slice `minos` 14.0 (`otool -l`; `vtool` ⊥ runs under nix). env `MACOSX_DEPLOYMENT_TARGET=14.0`. non-Darwin | no bin → notice, exit 0. nixpkgs rustc: host std only ∴ other Mac's std from same-rev rustc of that system, `--sysroot`. push vs release-only = paradigm's open question
 - fragment row: `fragment|triggers|checks|seed`. triggers = file types, paths, globs (read by src/detect); checks = catalog ids; seed = seed file ids (src/seed). built-in order = fragment order.
 
 ## §V INVARIANTS
@@ -57,6 +58,7 @@ T7|x|swift: rows `swift-format` (format, nix `swift-format`) & `swiftlint` (lint
 T8|.|`.context-limits` has 2 readings: fragment `spec` row `sherd-budget` = chain ceilings, fragment `context` row `itok` = per-file ceilings; a repo w/ both fragments active cannot pass both. pick 1 meaning per file (e.g. itok reads its own path, `.:T71`), then test: repo w/ `SPEC.md` + `.context-limits` → ⊥ 2 rows reading 1 file 2 ways. open: which (issue #94)|B2,`.:B11`,`.:V9`
 T9|x|test rows `bats-changed` & `bats-unit` (nix `bats`, issue #97); `bats` fragment gains both (`.:V17`; PORT: `bats-unit` mapped, ⊥ dropped); 1 fixture per row + companion-only case through the built binary|V1,V2,V4,`.:V17`,`.:V30`,`src/gen:V8`
 T10|x|0 tests → red in both bats rows (#102); built-binary test per B3 cause + failures only|V1,`.:V30`
+T11|.|`cargo-universal` row (nix/cargo-universal.nix), joins `rust` fragment; fixture: toy bin crate, planted `[env]` floor 26.0 (macOS only); ∀ host: non-Darwin & lib-only skip, canned `lipo`/`otool` parse|V1,V2,V4,`.:V17`,`.:V30`,`src/gen:V8`
 
 ## §B BUGS
 
