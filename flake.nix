@@ -56,9 +56,11 @@
         "x86_64-linux"
         "aarch64-linux"
       ];
-      # The overlay makes `pkgs.hk` mean nix-hk's hk, so there is one `pkgs`.
       forAll =
-        f: nixpkgs.lib.genAttrs systems (s: f (nixpkgs.legacyPackages.${s}.extend nix-hk.overlays.default));
+        f:
+        nixpkgs.lib.genAttrs systems (
+          s: f (nixpkgs.legacyPackages.${s}.extend (import ./nix/overlay.nix nix-hk))
+        );
       # An input's package, or its crate built from the locked source where
       # it ships none (microlith, itok on x86_64-darwin: T74).
       input =

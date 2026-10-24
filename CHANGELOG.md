@@ -74,6 +74,17 @@ the bytes pklith emits for the same inputs is at least a minor version
 
 ### Fixed
 
+- On darwin the catalog's `swiftlint` is a wrapper (`nix/swiftlint.nix`,
+  applied by `nix/overlay.nix`, so `legacyPackages.<system>.catalog` and
+  the `nix/pklith.nix` a consumer's `lib.devShell` imports both get it)
+  that points `TOOLCHAIN_DIR` at the host's Xcode toolchain or Command
+  Line Tools before running upstream swiftlint (#108). Upstream aborted
+  with `Loading sourcekitdInProc.framework ... failed` inside a nix
+  shell, whose `DEVELOPER_DIR` names the nix apple-sdk, even where the
+  host has the framework. A host with neither now gets a `MISSING TOOL`
+  line naming `sourcekitdInProc.framework` and `xcode-select --install`,
+  and the step stays red. A `TOOLCHAIN_DIR` already set is kept. Linux
+  is unchanged.
 - Built-in `bats-unit` no longer passes having run no test (#102). On a
   case-insensitive filesystem, the macOS default, `bats --recursive tests`
   also opens a SwiftPM `Tests/` directory, finds no `.bats` file, prints
