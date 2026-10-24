@@ -76,6 +76,22 @@ pub const BATS_RULE: &str = "format 1\n## rules\nid|kind|select|target|except\nb
 
 const BATS_SPEC: &str = "@test \"runs\" {\n  sh \"$BATS_TEST_DIRNAME/../../scripts/a.sh\"\n}\n\n@test \"prints 3\" {\n  [ \"$(sh \"$BATS_TEST_DIRNAME/../../scripts/a.sh\")\" = 3 ]\n}\n";
 
+/// A toy bin crate; `floor` set, its `.cargo/config.toml` forces that
+/// `MACOSX_DEPLOYMENT_TARGET` over the env the row sets.
+fn bin_crate(floor: Option<&str>) -> Vec<Entry> {
+    let toml = "[package]\nname = \"toy\"\nversion = \"0.1.0\"\nedition = \"2024\"\n";
+    let mut entries = vec![
+        file("Cargo.toml", toml),
+        file("src/main.rs", "fn main() {}\n"),
+    ];
+    if let Some(floor) = floor {
+        let env =
+            format!("[env]\nMACOSX_DEPLOYMENT_TARGET = {{ value = \"{floor}\", force = true }}\n");
+        entries.push(File(".cargo/config.toml", env));
+    }
+    entries
+}
+
 const EDITORCONFIG: &str = "root = true\n[*]\nindent_style = space\n";
 
 const WORKFLOW: &str = "on: push\npermissions: {}\njobs:\n  a:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo hi\n";
@@ -110,6 +126,10 @@ proven! {
     taplo => "taplo": [file("a.toml", "a=1\n")], [file("a.toml", "a = 1\n")];
     rustfmt => "rustfmt": crate_with("pub fn f(){}\n"), crate_with("pub fn f() {}\n");
     swift_format => "swift-format": [file("a.swift", "let answer=1\n")], [file("a.swift", "let answer = 1\n")];
+    /// lipo and a second Mac's slice exist on macOS only; tests/catalog/universal.rs
+    /// proves the rest on every host.
+    #[cfg(target_os = "macos")]
+    cargo_universal => "cargo-universal": bin_crate(Some("26.0")), bin_crate(None);
     rustfmt_workspace => "rustfmt": workspace_with("pub fn f(){}\n"), workspace_with("pub fn f() {}\n");
     typos => "typos": [File("a.txt", format!("the t{}h cat\n", "e"))], [file("a.txt", "the cat\n")];
     shellcheck => "shellcheck": [file("a.sh", "#!/bin/sh\necho $1\n")], [file("a.sh", "#!/bin/sh\necho \"$1\"\n")];
