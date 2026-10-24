@@ -33,7 +33,7 @@ sib|src/cli|arg dispatch, usage, exit codes
 - row: `id|category|nix|glob|check|fix|env|msg`. `env` = vars the step needs & their values, emitted w/ the step (`.:V19`); `-` if none. category ∈ `hygiene secret format lint spec test coverage supply gate`, IN THAT ORDER — the order lay lays them (cheapest & broadest first). `gate` = checks judging the gate itself (`pklith check`, `gen --check`): pass only once ∀ other step laid ∴ last
 - built-in rows seeded from sibling gates (`.:R6`); `.pklith ## checks` overrides by id.
 - `glob` = the RUNNER glob; gen emits it verbatim into the hk step. `glob` & `env` cells are comma lists; `env` items `KEY=value`, value ⊥ comma. `nix` empty (`-`) = hk runs it natively (`hk util`).
-- swiftlint on darwin loads `sourcekitd` from host Xcode (`xcode-select`) at run time ∴ ⊥ Xcode → step fails at start, ⊥ at a finding. linux attr = upstream static binary.
+- darwin swiftlint needs host `sourcekitdInProc`, nix ships none ∴ attr wraps it, `TOOLCHAIN_DIR` ← host `xcode-select -p`; linux unwrapped.
 - `test` rows run a repo's own suite ∴ `src/gen:V8` → push. `bats-changed` (`**/*.sh` `**/*.bats`): companion `.bats` of ∀ changed file via `pklith map` (`exists` rule templates) + ∀ changed `.bats` itself; TAP lines ⊥ `ok` printed ∴ failures only; companion missing → red (`src/map:V1`). `bats-unit` (whole tree): `bats --recursive tests`, failures only. both: 0 tests run (plan `1..0`) → red (B3)
 - `cargo-universal` (test; paradigm#25's universal rule): ∀ workspace bin, release builds for `aarch64-apple-darwin` & `x86_64-apple-darwin`, `lipo`-joined → exactly arm64 + x86_64, each slice `minos` 14.0 (`otool -l`; `vtool` ⊥ runs under nix). env `MACOSX_DEPLOYMENT_TARGET=14.0`. non-Darwin | no bin → notice, exit 0. nixpkgs rustc: host std only ∴ other Mac's std from same-rev rustc of that system, `--sysroot`. push vs release-only = paradigm's open question
 - fragment row: `fragment|triggers|checks|seed`. triggers = file types, paths, globs (read by src/detect); checks = catalog ids; seed = seed file ids (src/seed). built-in order = fragment order.
@@ -44,6 +44,7 @@ V1: ∀ row: `msg` ! non-empty — feeds AGENTS.md table (`.:V14`) & failure tex
 V2: `nix` attr resolves in pinned nixpkgs | named flake input; gate test evals ∀ built-in attr
 V3: `check` ⊥ empty; `fix` ? `-`
 V4: ids unique; built-in order stable (= lay order within category)
+V5: darwin `swiftlint` ⊥ host `sourcekitdInProc` → exit ≠ 0, MISSING TOOL named (`.:V1`), ⊥ abort as finding
 
 ## §T TASKS
 
@@ -59,6 +60,7 @@ T8|.|`.context-limits` has 2 readings: fragment `spec` row `sherd-budget` = chai
 T9|x|test rows `bats-changed` & `bats-unit` (nix `bats`, issue #97); `bats` fragment gains both (`.:V17`; PORT: `bats-unit` mapped, ⊥ dropped); 1 fixture per row + companion-only case through the built binary|V1,V2,V4,`.:V17`,`.:V30`,`src/gen:V8`
 T10|x|0 tests → red in both bats rows (#102); built-binary test per B3 cause + failures only|V1,`.:V30`
 T11|x|`cargo-universal` row (nix/cargo-universal.nix), joins `rust` fragment; fixture: toy bin crate, planted `[env]` floor 26.0 (macOS only); ∀ host: non-Darwin & lib-only skip, canned `lipo`/`otool` parse|V1,V2,V4,`.:V17`,`.:V30`,`src/gen:V8`
+T12|.|darwin `swiftlint` wrapper (#108)|V5
 
 ## §B BUGS
 
@@ -66,3 +68,4 @@ id|date|cause|fix
 B1|2026-09-27|built-in `rubocop` w/o `GEM_HOME`: RubyGems falls back to user gem dir (nix store read-only) ∴ loads native gems of another Ruby → crash|row sets `GEM_HOME=/nonexistent`; fixture harness keeps real HOME so the host env is what gets proven
 B2|2026-10-18|age-plugin-se PR #5 (open, head `8b4151a`): seeded gate activates `spec` & `context` on 1 `.context-limits` holding sherd chain ceilings; `itok` reads them per FILE & refuses root `SPEC.md` ∴ itok row deferred. root B11 = same clash in pklith's own gate, fragment-level ⊥ fixed|T8 open
 B3|2026-10-23|SwiftPM `Tests/` on a case-insensitive FS (macOS): `tests` opens it, `1..0`, exit 0 ∴ `bats-unit` green-by-nothing (age-plugin-se #21); `tests/` w/o `.bats` likewise|T10
+B4|2026-10-23|#108: darwin swiftlint aborted: ⊥ host `sourcekitdInProc` found ∴ gate cut short|V5
