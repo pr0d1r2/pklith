@@ -22,7 +22,7 @@ fn grown(name: &str) -> Result<std::path::PathBuf> {
 #[test]
 fn seed_writes_only_what_is_missing() -> Result {
     let dir = grown("seed")?;
-    let want = ".editorconfig\n.gitattributes\nhk.pklith.pkl\n.githooks/pre-commit\n.githooks/pre-push\n.envrc\n.gitignore\n";
+    let want = ".editorconfig\n.gitattributes\nhk.pklith.pkl\n.githooks/pre-commit\n.githooks/pre-push\n.envrc\n.cargo/config.toml\n.gitignore\n";
     assert_eq!(
         pklith(&dir, &["seed"])?,
         (Some(0), want.to_owned(), String::new())
@@ -31,6 +31,30 @@ fn seed_writes_only_what_is_missing() -> Result {
     let ignore = std::fs::read_to_string(dir.join(".gitignore"))?;
     assert_eq!(ignore, ".direnv/\nresult\nresult-*\n/target\n");
     assert_eq!(pklith(&dir, &["seed"])?.1, "");
+    Ok(std::fs::remove_dir_all(dir)?)
+}
+
+/// The line seed T7 pins the macOS floor with (paradigm V28).
+const PIN: &str = "\n[env]\nMACOSX_DEPLOYMENT_TARGET = { value = \"14.0\", force = true }\n";
+
+/// Seed T7: a Rust repository gets the `.cargo/config.toml` pinning the
+/// macOS floor. One it already has is kept byte for byte; lacking the pin,
+/// seed says so on stderr and still exits 0.
+#[test]
+fn seed_pins_the_macos_floor_only_where_absent() -> Result {
+    let dir = grown("seed-floor")?;
+    let (code, stdout, stderr) = pklith(&dir, &["seed"])?;
+    assert_eq!((code, stderr.as_str()), (Some(0), ""));
+    assert!(stdout.contains("\n.cargo/config.toml\n"), "{stdout}");
+    let config = std::fs::read_to_string(dir.join(".cargo/config.toml"))?;
+    assert!(config.ends_with(PIN), "{config}");
+    std::fs::write(dir.join(".cargo/config.toml"), "[build]\njobs = 1\n")?;
+    let (code, stdout, stderr) = pklith(&dir, &["seed"])?;
+    assert_eq!((code, stdout.as_str()), (Some(0), ""));
+    let kept = "pklith seed: kept .cargo/config.toml as it is; it lacks the seeded line `MACOSX_DEPLOYMENT_TARGET = { value = \"14.0\", force = true }`";
+    assert!(stderr.starts_with(kept), "{stderr}");
+    let config = std::fs::read_to_string(dir.join(".cargo/config.toml"))?;
+    assert_eq!(config, "[build]\njobs = 1\n");
     Ok(std::fs::remove_dir_all(dir)?)
 }
 
@@ -93,6 +117,8 @@ fn seed_init_bootstraps_a_repository_lay_can_plan() -> Result {
     assert_eq!(code, Some(0), "{stderr}");
     assert!(plan.starts_with("ci(trailing-whitespace): "), "{plan}");
     assert!(plan.contains("ci(shellcheck): "), "{plan}");
+    // Not a Rust repository: no cargo config, so no floor to pin.
+    assert!(!dir.join(".cargo").exists());
     Ok(std::fs::remove_dir_all(dir)?)
 }
 
