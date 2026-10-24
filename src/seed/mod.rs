@@ -92,6 +92,30 @@ pub fn write(root: &Path, seeds: &[Seed]) -> Result<Vec<&'static str>, String> {
     Ok(written)
 }
 
+/// What seed says about a repository's own `.cargo/config.toml` (T7):
+/// when it lacks the seeded line pinning the macOS floor, a notice naming
+/// that line. The file is kept as it is (V1), and whether it pins the
+/// floor some other way is the `cargo-deployment-target` check's to judge.
+/// Empty when the rust fragment seeds nothing there or the line is held.
+#[must_use]
+pub fn kept(root: &Path, seeds: &[Seed]) -> String {
+    let Some(seed) = seeds
+        .iter()
+        .find(|s| s.path == templates::CARGO_CONFIG_PATH)
+    else {
+        return String::new();
+    };
+    let pin = seed.text.lines().last().unwrap_or_default();
+    let have = std::fs::read_to_string(root.join(seed.path)).unwrap_or_default();
+    if have.lines().any(|line| line.trim() == pin) {
+        return String::new();
+    }
+    format!(
+        "pklith seed: kept {} as it is; it lacks the seeded line `{pin}`, so the cargo-deployment-target check judges whether its [env] pins the macOS floor (paradigm V28)\n",
+        seed.path
+    )
+}
+
 /// Write one seed, its directory first, a hook executable.
 fn put(path: &Path, seed: &Seed) -> std::io::Result<()> {
     use std::os::unix::fs::PermissionsExt as _;

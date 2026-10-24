@@ -1,5 +1,6 @@
 # The catalog's `cargo-universal` (src/catalog T11, paradigm V28): the
-# script in ./cargo-universal.sh, with this nixpkgs' cargo, rustc and jq.
+# script in ./cargo-universal.sh, with this nixpkgs' cargo, rustc and jq;
+# `floor` is the macOS floor its slices' minos must be (./catalog.nix).
 # lipo and otool are the darwin stdenv's cctools, already in every dev shell
 # there.
 #
@@ -9,7 +10,11 @@
 # carries the same version string, so this rustc loads it through
 # `--sysroot`. Only its std crates (.rlib, .rmeta) are copied, with no store
 # references, but building that copies the whole rustc first, once.
-{ pkgs, nixpkgs }:
+{
+  pkgs,
+  nixpkgs,
+  floor,
+}:
 let
   inherit (pkgs) lib;
   triples = {
@@ -42,7 +47,10 @@ pkgs.writeShellApplication {
     pkgs.rustc
     pkgs.jq
   ];
-  runtimeEnv = lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
+  runtimeEnv = {
+    CARGO_UNIVERSAL_MINOS = floor;
+  }
+  // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
     CARGO_UNIVERSAL_SYSROOT = sysroot;
   };
   text = builtins.readFile ./cargo-universal.sh;

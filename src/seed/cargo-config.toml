@@ -1,0 +1,7 @@
+# Seeded by `pklith seed` for the rust fragment; yours to edit, but keep
+# this pin, which the `cargo-deployment-target` check reads: paradigm V28's
+# macOS floor, for every cargo build (dev shell, CI, nix, plain cargo).
+# `force` because nix's darwin stdenv exports its own value, which [env]
+# does not override without it. pklith keeps the floor in this file only.
+[env]
+MACOSX_DEPLOYMENT_TARGET = { value = "14.0", force = true }

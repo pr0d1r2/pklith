@@ -5,16 +5,21 @@ use super::{Loaded, Outcome, data, detecting, exit, files, toplevel};
 use std::path::Path;
 
 /// The paths written, one per line, on stdout (V3); an existing file is
-/// never touched (seed V1). `--init` also writes `.pklith` when there is
+/// never touched (seed V1), and a notice about one is on stderr. `--init` also writes `.pklith` when there is
 /// none.
 pub(super) fn run(cwd: &Path, init: bool) -> Outcome {
     match seeded(cwd, init) {
-        Ok(paths) => data(paths.into_iter().map(|p| p + "\n").collect()),
+        Ok((paths, notice)) => Outcome {
+            stderr: notice,
+            ..data(paths.into_iter().map(|p| p + "\n").collect())
+        },
         Err(message) => exit(2, format!("pklith seed: {message}\n")),
     }
 }
 
-fn seeded(cwd: &Path, init: bool) -> Result<Vec<String>, String> {
+/// The paths written, and what seed says about a seed file the
+/// repository kept (seed T7).
+fn seeded(cwd: &Path, init: bool) -> Result<(Vec<String>, String), String> {
     let root = toplevel(cwd)?;
     let Loaded {
         catalog, fragments, ..
@@ -27,7 +32,8 @@ fn seeded(cwd: &Path, init: bool) -> Result<Vec<String>, String> {
         seeds.push(crate::seed::Seed::file(".pklith", text));
     }
     let written = crate::seed::write(&root, &seeds)?;
-    Ok(written.into_iter().map(str::to_owned).collect())
+    let notice = crate::seed::kept(&root, &seeds);
+    Ok((written.into_iter().map(str::to_owned).collect(), notice))
 }
 
 /// The first `.pklith`, for the tree as it will be once seeded and

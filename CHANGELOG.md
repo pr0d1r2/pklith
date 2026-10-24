@@ -19,11 +19,32 @@ the bytes pklith emits for the same inputs is at least a minor version
 
 ### Added
 
+- Built-in check `cargo-deployment-target` (lint, catalog T13, paradigm
+  T18 and V28), emitted in the commit `steps` of `hk.pklith.pkl`: with a
+  `Cargo.toml` at the repository root, `.cargo/config.toml` must exist
+  and its `[env]` must set `MACOSX_DEPLOYMENT_TARGET` to the macOS floor,
+  14.0, with `force = true`, as an inline table or a
+  `[env.MACOSX_DEPLOYMENT_TARGET]` table. taplo parses the file. A
+  missing file, a missing key, another value or a plain string fails,
+  naming the file and the line it must hold: nix's darwin stdenv exports
+  its own `MACOSX_DEPLOYMENT_TARGET` in the dev shell and in
+  `buildRustPackage`, which an `[env]` value without `force` does not
+  override. Without a root `Cargo.toml` it passes with a notice. Its
+  package is `legacyPackages.<system>.catalog.cargo-deployment-target`.
+  It joins the `rust` fragment, so `pklith seed --init` in a Rust
+  repository claims it for `Cargo.toml` (and for `.cargo/config.toml`),
+  and `nix/pklith.nix` lists `catalog.cargo-deployment-target`.
+- Seed file `.cargo/config.toml` (seed `cargo-config`, seed T7) for the
+  `rust` fragment, holding that `[env]` pin. `pklith seed` writes it
+  only where it is missing; an existing one is never touched, and when
+  it lacks the seeded line seed says so on stderr and still exits 0.
+  This file is the one place pklith keeps the floor: the nix packages of
+  both cargo checks read it.
 - Built-in check `cargo-universal` (test, catalog T11, paradigm V28),
-  emitted in the `push` mapping of `hk.pklith.pkl` with
-  `MACOSX_DEPLOYMENT_TARGET=14.0`: on macOS every bin target of the cargo
-  workspace is built in release for `aarch64-apple-darwin` and
-  `x86_64-apple-darwin`, joined by `lipo` into
+  emitted in the `push` mapping of `hk.pklith.pkl`: on macOS every bin
+  target of the cargo workspace is built in release, with
+  `MACOSX_DEPLOYMENT_TARGET` at the macOS floor, for
+  `aarch64-apple-darwin` and `x86_64-apple-darwin`, joined by `lipo` into
   `target/universal-apple-darwin/release/`, and must hold exactly the
   arm64 and x86_64 slices, each `minos` 14.0. Off macOS, or with no bin
   target, it passes with a notice. Its package,

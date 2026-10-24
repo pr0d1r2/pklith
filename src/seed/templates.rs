@@ -13,7 +13,7 @@ pub enum Template {
 }
 
 /// Every seed id, in no particular order; fragment order decides output.
-pub const TEMPLATES: [(&str, Template); 15] = [
+pub const TEMPLATES: [(&str, Template); 16] = [
     (
         "editorconfig",
         Template::File(".editorconfig", EDITORCONFIG),
@@ -37,6 +37,10 @@ pub const TEMPLATES: [(&str, Template); 15] = [
         Template::File(".rubocop.yml", "AllCops:\n  NewCops: enable\n"),
     ),
     ("swiftlint", Template::File(".swiftlint.yml", SWIFTLINT)),
+    (
+        "cargo-config",
+        Template::File(CARGO_CONFIG_PATH, CARGO_CONFIG),
+    ),
     (
         "ignore-nix",
         Template::Ignore(".direnv/\nresult\nresult-*\n"),
@@ -71,6 +75,15 @@ indent_style = space
 [{Makefile,*.mk,go.mod,*.go}]
 indent_style = tab
 ";
+
+/// Where the rust fragment's cargo config goes (seed T7).
+pub const CARGO_CONFIG_PATH: &str = ".cargo/config.toml";
+
+/// The rust fragment's cargo config: `[env]` pins paradigm V28's macOS
+/// floor (catalog T13). The file is also the one place pklith keeps that
+/// floor: nix reads it for the `cargo-deployment-target` and
+/// `cargo-universal` checks (nix/catalog.nix).
+const CARGO_CONFIG: &str = include_str!("cargo-config.toml");
 
 /// swiftlint's config for the swift fragment: the rules that fight
 /// swift-format's layout are off, as is `identifier_name`, and the two
