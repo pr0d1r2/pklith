@@ -50,7 +50,7 @@ T2|x|`.gitignore` composition|V2
 T3|x|`.pklith` from detected fragments + binary-asset exemptions|V1,`.:V11`
 T4|x|swift seeds: `swiftlint` → `.swiftlint.yml`, `ignore-swift` → `/.build/` `/.swiftpm/` `*.profraw`|V1,V2
 T5|x|`.envrc` shell directive + shellcheck fixture on the seeded file (#105)|V4
-T6|.|known exemptions: `gitignore`, root `flake.lock` (#104)|V5,V3
+T6|x|known exemptions: `gitignore`, root `flake.lock` (#104)|V5,V3
 
 ## §B BUGS
 
