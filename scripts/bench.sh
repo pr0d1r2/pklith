@@ -8,6 +8,11 @@
 #
 # Budgets are CPU milliseconds, about three times the measurement recorded
 # as §R R20: headroom for a slower machine; a regression past one fails.
+# They are scaled by the machine first (#114): a fixed pkl workload that
+# runs no pklith code is timed the same way, and every budget is multiplied
+# by max(1, calibration / reference). A slower or busier machine gets the
+# same ratio of headroom; on a quiet machine like the reference one the
+# budgets are exactly as written, so a pklith regression still fails.
 # --compare DIR takes the directory holding the sibling legacy checkouts
 # (set-and-setting, nix-lefthook-*), which the gate does not need.
 set -euo pipefail
@@ -23,6 +28,10 @@ declare -A budget=(
   [fleet:detect]=150 [fleet:check]=8000 [fleet:compat]=50
   [large:detect]=200 [large:check]=13000 [large:compat]=150
 )
+
+# The calibration's CPU ms, best of three, on the machine the budgets were
+# checked on: aarch64-darwin, load average 1.4, 2026-10-25 (§R R21).
+calibration_reference=1150
 
 export CARGO_TARGET_DIR="$root/target"
 cargo build -q --release --bin pklith
@@ -83,10 +92,23 @@ best() {
   echo "$min"
 }
 
+# A fixed workload in pkl, the tool behind most of `pklith check`'s time,
+# so contention slows it the way it slows check. It runs no pklith code: a
+# pklith regression cannot raise its own budgets.
+cat >"$work/calibration.pkl" <<'PKL'
+local rows = IntSeq(1, 40000).map((i) -> "row \(i) \(i * 7 % 13)").toList()
+size = rows.fold(0, (n, r) -> n + r.length)
+PKL
+calibration="$(best "$work" pkl eval calibration.pkl)" || exit 1
+# Full precision for the budgets; two decimals only in the printed line.
+scale="$(awk -v c="$calibration" -v r="$calibration_reference" 'BEGIN { s = c / r; if (s < 1) s = 1; printf "%.17g", s }')"
+printf 'calibration %d ms (reference %d ms): budgets x %.2f\n' "$calibration" "$calibration_reference" "$scale"
+
 over=0
 row() {
   local name="$1" what="$2" ms="$3" legacy="${4:-}"
-  local cap="${budget[$name:$what]}"
+  local cap
+  cap="$(awk -v b="${budget[$name:$what]}" -v s="$scale" 'BEGIN { printf "%d", b * s }')"
   printf '%-6s %-7s %6d ms  (budget %d)%s\n' "$name" "$what" "$ms" "$cap" "${legacy:+  legacy $legacy ms}"
   [ "$ms" -le "$cap" ] || { echo "bench: $name $what took ${ms} ms, over its ${cap} ms budget (V27)" >&2; over=1; }
 }
