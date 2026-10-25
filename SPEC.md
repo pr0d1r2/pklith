@@ -90,6 +90,7 @@ R17|commit style|recent subjects: xenolith/microlith/itok = `type(scope): claim`
 R18|fleet sweep (T70)|9 repos w/ a legacy doc, legacy checker vs `pklith check --registry` on `pklith import`: GAPS IDENTICAL in 9/9 (leadgen `packwerk`; set-and-setting 23 types, where the doc is ⊥ its real coverage source). import token sets = legacy awk in 9/9 (170 tokens). only diff = STALE rows legacy cannot see (`R4`): nix-config lists `.json` w/ ⊥ json file (legacy 0, pklith 1); leadgen lists 10 linter NAMES (`typos`, `gitleaks` …) as types. ∴ root V4 holds for gaps; stale is a stricter verdict, ⊥ a regression|sweep 2026-09-26
 R19|glob engine (src T2)|hk 1.58.1 & 2.7.0 (re-read on the bump) match step globs w/ `globset` 0.4 (`src/glob.rs`): `GlobBuilder::empty_alternates(true)`, `literal_separator` OFF ∴ `*.rs` matches `src/a.rs` (`*` crosses `/`); `dir` steps turn it ON. pklith uses the same crate & options ∴ a claim is judged exactly as the runner matches (`src:V1`, cover V3). hand-rolled = a 2nd reading of one rule. licenses: globset and its deps are MIT or dual-licensed incl. MIT, inside deny.toml allow|hk source `src/glob.rs`, `Cargo.toml`
 R20|bench (T64)|best of 3, release build, aarch64-darwin, fixtures of 50 / 1,000 / 10,000 files over 6 types (`scripts/bench.sh --compare`), CPU ms (user+sys, children incl.) under load avg 14-21. `pklith detect` 14 / 26 / 31 vs legacy `detect-fragments.sh` 79 / 120 / 152. compat `-full` 4 / 5 / 15 vs legacy 30 / 54 / 87. `pklith check` on a green fixture (`pkl eval` of hk.pkl is multi-threaded, most of it) 1,883 / 2,656 / 4,067, ⊥ legacy equivalent (legacy checked listing only). wall time swung 2-5× w/ load on this shared machine ∴ budgets on CPU, ≈ 3×. history: first run found `check` 39.5 s wall @ 10k (quadratic row suggestion, fixed 08de36a); a later run timed fixtures seeded before their files were tracked, ∴ a red early-out `check` (fixed 02e3a33). setting shell entry ⊥ measured: a nix eval, ⊥ per-commit work|scripts/bench.sh 2026-09-27
+R21|bench calibration (#114)|aarch64-darwin 2026-10-25: fixed `pkl eval` best of 3 = 1150 ms CPU at load 1.4, 1625 under 10 busy loops (×1.41); `check` ×1.6–1.8, inside scaled budgets. busy linux host: `check` 8818 / 11348 / 18355 ms vs 7000 / 8000 / 13000 ∴ absolute budgets refuse ∀ change|`scripts/bench.sh`, #114
 
 ## §V INVARIANTS
 
@@ -119,7 +120,7 @@ V23: exemption w/ reason & ⊥ ticket is valid & registers
 V24: `migrate`: check set before == check set after, else refuse w/ 0 writes
 V25: seed files repo-owned (written once, skip-if-exists). hk files (`hk.pkl`, `hk.pklith.pkl`) & `nix/pklith.nix` TRACKED ∴ fresh clone gates w/o running pklith; only shared tool configs (e.g. `.markdownlint.yml`) materialized & gitignored
 V26: pre-commit hot path (`check --staged`, `map --staged`) costs O(changed files): each changed file resolves to a type & its rules. full totality scan runs at pre-push & CI
-V27: speed is the port's reason ∴ measured: `pklith check` & `gen` wall time vs set-and-setting shell on same fixture repos, recorded in §R; budgets set from that measurement, ⊥ guessed, & a regression fails a bench step
+V27: speed is the port's reason ∴ measured: `pklith check` & `gen` wall time vs set-and-setting shell on same fixture repos, recorded in §R; budgets set from that measurement, ⊥ guessed, & a regression fails a bench step; budget × max(1, calibration ÷ reference), calibration runs ⊥ pklith code (R21)
 V28: vendored `pkl/Config.pkl` == schema of the pinned hk version; hk bump & schema re-vendor land in ONE commit
 V29: ∀ step tool from a nix-pinned package; ⊥ fetched at run time (⊥ remotes, ⊥ `npx`/`pipx run`, ⊥ `curl | sh`)
 V30: ∀ built-in catalog check proven in pklith's OWN test suite against a planted violation fixture, even for file types this repo lacks
@@ -209,6 +210,7 @@ T73|x|`hk-parity` refuses a commandless step in any hook, naming it; test: fixtu
 T74|x|x86_64-darwin in flake `systems` (age-plugin-se T32). microlith, itok ⊥ ship it ∴ built from locked src till they do|V21
 T75|.|OWNER: x86_64-darwin CI job; cold cache|V8
 T76|.|nixpkgs 26.05 = last w/ x86_64-darwin (warned 2026-10-21): decide before bump past it|T74
+T77|x|bench budgets scale by calibration (#114)|V27
 
 ## §B BUGS
 
