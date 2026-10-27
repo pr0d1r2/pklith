@@ -7,7 +7,7 @@ The candidates are:
   node A must not touch sibling-owned paths, and code in A must not import from a
   sibling unless §N links them;
 - a non-increasing `.duplication` share, piloting `pmd cpd`;
-- a weekly `cargo-mutants` score ratchet outside hk.
+- a weekly non-decreasing `cargo-mutants` score ratchet outside hk.
 
 Promote a candidate only after one member proves a planted violation, pins the
 engine, defines a reproducible baseline/report, and adds the appropriate
