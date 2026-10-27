@@ -12,6 +12,6 @@ The candidates are:
 Promote a candidate only after one member proves a planted violation, pins the
 engine, defines a reproducible baseline/report, and adds the appropriate
 scheduled check. Mutation must never run per worker: the previous per-worker
-shape exhausted the fleet's ten-core budget. `pmd` and `cargo-mutants` resolve
-from the current flake; `jscpd` and the ownership engine still require an
-explicit package/engine decision.
+shape exhausted the fleet's ten-core budget. `pmd`, `cargo-mutants`, `jscpd`,
+and the ownership engine all still require an explicit package/engine
+decision.
