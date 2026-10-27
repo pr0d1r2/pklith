@@ -3,7 +3,9 @@
 Issue #115 is recorded as an opt-in pilot, not as three active built-in rows.
 The candidates are:
 
-- an ownership/import check derived from each node's §F `⊥owns` column;
+- an ownership/import check derived from each node's §F `⊥owns` column: a change in
+  node A must not touch sibling-owned paths, and code in A must not import from a
+  sibling unless §N links them;
 - a non-increasing `.duplication` share, piloting `pmd cpd`;
 - a weekly `cargo-mutants` score ratchet outside hk.
 
