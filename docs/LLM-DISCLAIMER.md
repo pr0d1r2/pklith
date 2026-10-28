@@ -66,8 +66,8 @@ statement about a file that was parsed, not one that was skimmed.
 
 Entering the dev shell (`nix develop`, or `direnv allow`) points git at
 the tracked hooks, which run [hk](https://github.com/jdx/hk) against one
-definition of the gate in [`hk.pkl`](../hk.pkl): **40 steps on commit,
-48 on push**. The push half adds the test suites, coverage, a re-lay of
+definition of the gate in [`hk.pkl`](../hk.pkl): **41 steps on commit,
+49 on push**. The push half adds the test suites, coverage, a re-lay of
 every check into a copy of the repository, the nix build tested as
 built, the packaged tarball, the API against the last release, and the
 benchmark.

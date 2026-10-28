@@ -18,7 +18,7 @@ Notes for anyone, human or agent, changing this repository.
 ## The gate
 
 <!-- BEGIN steps: generated from hk.pkl by `cargo run -p pklith-dev -- agents`; do not edit -->
-40 steps run on every commit and 48 on push and `hk check`; the commit-msg hook checks the message.
+41 steps run on every commit and 49 on push and `hk check`; the commit-msg hook checks the message.
 
 | step | runs on | files | fixes |
 |---|---|---|---|
@@ -54,6 +54,7 @@ Notes for anyone, human or agent, changing this repository.
 | `gen-check` | commit | whole tree | - |
 | `pklith-check` | commit | whole tree | - |
 | `build` | commit | whole tree | - |
+| `dev-build` | commit | whole tree | - |
 | `agents-table` | commit | `hk.pkl` `hk.pklith.pkl` `AGENTS.md` `dev/**` | yes |
 | `readme-badges` | commit | `README.md` `Cargo.toml` `.coverage` `hk.pkl` `hk.pklith.pkl` `flake.lock` `**/SPEC.md` `docs/LLM-DISCLAIMER.md` `.github/workflows/ci.yml` `dev/**` | yes |
 | `notices` | commit | `Cargo.toml` `Cargo.lock` `docs/THIRD-PARTY-NOTICES.md` `dev/**` | yes |
