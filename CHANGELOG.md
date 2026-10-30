@@ -19,6 +19,9 @@ the bytes pklith emits for the same inputs is at least a minor version
 
 ### Added
 
+- Swift catalog support: `swift-format` and `swiftlint` now run for
+  `Package.swift` as well as Swift sources, allowing SwiftPM repositories to
+  activate the seeded `swift` fragment.
 - Built-in check `cargo-deployment-target` (lint, catalog T13, paradigm
   T18 and V28), emitted in the commit `steps` of `hk.pklith.pkl`: with a
   `Cargo.toml` at the repository root, `.cargo/config.toml` must exist

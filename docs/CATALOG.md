@@ -39,7 +39,7 @@ first: `hygiene`, `secret`, `format`, `lint`, `spec`, `test`, `coverage`,
 | `shfmt` | format | `shfmt` | `**/*.sh` `**/*.bash` | yes | shell script not formatted |
 | `taplo` | format | `taplo` | `**/*.toml` | yes | TOML not formatted or not parseable |
 | `rustfmt` | format | `rustfmt` | `**/*.rs` | yes | Rust not formatted |
-| `swift-format` | format | `swift-format` | `**/*.swift` | yes | Swift not formatted |
+| `swift-format` | format | `swift-format` | `**/*.swift` `Package.swift` | yes | Swift not formatted |
 | `typos` | lint | `typos` | `**/*` | - | misspelling; fix it or teach .typos.toml |
 | `shellcheck` | lint | `shellcheck` | `**/*.sh` `**/*.bash` `.envrc` | - | shell script finding |
 | `clippy` | lint | `clippy` | `**/*.rs` `Cargo.toml` `clippy.toml` | - | clippy finding |
@@ -55,7 +55,7 @@ first: `hygiene`, `secret`, `format`, `lint`, `spec`, `test`, `coverage`,
 | `gawk-lint` | lint | `gawk` | `**/*.awk` | - | awk script does not parse, or trips gawk's lint |
 | `bats-parse` | lint | `bats` | `**/*.bats` | - | bats file does not parse |
 | `editorconfig-checker` | lint | `editorconfig-checker` | `**/*` | - | file breaks its .editorconfig (indent, line ends, final newline) |
-| `swiftlint` | lint | `swiftlint` | `**/*.swift` | yes | swiftlint finding; swiftlint names the rule |
+| `swiftlint` | lint | `swiftlint` | `**/*.swift` `Package.swift` | yes | swiftlint finding; swiftlint names the rule |
 | `mth-fmt` | spec | `microlith` | `**/SPEC.md` | yes | SPEC.md is hard-wrapped or over the line cap |
 | `mth-check` | spec | `microlith` | `**/SPEC.md` | - | SPEC.md breaks a structural rule |
 | `sherd-check` | spec | `sherd` | `**/SPEC.md` `**/*.rs` | - | a citation across spec nodes does not resolve |
