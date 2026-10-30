@@ -20,8 +20,8 @@ the bytes pklith emits for the same inputs is at least a minor version
 ### Added
 
 - Swift catalog support: `swift-format` and `swiftlint` now run for
-  `Package.swift` as well as Swift sources, allowing SwiftPM repositories to
-  activate the seeded `swift` fragment.
+  `Package.swift` as well as Swift sources; the activated `swift` fragment
+  checks the manifest too.
 - Built-in check `cargo-deployment-target` (lint, catalog T13, paradigm
   T18 and V28), emitted in the commit `steps` of `hk.pklith.pkl`: with a
   `Cargo.toml` at the repository root, `.cargo/config.toml` must exist
@@ -86,12 +86,13 @@ the bytes pklith emits for the same inputs is at least a minor version
   oldest first with merges skipped, each with the paths it changed and
   deleted; a rename deletes its old path and changes its new one.
 - Built-in check `swift-format` (format): `swift-format lint --strict` on
-  `**/*.swift`, fixed by `swift-format format --in-place`.
+  `**/*.swift` and `Package.swift`, fixed by `swift-format format --in-place`.
 - Built-in fragment `swift`, switched on by `Package.swift` or any `.swift`
   file; `pklith seed` adds `/.build/`, `/.swiftpm/` and `*.profraw` to
   `.gitignore`.
 - Built-in check `swiftlint` (lint, in the `swift` fragment):
-  `swiftlint lint --strict --quiet` on `**/*.swift`. `pklith seed` writes a
+  `swiftlint lint --strict --quiet` on `**/*.swift` and `Package.swift`.
+  `pklith seed` writes a
   `.swiftlint.yml` that turns off `opening_brace`, `trailing_comma`,
   `line_length` and `identifier_name` and opts in to `force_unwrapping`
   and `implicitly_unwrapped_optional`.
