@@ -14,10 +14,15 @@ What a caller sees change: `pklith gen` moves test checks from the commit
 `steps` to the `push` mapping of `hk.pklith.pkl`; `pklith seed` writes hk
 2.8.1's schema, a `.envrc` with a shellcheck directive, and new Swift and
 Rust seeds; the catalog gains Swift, bats, `tdd-order` and two macOS cargo
-checks; x86_64-darwin joins the flake's systems. The Rust API only grows.
+checks; x86_64-darwin joins the flake's systems. The Rust API grows, with
+one break: the type of `pklith::seed::templates::TEMPLATES` (below).
 
 ### Changed
 
+- **Breaking (Rust API):** `pklith::seed::templates::TEMPLATES` is now
+  `[(&str, Template); 16]`, not `[(&str, Template); 13]`: the new seeds add
+  `swiftlint`, `cargo-config` and `ignore-swift`. Code that names the array type, or its length,
+  stops compiling; iterate it or take it as a slice instead.
 - `pklith seed` writes `pkl/Config.pkl` from the hk 2.8.1 release
   package (the same schema as hk 2.7.0) instead of hk 1.58.1's, and
   `lib.devShell` provides hk 2.8.1. hk 2.x refuses a gate evaluated
