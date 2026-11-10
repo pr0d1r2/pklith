@@ -8,8 +8,23 @@ the bytes pklith emits for the same inputs is at least a minor version
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-10
+
+What a caller sees change: `pklith gen` moves test checks from the commit
+`steps` to the `push` mapping of `hk.pklith.pkl`; `pklith seed` writes hk
+2.8.1's schema, a `.envrc` with a shellcheck directive, and new Swift and
+Rust seeds; the catalog gains Swift, bats, `tdd-order` and two macOS cargo
+checks; x86_64-darwin joins the flake's systems. The Rust API only grows.
+
 ### Changed
 
+- `pklith seed` writes `pkl/Config.pkl` from the hk 2.8.1 release
+  package (the same schema as hk 2.7.0) instead of hk 1.58.1's, and
+  `lib.devShell` provides hk 2.8.1. hk 2.x refuses a gate evaluated
+  against the 1.58.1 schema ("union property 'command' has no selected
+  default"). An existing `pkl/Config.pkl` is never rewritten; a
+  repository seeded before 0.2.0 replaces it by hand when it moves to
+  hk 2.x.
 - `pklith gen` writes `test`-category checks into the `push` mapping of
   `hk.pklith.pkl`, beside `coverage`, instead of `steps`: a seeded gate
   runs the test suite at pre-push and `hk check`, not on every commit, so
