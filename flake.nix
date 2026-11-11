@@ -65,11 +65,7 @@
       forAll =
         f:
         nixpkgs.lib.genAttrs systems (
-          s:
-          f (
-            (nixpkgs.legacyPackages.${s}.extend (import ./nix/overlay.nix nix-hk)).extend
-              nix-cargo-release.overlays.default
-          )
+          s: f (nixpkgs.legacyPackages.${s}.extend (import ./nix/overlay.nix nix-hk))
         );
       # An input's package, or its crate built from the locked source where
       # it ships none (microlith, itok on x86_64-darwin: T74).
@@ -120,10 +116,13 @@
           supported =
             self.legacyPackages.${system}
               or (throw "pklith: lib.devShell supports ${builtins.concatStringsSep ", " systems}, not ${system}");
-          catalog = supported.catalog;
+          shellPkgs = pkgs.extend nix-cargo-release.overlays.default;
+          catalog = supported.catalog // {
+            cargo-release = shellPkgs.cargo-release;
+          };
           generated = src + "/nix/pklith.nix";
         in
-        pkgs.mkShell {
+        shellPkgs.mkShell {
           packages = [
             catalog.hk
             catalog.pkl
@@ -187,7 +186,7 @@
       });
 
       devShells = forAll (pkgs: {
-        default = pkgs.mkShell {
+        default = (pkgs.extend nix-cargo-release.overlays.default).mkShell {
           packages = [
             pkgs.rustc
             pkgs.cargo
