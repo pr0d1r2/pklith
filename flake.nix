@@ -35,6 +35,11 @@
     # itok, for the built-in catalog's `itok` row. microlith already locks
     # one; following it adds no lock node and keeps a single itok.
     itok.follows = "microlith/itok";
+    # A HOLD: its overlay makes `pkgs.cargo-release` 1.1.6, cached above; the
+    # channel's 1.1.7 needs rustc 1.97 and the pin ships 1.95. Drop it once
+    # the channel's builds (`nix-cargo-release/T2`).
+    nix-cargo-release.url = "github:pr0d1r2/nix-cargo-release";
+    nix-cargo-release.inputs.nixpkgs-lock.follows = "nixpkgs-lock";
   };
 
   outputs =
@@ -42,6 +47,7 @@
       self,
       nixpkgs,
       nix-hk,
+      nix-cargo-release,
       microlith,
       sherd,
       itok,
@@ -59,7 +65,11 @@
       forAll =
         f:
         nixpkgs.lib.genAttrs systems (
-          s: f (nixpkgs.legacyPackages.${s}.extend (import ./nix/overlay.nix nix-hk))
+          s:
+          f (
+            (nixpkgs.legacyPackages.${s}.extend (import ./nix/overlay.nix nix-hk)).extend
+              nix-cargo-release.overlays.default
+          )
         );
       # An input's package, or its crate built from the locked source where
       # it ships none (microlith, itok on x86_64-darwin: T74).
@@ -130,34 +140,17 @@
         };
 
       # lib.devShell on this repository: its tools are on PATH, and its hook
-      # rule holds on a repository with and without `hk.pkl` (T61).
-      checks = forAll (
-        pkgs:
-        let
+      # rule holds on a repository with and without `hk.pkl` (T61), in
+      # nix/devshell-check.nix so flake.nix stays under 10 KiB.
+      checks = forAll (pkgs: {
+        devshell = import ./nix/devshell-check.nix {
+          inherit pkgs;
           shell = self.lib.devShell {
             inherit pkgs;
             src = ./.;
           };
-        in
-        {
-          devshell = pkgs.runCommand "pklith-devshell" { nativeBuildInputs = shell.nativeBuildInputs; } ''
-            export HOME="$TMPDIR"
-            for tool in hk pkl git pklith shellcheck sherd; do
-              command -v "$tool" >/dev/null || { echo "devshell: $tool is not on PATH" >&2; exit 1; }
-            done
-            cat >hook.sh <<'HOOK'
-            ${shell.shellHook}
-            HOOK
-            git init -q bare && mkdir bare/.githooks
-            (cd bare && . ../hook.sh)
-            [ -z "$(git -C bare config --local core.hooksPath)" ] || { echo "devshell: hooks on without hk.pkl (V22)" >&2; exit 1; }
-            touch bare/hk.pkl
-            (cd bare && . ../hook.sh)
-            [ "$(git -C bare config --local core.hooksPath)" = .githooks ] || { echo "devshell: hooks off with hk.pkl" >&2; exit 1; }
-            touch $out
-          '';
-        }
-      );
+        };
+      });
 
       packages = forAll (pkgs: rec {
         # pklith, built from the crate alone: the sources cargo reads and the
@@ -219,7 +212,9 @@
             pkgs.cargo-deny
             pkgs.cargo-semver-checks
             # The release runner, as in sherd, itok, microlith and rekall,
-            # rather than a release script of our own.
+            # rather than a release script of our own. A HOLD at 1.1.6 via
+            # nix-cargo-release's overlay, until the channel's own builds
+            # (`nix-cargo-release/T2`).
             pkgs.cargo-release
             # Coverage: cargo-llvm-cov plus llvm-cov/llvm-profdata, which nixpkgs
             # rustc does not ship; wired through the env vars it looks for.
