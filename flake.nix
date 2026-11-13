@@ -214,7 +214,7 @@
             # rather than a release script of our own. A HOLD at 1.1.6 via
             # nix-cargo-release's overlay, until the channel's own builds
             # (`nix-cargo-release/T2`).
-            pkgs.cargo-release
+            (pkgs.extend nix-cargo-release.overlays.default).cargo-release
             # Coverage: cargo-llvm-cov plus llvm-cov/llvm-profdata, which nixpkgs
             # rustc does not ship; wired through the env vars it looks for.
             pkgs.cargo-llvm-cov
