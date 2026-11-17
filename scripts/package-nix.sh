@@ -19,8 +19,8 @@ fail() {
 
 system="$(nix eval --raw --impure --expr builtins.currentSystem)"
 # lib.devShell's own check (T61) builds alongside; it prints no path.
-nix build "$root#checks.$system.devshell" --no-link
-mapfile -t outs < <(nix build "$root#default" "$root#compat" --no-link --print-out-paths)
+nix build --accept-flake-config "$root#checks.$system.devshell" --no-link
+mapfile -t outs < <(nix build --accept-flake-config "$root#default" "$root#compat" --no-link --print-out-paths)
 [ "${#outs[@]}" -eq 2 ] || fail "nix build printed ${#outs[@]} outputs, expected 2"
 pklith="${outs[0]}/bin/pklith"
 compat="${outs[1]}/bin"
