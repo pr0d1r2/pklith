@@ -34,6 +34,35 @@ pub fn programs(command: &str) -> Vec<String> {
     found
 }
 
+/// The gem executables `command` runs through `bundle exec`, first
+/// occurrence first. They live in the bundle, ⊥ on PATH, so `command -v`
+/// cannot see them; a guard asks bundler instead (V9).
+#[must_use]
+pub fn bundled(command: &str) -> Vec<String> {
+    let mut found: Vec<String> = Vec::new();
+    for gem in clauses(command).iter().filter_map(|c| gem(c)) {
+        if !found.contains(&gem) {
+            found.push(gem);
+        }
+    }
+    found
+}
+
+/// The gem one simple command runs, if it is `bundle exec <gem> …`.
+fn gem(clause: &[String]) -> Option<String> {
+    let words: Vec<String> = clause
+        .iter()
+        .skip_while(|w| assignment(w))
+        .cloned()
+        .collect();
+    match words.as_slice() {
+        [bundle, exec, rest @ ..] if bundle == "bundle" && exec == "exec" => {
+            without_flags(rest).into_iter().next().filter(|g| plain(g))
+        }
+        _ => None,
+    }
+}
+
 /// The command split into simple commands, each as its words: a new one
 /// starts at `|`, `;`, `&`, a paren, or an opener such as `do`, unless
 /// the separator is quoted.
@@ -123,7 +152,7 @@ fn cargo(rest: &[String]) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::programs;
+    use super::{bundled, programs};
 
     const CASES: [(&str, &[&str]); 10] = [
         ("! grep -E 'a|/b/|c' {{files}} | grep -v \"x;y\"", &["grep"]),
@@ -157,6 +186,26 @@ mod tests {
     fn programs_are_found_where_the_shell_runs_them() {
         for (command, want) in CASES {
             assert_eq!(programs(command), want, "{command}");
+        }
+    }
+
+    /// V9: a gem a command runs through `bundle exec` is named, past env
+    /// assignments, flags, pipes and loops; `bundle` with any other
+    /// subcommand runs no gem.
+    #[test]
+    fn bundled_gems_are_found_after_bundle_exec() {
+        let cases: [(&str, &[&str]); 5] = [
+            ("bundle exec brakeman --quiet --no-pager", &["brakeman"]),
+            ("COVERAGE_FLOOR=1 bundle exec rspec", &["rspec"]),
+            (
+                "bundle exec --keep-file-descriptors rubocop {{files}} | tee x",
+                &["rubocop"],
+            ),
+            ("bundle install && bundle check", &[]),
+            ("typos {{files}}", &[]),
+        ];
+        for (command, want) in cases {
+            assert_eq!(bundled(command), want, "{command}");
         }
     }
 }

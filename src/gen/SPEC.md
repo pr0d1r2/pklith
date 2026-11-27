@@ -59,7 +59,7 @@ T5|x|golden test: emitted files carry ⊥ system literal|`.:V21`
 T6|.|confirm hk schema has a step timeout field; emit it or wrap. FOUND hk 1.58: ⊥ field; wrap `timeout N sh -c '…'` re-quotes hk's `{{files}}` ∴ breaks paths w/ spaces or quotes. open: decide wrapper|V6
 T7|x|test: whole-tree steps emitted w/o glob (golden `links` step)|V7
 T8|x|route `test` to `push` w/ `coverage`; golden holds a test-category check in `push` (issue #54)|V8,B3
-T9|.|`guard::bundled` names the gem executables after `bundle exec`; the emitted check guards each in the bundle after `bundle`'s own PATH guard + tests|V9,B4
+T9|x|`guard::bundled` names the gem executables after `bundle exec`; the emitted check guards each in the bundle after `bundle`'s own PATH guard + tests|V9,B4
 
 ## §B BUGS
 
