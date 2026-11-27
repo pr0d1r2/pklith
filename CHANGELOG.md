@@ -8,6 +8,14 @@ the bytes pklith emits for the same inputs is at least a minor version
 
 ## [Unreleased]
 
+### Fixed
+
+- A step that runs `bundle exec <gem>` now reports a gem missing from the
+  bundle as a MISSING TOOL. Before, only `bundle` itself was checked, so a
+  missing gem printed bundler's `command not found` and then the step's
+  finding message, which read as a real finding. `pklith gen` now emits a
+  `bundle exec sh -c 'command -v <gem>'` guard after the `bundle` one.
+
 ## [0.2.0] - 2026-11-10
 
 What a caller sees change: `pklith gen` moves test checks from the commit

@@ -97,17 +97,33 @@ pub fn explained(check: &Check) -> String {
 /// One `command -v` per program the command runs (src/gen/guard.rs), each
 /// naming the program it found missing.
 fn guards(check: &Check) -> String {
-    let guard = |tool: String| {
-        let missing = shell_quote(&format!(
-            "{}: {tool} is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.",
-            check.id
-        ));
-        format!("command -v {tool} >/dev/null 2>&1 || {{ echo {missing} >&2; exit 1; }}; ")
-    };
     guard::programs(&check.check)
         .into_iter()
-        .map(guard)
+        .map(|tool| on_path(&check.id, &tool))
+        .chain(
+            guard::bundled(&check.check)
+                .into_iter()
+                .map(|gem| in_bundle(&check.id, &gem)),
+        )
         .collect()
+}
+
+/// `tool` must be on PATH.
+fn on_path(id: &str, tool: &str) -> String {
+    let missing = shell_quote(&format!(
+        "{id}: {tool} is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding."
+    ));
+    format!("command -v {tool} >/dev/null 2>&1 || {{ echo {missing} >&2; exit 1; }}; ")
+}
+
+/// V9: a gem run through `bundle exec` is ⊥ on PATH, so bundler is asked
+/// whether the bundle has it.
+fn in_bundle(id: &str, gem: &str) -> String {
+    let missing = shell_quote(&format!(
+        "{id}: {gem} is not in the bundle; run bundle install in the dev shell. A MISSING TOOL, not a finding."
+    ));
+    let probe = shell_quote(&format!("command -v {gem}"));
+    format!("bundle exec sh -c {probe} >/dev/null 2>&1 || {{ echo {missing} >&2; exit 1; }}; ")
 }
 
 /// Single-quote `text` for sh.
@@ -328,6 +344,31 @@ push: Mapping<String, Config.Step> = new {
                 assert!(!text.contains(system), "{path} names {system}");
             }
         }
+        Ok(())
+    }
+
+    const BUNDLED: &str = "format 1
+## checks
+id|category|nix|glob|check|fix|env|msg
+scan|lint|-|**/*.rb|bundle exec brakeman --quiet|-|-|m
+## types
+type|checks|min|exempt
+rb|scan|-|-
+";
+
+    /// V9: a gem the bundle lacks is reported as missing, after `bundle`'s
+    /// own PATH guard and before the step can print its finding message.
+    #[test]
+    fn a_bundle_exec_step_guards_its_gem_in_the_bundle() -> Result<(), crate::registry::Error> {
+        let registry = crate::registry::parse(BUNDLED)?;
+        let catalog = crate::catalog::parse(&registry.checks)?;
+        let texts: Vec<String> = catalog.iter().map(super::explained).collect();
+        let want = concat!(
+            "command -v bundle >/dev/null 2>&1 || { echo 'scan: bundle is not on PATH; re-enter the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; ",
+            "bundle exec sh -c 'command -v brakeman' >/dev/null 2>&1 || { echo 'scan: brakeman is not in the bundle; run bundle install in the dev shell. A MISSING TOOL, not a finding.' >&2; exit 1; }; ",
+            "bundle exec brakeman --quiet || { echo 'scan: m' >&2; exit 1; }",
+        );
+        assert_eq!(texts, [want]);
         Ok(())
     }
 }
