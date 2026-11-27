@@ -46,6 +46,7 @@ V5: emitted nix parses & passes `nixfmt --check`
 V6: ∀ emitted step bounded by a timeout (hk field if schema has one ?, else wrapper) — runaway guard, ⊥ perf budget
 V7: whole-tree steps (`pklith check`, coverage) ⊥ glob-gated: a deletion | rename changes their verdict w/o touching a matching file
 V8: category `test` | `coverage` → `push`; ∀ other → `steps`. pre-commit stays O(changed files) (`.:V26`) & a RED commit (failing test, subject says RED) passes it; a red suite blocks at pre-push & CI
+V9: a step run through `bundle exec X` guards X IN THE BUNDLE (`bundle exec sh -c 'command -v X'`), ⊥ only `bundle` on PATH: a gem the bundle lacks → MISSING TOOL (`.:V1`), ⊥ the step's finding message
 
 ## §T TASKS
 
@@ -58,6 +59,7 @@ T5|x|golden test: emitted files carry ⊥ system literal|`.:V21`
 T6|.|confirm hk schema has a step timeout field; emit it or wrap. FOUND hk 1.58: ⊥ field; wrap `timeout N sh -c '…'` re-quotes hk's `{{files}}` ∴ breaks paths w/ spaces or quotes. open: decide wrapper|V6
 T7|x|test: whole-tree steps emitted w/o glob (golden `links` step)|V7
 T8|x|route `test` to `push` w/ `coverage`; golden holds a test-category check in `push` (issue #54)|V8,B3
+T9|.|`guard::bundled` names the gem executables after `bundle exec`; the emitted check guards each in the bundle after `bundle`'s own PATH guard + tests|V9,B4
 
 ## §B BUGS
 
@@ -65,3 +67,4 @@ id|date|cause|fix
 B1|2026-08-11|set-and-setting `B57`: tracked `lefthook.yml` drifted from generated ∴ confirm diff red|V3
 B2|2026-09-27|`gen --check` compared the whole used set ∴ as a hook it failed every `pklith lay` commit after its own: a partial file is lay's normal state (found by root T45 re-lay)|V3 judges held steps only
 B3|2026-10-18|`test` category emitted into `steps` ∴ pre-commit ran the whole suite: a RED commit refused, & every commit ran tests inside the hook env (#53 leak surface)|V8: `test` → `push`
+B4|2026-11-27|`bundle exec brakeman` with gems ⊥ installed printed `bundler: command not found: brakeman` and then the step's finding message ("security warning: fix it"): the guard checked `command -v bundle`, the first word only, so a missing gem read as a finding|V9
